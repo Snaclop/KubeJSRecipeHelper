@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTNSTONECUT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut)
 	ON_BN_CLICKED(IDC_BTNCREATE, &CKubeJSRecipeHelperDlg::OnBnClickedBtncreate)
 	ON_BN_CLICKED(IDC_BTNIMPORT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnimport)
+	ON_BN_CLICKED(IDC_BTNCLEAR, &CKubeJSRecipeHelperDlg::OnBnClickedBtnclear)
 END_MESSAGE_MAP()
 
 
@@ -158,11 +159,26 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 		return;
 	}
 
-	CString strMsg;
-	strMsg.Format(_T("共找到 %d 个 blockstate 文件"), nCount);
-	AfxMessageBox(strMsg, MB_ICONINFORMATION);
+	// 追加到累积列表（保留之前导入的数据）
+	for (int i = 0; i < nCount; ++i)
+		m_arrNames.Add(pNames[i]);
 
 	delete[] pNames;
+
+	// 刷新显示全部累积结果
+	RefreshNamesOutput();
+}
+
+void CKubeJSRecipeHelperDlg::RefreshNamesOutput()
+{
+	CString strOutput;
+	strOutput.Format(_T("共找到 %d 个 blockstate 文件：\r\n"), (int)m_arrNames.GetSize());
+	for (INT_PTR i = 0; i < m_arrNames.GetSize(); ++i)
+	{
+		strOutput += m_arrNames[i];
+		strOutput += _T("\r\n");
+	}
+	SetDlgItemText(IDC_EDITOUTPUT, strOutput);
 }
 
 int CKubeJSRecipeHelperDlg::ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& pNames)
@@ -293,4 +309,10 @@ int CKubeJSRecipeHelperDlg::ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& p
 
 	pNames = pArr;
 	return nCount;
+}
+
+void CKubeJSRecipeHelperDlg::OnBnClickedBtnclear()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDlgItemText(IDC_EDITOUTPUT, _T(""));
 }

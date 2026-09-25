@@ -49,4 +49,11 @@ public:
 	// 成功时通过 pNames 返回动态分配的 CString 数组，调用方负责用 delete[] 释放；
 	// 返回名称个数，失败返回 -1。
 	int ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& pNames);
+
+	// 累积保存历次导入得到的所有名称
+	CStringArray m_arrNames;
+
+	// 把 m_arrNames 的内容刷新显示到输出框
+	void RefreshNamesOutput();
+	afx_msg void OnBnClickedBtnclear();
 };
