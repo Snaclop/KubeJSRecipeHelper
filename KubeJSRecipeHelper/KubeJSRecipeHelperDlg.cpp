@@ -183,6 +183,8 @@ int CKubeJSRecipeHelperDlg::ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& p
 
 	// assets 下同一级有多个目录，但只有一个包含 blockstates，找到后记录前缀
 	char szBlockstatesPrefix[260] = { 0 };
+	char szNamespace[260] = { 0 };  // blockstates 上级目录名（命名空间）
+	size_t nNamespaceLen = 0;
 	int nCapacity = 16;      // 动态数组容量
 	int nCount = 0;          // 已找到的名称个数
 	// 使用 new[] 分配 CString 数组，与调用方的 delete[] 配对
@@ -219,6 +221,10 @@ int CKubeJSRecipeHelperDlg::ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& p
 					size_t nPfxLen = (pszSlash + 1 - pszName) + nDirNameLen;
 					memcpy(szBlockstatesPrefix, pszName, nPfxLen);
 					szBlockstatesPrefix[nPfxLen] = '\0';
+					// 记录命名空间（assets/ 与 /blockstates/ 之间的目录名）
+					nNamespaceLen = pszSlash - pszMid;
+					memcpy(szNamespace, pszMid, nNamespaceLen);
+					szNamespace[nNamespaceLen] = '\0';
 				}
 				else
 				{
@@ -264,8 +270,16 @@ int CKubeJSRecipeHelperDlg::ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& p
 			pArr = pNew;
 		}
 
-		// 赋值构造名称（zip 内文件名均为 UTF-8）
-		pArr[nCount] = CString(CA2T(pszFile, CP_UTF8));
+		// 去掉 .json 扩展名
+		CStringA strFile(pszFile);
+		int nDot = strFile.ReverseFind('.');
+		if (nDot > 0 && strFile.Mid(nDot) == ".json")
+			strFile = strFile.Left(nDot);
+
+		// 拼成 “命名空间:文件名” 的形式（zip 内文件名均为 UTF-8）
+		CStringA strFull;
+		strFull.Format("%s:%s", szNamespace, strFile.GetString());
+		pArr[nCount] = CString(CA2T(strFull, CP_UTF8));
 		++nCount;
 	}
 
