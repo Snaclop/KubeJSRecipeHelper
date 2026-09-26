@@ -107,7 +107,21 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped()
 	// 有序合成：把已导入的物品列表交给九宫格，点击方格时从中选择物品
 	CDlgShaped dlg;
 	dlg.SetItemSource(&m_arrNames);
-	dlg.DoModal();
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	// 把生成好的脚本追加到输出框，接着就能用“输出到 js 文件”写出去
+	SetDlgItemText(IDC_EDITOUTPUT, _T(""));
+	const CString strScript = dlg.GetRecipeScript();
+	if (strScript.IsEmpty())
+		return;
+
+	CString strOutput;
+	GetDlgItemText(IDC_EDITOUTPUT, strOutput);
+	if (!strOutput.IsEmpty())
+		strOutput += _T("\r\n");
+	strOutput += strScript;
+	SetDlgItemText(IDC_EDITOUTPUT, strOutput);
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless()
