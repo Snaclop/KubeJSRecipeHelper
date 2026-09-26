@@ -45,10 +45,10 @@ public:
 	afx_msg void OnBnClickedBtncreate();
 	afx_msg void OnBnClickedBtnimport();
 
-	// 解析 JAR 文件，获取 assets/<命名空间>/blockstates/ 目录下的所有文件名。
+	// 解析 JAR 文件，收集 assets/<命名空间>/models/item 与 models/block 下的所有物品、方块 id。
 	// 成功时通过 pNames 返回动态分配的 CString 数组，调用方负责用 delete[] 释放；
 	// 返回名称个数，失败返回 -1。
-	int ParseJarBlockstates(LPCTSTR lpszJarPath, CString*& pNames);
+	int ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames);
 
 	// 累积保存历次导入得到的所有名称
 	CStringArray m_arrNames;
