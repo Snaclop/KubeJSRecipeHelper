@@ -133,9 +133,13 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith()
 {
-	// TODO: 在此添加控件通知处理程序代码，锻造台
+	// 锻造台：点击四个矩形时从已导入的物品列表中选择物品
 	CDlgSmith dlg;
-	dlg.DoModal();
+	dlg.SetItemSource(&m_arrNames);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	ShowRecipeScript(dlg.GetRecipeScript());
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncook()
