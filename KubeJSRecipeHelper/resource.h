@@ -10,6 +10,7 @@
 #define IDD_DLGCOOK                     136
 #define IDD_DLGSTONECUT                 138
 #define IDD_DLGCREATE                   140
+#define IDD_DLGSELECT                   146
 #define IDC_BTNIMPORT                   1000
 #define IDC_OUTPUT                      1002
 #define IDC_EDITOUTPUT                  1003
@@ -21,16 +22,19 @@
 #define IDC_BTNCREATE                   1009
 #define IDC_BTNREMOVE                   1011
 #define IDC_BTNCLEAR                    1013
-#define IDC_BUTTON2                     1014
 #define IDC_BTNDWNLOAD                  1014
+#define IDC_LIST                        1015
+#define IDC_EDITSEARCH                  1016
+#define IDC_EDITNUMBER                  1017
+#define IDC_SPIN1                       1018
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        146
+#define _APS_NEXT_RESOURCE_VALUE        148
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -197,6 +197,7 @@
   <ItemGroup>
     <ClInclude Include="CDlgCook.h" />
     <ClInclude Include="CDlgCreate.h" />
+    <ClInclude Include="CDlgSelect.h" />
     <ClInclude Include="CDlgShaped.h" />
     <ClInclude Include="CDlgShapeless.h" />
     <ClInclude Include="CDlgSmith.h" />
@@ -211,6 +212,7 @@
   <ItemGroup>
     <ClCompile Include="CDlgCook.cpp" />
     <ClCompile Include="CDlgCreate.cpp" />
+    <ClCompile Include="CDlgSelect.cpp" />
     <ClCompile Include="CDlgShaped.cpp" />
     <ClCompile Include="CDlgShapeless.cpp" />
     <ClCompile Include="CDlgSmith.cpp" />

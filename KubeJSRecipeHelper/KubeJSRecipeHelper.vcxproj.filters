@@ -51,6 +51,9 @@
     <ClInclude Include="CDlgStonecut.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CDlgSelect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KubeJSRecipeHelper.cpp">
@@ -81,6 +84,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgStonecut.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDlgSelect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

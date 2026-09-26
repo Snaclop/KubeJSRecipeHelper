@@ -8,6 +8,7 @@
 #include "KubeJSRecipeHelperDlg.h"
 #include "afxdialogex.h"
 #include "miniz.h"
+#include <fstream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -40,6 +41,7 @@ BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTNCREATE, &CKubeJSRecipeHelperDlg::OnBnClickedBtncreate)
 	ON_BN_CLICKED(IDC_BTNIMPORT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnimport)
 	ON_BN_CLICKED(IDC_BTNCLEAR, &CKubeJSRecipeHelperDlg::OnBnClickedBtnclear)
+	ON_BN_CLICKED(IDC_BTNDWNLOAD, &CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload)
 END_MESSAGE_MAP()
 
 
@@ -98,42 +100,42 @@ HCURSOR CKubeJSRecipeHelperDlg::OnQueryDragIcon()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码，有序合成
 	CDlgShaped dlg;
 	dlg.DoModal();
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码，无序合成
 	CDlgShapeless dlg;
 	dlg.DoModal();
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码，锻造台
 	CDlgSmith dlg;
 	dlg.DoModal();
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncook()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码，熔炉
 	CDlgCook dlg;
 	dlg.DoModal();
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码，切石机
 	CDlgStonecut dlg;
 	dlg.DoModal();
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncreate()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码，机械动力
 	CDlgCreate dlg;
 	dlg.DoModal();
 }
@@ -172,7 +174,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 void CKubeJSRecipeHelperDlg::RefreshNamesOutput()
 {
 	CString strOutput;
-	strOutput.Format(_T("共找到 %d 个 blockstate 文件：\r\n"), (int)m_arrNames.GetSize());
+	strOutput.Format(_T("共找到 %d 个 item：\r\n"), (int)m_arrNames.GetSize());
 	for (INT_PTR i = 0; i < m_arrNames.GetSize(); ++i)
 	{
 		strOutput += m_arrNames[i];
@@ -315,4 +317,13 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnclear()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetDlgItemText(IDC_EDITOUTPUT, _T(""));
+}
+
+void CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	GetDlgItemText(IDC_EDITOUTPUT, m_strOutput);
+	std::ofstream out("output.js", std::ios::app | std::ios::binary);
+	out << CT2A(m_strOutput, CP_UTF8) << std::endl;
+	MessageBox(_T("文件已输出至软件同目录下"));
 }

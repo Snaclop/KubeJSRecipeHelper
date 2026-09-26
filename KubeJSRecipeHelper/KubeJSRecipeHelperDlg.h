@@ -56,4 +56,6 @@ public:
 	// 把 m_arrNames 的内容刷新显示到输出框
 	void RefreshNamesOutput();
 	afx_msg void OnBnClickedBtnclear();
+	afx_msg void OnBnClickedBtndwnload();
+	CString m_strOutput;
 };
