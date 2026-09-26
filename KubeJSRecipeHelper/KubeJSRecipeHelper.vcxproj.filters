@@ -36,6 +36,9 @@
     <ClInclude Include="CDlgCook.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CDlgCraftBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="CDlgCreate.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -69,6 +72,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgCook.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDlgCraftBase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgCreate.cpp">

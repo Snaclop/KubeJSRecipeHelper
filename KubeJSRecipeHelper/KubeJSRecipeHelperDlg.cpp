@@ -102,6 +102,13 @@ HCURSOR CKubeJSRecipeHelperDlg::OnQueryDragIcon()
 }
 
 
+void CKubeJSRecipeHelperDlg::ShowRecipeScript(const CString& strScript)
+{
+	// 输出框里只留刚生成的脚本，接着就能用“输出到 js 文件”把它写出去
+	if (!strScript.IsEmpty())
+		SetDlgItemText(IDC_EDITOUTPUT, strScript);
+}
+
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped()
 {
 	// 有序合成：把已导入的物品列表交给九宫格，点击方格时从中选择物品
@@ -110,25 +117,18 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped()
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	// 把生成好的脚本追加到输出框，接着就能用“输出到 js 文件”写出去
-	SetDlgItemText(IDC_EDITOUTPUT, _T(""));
-	const CString strScript = dlg.GetRecipeScript();
-	if (strScript.IsEmpty())
-		return;
-
-	CString strOutput;
-	GetDlgItemText(IDC_EDITOUTPUT, strOutput);
-	if (!strOutput.IsEmpty())
-		strOutput += _T("\r\n");
-	strOutput += strScript;
-	SetDlgItemText(IDC_EDITOUTPUT, strOutput);
+	ShowRecipeScript(dlg.GetRecipeScript());
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless()
 {
-	// TODO: 在此添加控件通知处理程序代码，无序合成
+	// 无序合成：界面跟有序合成一样，只是生成 event.shapeless
 	CDlgShapeless dlg;
-	dlg.DoModal();
+	dlg.SetItemSource(&m_arrNames);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	ShowRecipeScript(dlg.GetRecipeScript());
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith()
