@@ -209,6 +209,7 @@ void CKubeJSRecipeHelperDlg::RefreshNamesOutput()
 namespace
 {
 	const std::string strJsonExt = ".json";
+	const std::string strPngExt = ".png";
 
 	// 模型文件的拆分结果
 	struct ModelPath
@@ -272,6 +273,107 @@ namespace
 		return TRUE;
 	}
 
+	// 把模型引用（"minecraft:item/clock"、"item/clock"、"create:block/cogwheel"）拆成模型路径。
+	// 引用一般不写 .json，没写命名空间时按 minecraft 算，跟游戏里的规则一致；
+	// 不是 <item|block>/… 形式的引用（builtin/entity 之类）返回 FALSE。
+	BOOL SplitModelRef(const std::string& strRef, ModelPath& model)
+	{
+		std::string strNamespace = "minecraft";
+		std::string strPath = strRef;
+
+		const size_t nColon = strRef.find(':');
+		if (nColon != std::string::npos)
+		{
+			strNamespace = strRef.substr(0, nColon);
+			strPath = strRef.substr(nColon + 1);
+		}
+
+		if (IsJsonFile(strPath))
+			strPath = WithoutJsonExt(strPath);
+
+		const size_t nSlash = strPath.find('/');
+		if (nSlash == std::string::npos)
+			return FALSE;
+
+		const std::string strKind = strPath.substr(0, nSlash);
+		if (strKind != "item" && strKind != "block")
+			return FALSE;
+
+		const std::string strName = strPath.substr(nSlash + 1);
+		if (strName.empty())
+			return FALSE;
+
+		model.strNamespace = strNamespace;
+		model.strKind = strKind;
+		model.strRelative = strName + strJsonExt;
+		return TRUE;
+	}
+
+	// 把 "assets/create/textures/item/wrench.png" 拆成 (create, item/wrench)。
+	// 不是 assets/<命名空间>/textures/…png 形式的路径返回 FALSE。
+	BOOL SplitTexturePath(const char* pszPath, std::string& strNamespace, std::string& strRelative)
+	{
+		const std::string strPath(pszPath);
+		const std::string strAssets = "assets/";
+		const std::string strTextures = "textures/";
+
+		if (strPath.compare(0, strAssets.size(), strAssets) != 0)
+			return FALSE;
+
+		const size_t nNamespaceEnd = strPath.find('/', strAssets.size());
+		if (nNamespaceEnd == std::string::npos)
+			return FALSE;
+
+		const size_t nTextures = nNamespaceEnd + 1;
+		if (strPath.compare(nTextures, strTextures.size(), strTextures) != 0)
+			return FALSE;
+
+		// textures/ 下面按用途分目录（item/block/entity/fluid/…），这里不限制
+		const std::string strName = strPath.substr(nTextures + strTextures.size());
+		if (strName.size() <= strPngExt.size() ||
+			strName.compare(strName.size() - strPngExt.size(), strPngExt.size(), strPngExt) != 0)
+			return FALSE;
+
+		strNamespace = strPath.substr(strAssets.size(), nNamespaceEnd - strAssets.size());
+		strRelative = strName.substr(0, strName.size() - strPngExt.size());
+		return TRUE;
+	}
+
+	// 从贴图相对路径里认出流体："fluid/<名称>_still.png" 或 "fluid/<名称>_flow.png"。
+	// 流体没有模型，只有静止和流动这两张贴图
+	BOOL SplitFluidName(const std::string& strRelative, std::string& strName)
+	{
+		const std::string strFluid = "fluid/";
+		if (strRelative.compare(0, strFluid.size(), strFluid) != 0)
+			return FALSE;
+
+		// 流体贴图直接放在 fluid/ 下，出现子目录说明不是
+		const std::string strRest = strRelative.substr(strFluid.size());
+		if (strRest.find('/') != std::string::npos)
+			return FALSE;
+
+		const char* arrSuffix[] = { "_still", "_flow" };
+		for (size_t i = 0; i < _countof(arrSuffix); ++i)
+		{
+			const std::string strSuffix = arrSuffix[i];
+			if (strRest.size() > strSuffix.size() &&
+				strRest.compare(strRest.size() - strSuffix.size(), strSuffix.size(), strSuffix) == 0)
+			{
+				strName = strRest.substr(0, strRest.size() - strSuffix.size());
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+	// 流体贴图的拆分结果
+	struct FluidPath
+	{
+		std::string strNamespace;	// 命名空间
+		std::string strName;		// 流体名（贴图名去掉 _still / _flow）
+	};
+
 	// 把 "assets/create/lang/en_us.json" 拆成 (create, en_us.json)
 	BOOL SplitLangPath(const char* pszPath, std::string& strNamespace, std::string& strFile)
 	{
@@ -300,26 +402,128 @@ namespace
 		return TRUE;
 	}
 
+	// 是不是流体标签文件：data/<命名空间>/tags/fluids/**.json
+	//
+	// 流体没有物品模型，原版的 water / lava 连 textures/fluid/ 都没有（贴图是
+	// textures/block/water_still.png，和方块混在一起），只有标签里认得出它们。
+	// 标签的成员（minecraft:water）写在文件内容里，这里先只认路径
+	BOOL IsFluidTagPath(const char* pszPath)
+	{
+		const std::string strPath(pszPath);
+		const std::string strData = "data/";
+		const char* arrTagDir[] = { "tags/fluids/", "tags/fluid/" };
+
+		if (strPath.compare(0, strData.size(), strData) != 0)
+			return FALSE;
+
+		const size_t nNamespaceEnd = strPath.find('/', strData.size());
+		if (nNamespaceEnd == std::string::npos)
+			return FALSE;
+
+		const size_t nTags = nNamespaceEnd + 1;
+		BOOL bTagDir = FALSE;
+		for (size_t i = 0; i < _countof(arrTagDir); ++i)
+		{
+			const std::string strTagDir = arrTagDir[i];
+			if (strPath.compare(nTags, strTagDir.size(), strTagDir) == 0)
+			{
+				bTagDir = TRUE;
+				break;
+			}
+		}
+		if (!bTagDir)
+			return FALSE;
+
+		// 标签目录下还能再分子目录，最后的文件名是 json 就行
+		return IsJsonFile(strPath);
+	}
+
+	// 把流体标签里的一个值拆成 id："minecraft:water" -> (minecraft, water)。
+	// 引别的标签的值（"#forge:milk"）和不成 id 的字符串返回 FALSE
+	BOOL SplitFluidId(const std::string& strValue, std::string& strNamespace, std::string& strName)
+	{
+		if (strValue.empty() || strValue[0] == '#')
+			return FALSE;
+
+		const size_t nColon = strValue.find(':');
+		if (nColon == std::string::npos || nColon + 1 >= strValue.size())
+			return FALSE;
+
+		// 资源名只由小写字母、数字和 _ - . / 组成，免得把别的字符串当成流体 id
+		for (size_t i = 0; i < strValue.size(); ++i)
+		{
+			const char c = strValue[i];
+			if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+				c == '_' || c == '-' || c == '.' || c == '/' || c == ':')
+				continue;
+			return FALSE;
+		}
+
+		strNamespace = strValue.substr(0, nColon);
+		strName = strValue.substr(nColon + 1);
+		return TRUE;
+	}
+
 	// 判断某个模型文件在不在这个 jar 里的键
 	std::string MakePathKey(const std::string& strNamespace, const std::string& strKind, const std::string& strRelative)
 	{
 		return strNamespace + "/" + strKind + "/" + strRelative;
 	}
 
+	// 贴图集合里的键："命名空间/相对路径"（相对路径不含 .png）
+	std::string MakeRefKey(const std::string& strNamespace, const std::string& strRelative)
+	{
+		return strNamespace + "/" + strRelative;
+	}
+
+	// 解压 zip 里第 nIndex 个成员，失败时返回空串
+	std::string ExtractZipText(mz_zip_archive* pZip, int nIndex)
+	{
+		std::string strText;
+		if (pZip == nullptr || nIndex < 0)
+			return strText;
+
+		size_t nSize = 0;
+		void* pData = mz_zip_reader_extract_to_heap(pZip, (mz_uint)nIndex, &nSize, 0);
+		if (pData != nullptr)
+		{
+			strText.assign(static_cast<const char*>(pData), nSize);
+			mz_free(pData);
+		}
+
+		return strText;
+	}
+
+	// 按需解压并缓存 zip 里的文本文件
+	struct TextCache
+	{
+		mz_zip_archive* pZip;
+
+		std::map<std::string, std::string> mapText;	// 键 -> 内容（解压一次后缓存）
+
+		TextCache() : pZip(nullptr) {}
+
+	protected:
+		// 取内容，没登记或解压失败时返回空串
+		const std::string& GetTextAt(const std::string& strKey, int nIndex)
+		{
+			std::map<std::string, std::string>::iterator it = mapText.find(strKey);
+			if (it != mapText.end())
+				return it->second;
+
+			return mapText.insert(std::make_pair(strKey, ExtractZipText(pZip, nIndex))).first->second;
+		}
+	};
+
 	// 语言文件缓存
 	//
 	// 物品 id 里的 '/' 在语言文件里写成 '.'（id 为 sophisticatedbackpacks:sawmill/sawmill_upgrade
 	// 的物品，语言键是 item.sophisticatedbackpacks.sawmill.sawmill_upgrade），所以反过来可以用
-	// 语言键是否存在，确认某个名字到底是不是真正的物品 id。
-	struct LangCache
+	// 语言键是否存在，确认某个名字到底是不是真正的物品 id；流体名（fluid.create.tea）也在这里查
+	struct LangCache : TextCache
 	{
-		mz_zip_archive* pZip;
-
 		std::map<std::string, int>  mapIndex;	// 命名空间 -> 语言文件在 zip 中的序号
 		std::map<std::string, BOOL> mapEnUs;	// 命名空间 -> 当前用的是不是 en_us.json
-		std::map<std::string, std::string> mapText;	// 命名空间 -> 语言文件内容
-
-		LangCache() : pZip(nullptr) {}
 
 		// 记录一个语言文件（同一个命名空间优先用 en_us.json）
 		void Add(const std::string& strNamespace, int nIndex, BOOL bEnUs)
@@ -365,26 +569,150 @@ namespace
 		// 取语言文件内容（解压一次后缓存），取不到时返回空串
 		const std::string& GetText(const std::string& strNamespace)
 		{
-			std::map<std::string, std::string>::iterator it = mapText.find(strNamespace);
-			if (it != mapText.end())
-				return it->second;
-
-			std::string strText;
 			std::map<std::string, int>::const_iterator itIndex = mapIndex.find(strNamespace);
-			if (pZip != nullptr && itIndex != mapIndex.end())
-			{
-				size_t nSize = 0;
-				void* pData = mz_zip_reader_extract_to_heap(pZip, (mz_uint)itIndex->second, &nSize, 0);
-				if (pData != nullptr)
-				{
-					strText.assign(static_cast<const char*>(pData), nSize);
-					mz_free(pData);
-				}
-			}
-
-			return mapText.insert(std::make_pair(strNamespace, strText)).first->second;
+			return GetTextAt(strNamespace, itIndex == mapIndex.end() ? -1 : itIndex->second);
 		}
 	};
+
+	// 模型文件缓存
+	//
+	// 键统一用 "命名空间/<kind>/相对路径"，跟 MakePathKey 一致。模型的 overrides、
+	// parent 检查会反复读同一个模型，所以解压过的内容缓存下来
+	struct ModelCache : TextCache
+	{
+		std::map<std::string, int> mapIndex;	// 模型文件的键 -> zip 中的序号
+
+		void Add(const std::string& strKey, int nIndex)
+		{
+			mapIndex[strKey] = nIndex;
+		}
+
+		// 这个模型文件在不在包里
+		BOOL Has(const std::string& strKey) const
+		{
+			return mapIndex.find(strKey) != mapIndex.end();
+		}
+
+		// 取模型内容，不在包里或解压失败时返回空串
+		const std::string& GetText(const std::string& strKey)
+		{
+			std::map<std::string, int>::const_iterator itIndex = mapIndex.find(strKey);
+			return GetTextAt(strKey, itIndex == mapIndex.end() ? -1 : itIndex->second);
+		}
+	};
+
+	// 扫一遍模型 json：收集里面所有字符串，顺便取出 "parent" 和 overrides 里 "model" 的值
+	//
+	// 模型文件里没有带转义的字符串，成对的引号就是完整的一个值，用不着拉个 json 库进来。
+	// 流体标签这种没有 parent / model 键的文件也能用，那两个输出拿到的就是空的
+	void ScanModelJson(const std::string& strText, std::vector<std::string>& arrStrings,
+		std::string& strParent, std::vector<std::string>& arrOverrides)
+	{
+		size_t i = 0;
+		while (i < strText.size())
+		{
+			if (strText[i] != '"')
+			{
+				++i;
+				continue;
+			}
+
+			const size_t nEnd = strText.find('"', i + 1);
+			if (nEnd == std::string::npos)
+				return;
+
+			const std::string strValue = strText.substr(i + 1, nEnd - i - 1);
+			arrStrings.push_back(strValue);
+
+			// "parent" / "model": 后面跟的字符串是模型引用，单独取出来
+			if (strValue == "parent" || strValue == "model")
+			{
+				const size_t nRef = strText.find('"', nEnd + 1);
+				if (nRef == std::string::npos)
+					return;
+
+				const size_t nRefEnd = strText.find('"', nRef + 1);
+				if (nRefEnd == std::string::npos)
+					return;
+
+				const std::string strRef = strText.substr(nRef + 1, nRefEnd - nRef - 1);
+				if (strValue == "parent")
+					strParent = strRef;
+				else
+					arrOverrides.push_back(strRef);
+
+				i = nRefEnd + 1;
+				continue;
+			}
+
+			i = nEnd + 1;
+		}
+	}
+
+	// 贴图引用是不是指向一张确实存在的贴图
+	//
+	// 引用没写命名空间时游戏按 minecraft 算，这里顺手把模型自己的命名空间也认一下，
+	// 免得漏掉把贴图放在自己命名空间下的写法
+	BOOL HasTexture(const std::set<std::string>& setTextures, const std::string& strRef,
+		const std::string& strDefaultNamespace)
+	{
+		std::string strNamespace = "minecraft";
+		std::string strPath = strRef;
+
+		const size_t nColon = strRef.find(':');
+		if (nColon != std::string::npos)
+		{
+			strNamespace = strRef.substr(0, nColon);
+			strPath = strRef.substr(nColon + 1);
+		}
+
+		if (setTextures.count(MakeRefKey(strNamespace, strPath)) > 0)
+			return TRUE;
+
+		return nColon == std::string::npos && setTextures.count(MakeRefKey(strDefaultNamespace, strPath)) > 0;
+	}
+
+	// 这个模型有没有引用到真实存在的贴图（自己没写就顺着 parent 往上找）
+	//
+	// 能拿在手上的东西都有贴图：air.json 是空模型，item/generated.json 这种模板只有 display，
+	// 而 stone.json 只是转手指向 block/stone。正好用这一点把不是物品的模型筛掉
+	BOOL ModelHasTexture(const std::string& strKey, const std::string& strNamespace,
+		const std::set<std::string>& setTextures, ModelCache& models, std::set<std::string>& setVisited)
+	{
+		if (!setVisited.insert(strKey).second)	// 模型互相引用时别绕圈
+			return FALSE;
+
+		const std::string& strText = models.GetText(strKey);
+		if (strText.empty())
+			return FALSE;
+
+		std::vector<std::string> arrStrings;
+		std::vector<std::string> arrOverrides;
+		std::string strParent;
+		ScanModelJson(strText, arrStrings, strParent, arrOverrides);
+
+		// parent 和 overrides 里的是模型引用（item/generated 这种），不是贴图，别拿来当证据
+		std::set<std::string> setModelRefs(arrOverrides.begin(), arrOverrides.end());
+		setModelRefs.insert(strParent);
+
+		for (size_t i = 0; i < arrStrings.size(); ++i)
+		{
+			// 贴图路径都带 '/'，用不着看 gui_light 这类字符串
+			if (arrStrings[i].find('/') == std::string::npos || setModelRefs.count(arrStrings[i]) > 0)
+				continue;
+
+			if (HasTexture(setTextures, arrStrings[i], strNamespace))
+				return TRUE;
+		}
+
+		// parent 一般不写扩展名，最多往上找几层（setVisited 里每层加一个键，顺便当层数用）
+		ModelPath parent;
+		if (setVisited.size() >= 8 || !SplitModelRef(strParent, parent))
+			return FALSE;
+
+		return ModelHasTexture(MakePathKey(parent.strNamespace, parent.strKind, parent.strRelative),
+			parent.strNamespace, setTextures, models, setVisited);
+	}
 }
 
 
@@ -399,9 +727,16 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	if (!mz_zip_reader_init_file(&zip, CT2A(lpszJarPath, CP_UTF8), 0))
 		return -1;
 
-	// ---------- 第一步：收集 assets/<命名空间>/models/(item|block)/ 下的所有模型文件 ----------
+	// ---------- 第一步：收集物品模型、贴图和语言文件 ----------
+	//
+	// 候选只来自 assets/<命名空间>/models/item/：能拿在手上的东西（方块物品也算）都有物品模型，
+	// 而水、岩浆、各种砖墙这些拿不到的方块只有 models/block/ 里的模型
 	std::vector<ModelPath> arrModels;
-	std::set<std::string> setPaths;		// 用来判断某个模型文件是否存在
+	ModelCache models;
+	models.pZip = &zip;
+	std::set<std::string> setTextures;		// 包里有哪些贴图
+	std::vector<FluidPath> arrFluids;		// 候选流体（来自 textures/fluid 贴图）
+	std::vector<int> arrFluidTags;			// 流体标签文件在 zip 里的序号
 	LangCache lang;
 	lang.pZip = &zip;
 
@@ -415,19 +750,73 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		ModelPath model;
 		if (SplitModelPath(st.m_filename, model))
 		{
-			arrModels.push_back(model);
-			setPaths.insert(MakePathKey(model.strNamespace, model.strKind, model.strRelative));
+			// block 模型也要记下来：物品模型会顺着 parent 找到它们
+			models.Add(MakePathKey(model.strNamespace, model.strKind, model.strRelative), (int)i);
+			if (model.strKind == "item")
+				arrModels.push_back(model);
 			continue;
 		}
 
-		// 顺带记下语言文件，后面确认物品名时要用到
+		std::string strTextureNamespace;
+		std::string strTextureRelative;
+		if (SplitTexturePath(st.m_filename, strTextureNamespace, strTextureRelative))
+		{
+			setTextures.insert(MakeRefKey(strTextureNamespace, strTextureRelative));
+
+			// 流体：textures/fluid/<名称>_still.png / _flow.png
+			std::string strFluidName;
+			if (SplitFluidName(strTextureRelative, strFluidName))
+			{
+				FluidPath fluid;
+				fluid.strNamespace = strTextureNamespace;
+				fluid.strName = strFluidName;
+				arrFluids.push_back(fluid);
+			}
+			continue;
+		}
+
+		// 流体标签的成员（minecraft:water 这种）写在文件内容里，先记下位置
+		if (IsFluidTagPath(st.m_filename))
+		{
+			arrFluidTags.push_back((int)i);
+			continue;
+		}
+
+		// 顺带记下语言文件，后面确认物品名和流体名时要用到
 		std::string strLangNamespace;
 		std::string strLangFile;
 		if (SplitLangPath(st.m_filename, strLangNamespace, strLangFile))
 			lang.Add(strLangNamespace, (int)i, strLangFile == "en_us.json");
 	}
 
-	// ---------- 第二步：逐个模型推出物品 / 方块 id ----------
+	// ---------- 第二步：先找出变体模型 ----------
+	//
+	// 拉弓的每一帧（bow_pulling_0）、指南针的每一圈（compass_16）、各种护甲纹饰……
+	// 都是被别的模型的 overrides 引用的，玩家拿不到单独的这一件，不算物品
+	std::set<std::string> setVariants;
+	for (size_t i = 0; i < arrModels.size(); ++i)
+	{
+		const ModelPath& model = arrModels[i];
+		const std::string strKey = MakePathKey(model.strNamespace, model.strKind, model.strRelative);
+
+		std::vector<std::string> arrStrings;	// 这里只看模型引用，字符串列表用不上
+		std::vector<std::string> arrOverrides;
+		std::string strParent;
+		ScanModelJson(models.GetText(strKey), arrStrings, strParent, arrOverrides);
+
+		for (size_t k = 0; k < arrOverrides.size(); ++k)
+		{
+			ModelPath ref;
+			if (!SplitModelRef(arrOverrides[k], ref))
+				continue;
+
+			const std::string strRefKey = MakePathKey(ref.strNamespace, ref.strKind, ref.strRelative);
+			if (strRefKey != strKey)	// 引用自己（如 clock.json 里的 "model": "item/clock"）不算变体
+				setVariants.insert(strRefKey);
+		}
+	}
+
+	// ---------- 第三步：逐个物品模型推出物品 id ----------
 	std::vector<std::string> arrNames;
 	std::set<std::string> setNames;
 
@@ -445,36 +834,35 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	for (size_t i = 0; i < arrModels.size(); ++i)
 	{
 		const ModelPath& model = arrModels[i];
+		const std::string strKey = MakePathKey(model.strNamespace, model.strKind, model.strRelative);
 
-		// 直接放在 models/item 或 models/block 下的模型：文件名就是物品 / 方块名。
-		// 不过这里混着大量零件模型（方块的门、墙、台阶零件，箭的拉弓动画帧，护甲纹饰变体……），
-		// 有语言文件时就用语言键把它们筛掉
+		// 直接放在 models/item 下的模型：文件名就是物品名
 		const size_t nSlash = model.strRelative.find('/');
 		if (nSlash == std::string::npos)
 		{
-			const std::string strName = WithoutJsonExt(model.strRelative);
-			if (!lang.Has(model.strNamespace) || lang.HasName(model.strNamespace, strName))
-				AddName(model.strNamespace, strName);
+			// 变体模型（拉弓的每一帧、指南针的每一圈……）不是能单独拿到的物品
+			if (setVariants.count(strKey) > 0)
+				continue;
+
+			// 模型得真的引用到一张存在的贴图：air 这种空模型、item/generated 这种
+			// 光有 display 的模板都没引用贴图，正好筛掉
+			std::set<std::string> setVisited;
+			if (!ModelHasTexture(strKey, model.strNamespace, setTextures, models, setVisited))
+				continue;
+
+			AddName(model.strNamespace, WithoutJsonExt(model.strRelative));
 			continue;
 		}
 
 		const std::string strFolder = model.strRelative.substr(0, nSlash);	// 最外层的文件夹名
 
-		if (model.strKind == "block")
-		{
-			// 方块的模型由 blockstates 指定，models/block/<文件夹>/ 里放的是一个方块的多套模型
-			// （Create 等模组都是这种写法），所以文件夹名就是方块名
-			AddName(model.strNamespace, strFolder);
-			continue;
-		}
-
 		// 物品：同级还有同名的扁平模型时，这个文件夹只是该物品的零件集合
 		// （如 models/item/wrench/），物品名已经由那个扁平模型收录了
-		if (setPaths.count(MakePathKey(model.strNamespace, "item", strFolder + ".json")) > 0)
+		if (models.Has(MakePathKey(model.strNamespace, "item", strFolder + ".json")))
 			continue;
 
 		// 文件夹里有 item.json 时（Create 等模组的自定义模型写法），文件夹名就是物品名
-		if (setPaths.count(MakePathKey(model.strNamespace, "item", strFolder + "/item.json")) > 0)
+		if (models.Has(MakePathKey(model.strNamespace, "item", strFolder + "/item.json")))
 		{
 			AddName(model.strNamespace, strFolder);
 			continue;
@@ -487,13 +875,14 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		//                                                   item.sophisticatedbackpacks.sawmill 不存在，
 		//                                                   而 item.sophisticatedbackpacks.sawmill.sawmill_upgrade
 		//                                                   存在，用相对路径
+		// 方块做成的物品，语言键是 block. 开头，两种都查
 		// 按约定路径收录时，文件夹本身也是物品 id 的一部分
 		const std::string strRelativeName = WithoutJsonExt(model.strRelative);
 		if (lang.Has(model.strNamespace))
 		{
-			if (lang.HasKey(model.strNamespace, "item", strFolder))
+			if (lang.HasName(model.strNamespace, strFolder))
 				AddName(model.strNamespace, strFolder);
-			if (lang.HasKey(model.strNamespace, "item", strRelativeName))
+			if (lang.HasName(model.strNamespace, strRelativeName))
 				AddName(model.strNamespace, strRelativeName);
 		}
 		else
@@ -502,6 +891,42 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 			// models/item/<id>.json 里的 <id> 就是物品 id
 			AddName(model.strNamespace, strRelativeName);
 		}
+	}
+
+	// ---------- 第四步：流体 ----------
+	//
+	// 流体没有物品模型，两处线索：
+	//   1. 流体标签 data/<命名空间>/tags/fluids/**.json 的成员，命名空间写在值里
+	//      （原版的 minecraft:water / minecraft:lava 就是这么来的）
+	//   2. textures/fluid/<名称>_still.png / _flow.png 贴图。语言文件里有
+	//      fluid.<命名空间>.<名称> 的就是模组自己注册的流体（create:tea）；没有的，多半是
+	//      Forge 之类把流体挂在 minecraft 命名空间下、贴图由模组补的
+	//      （Create 补的 milk 贴图对应 minecraft:milk）
+	for (size_t i = 0; i < arrFluidTags.size(); ++i)
+	{
+		std::vector<std::string> arrStrings;
+		std::vector<std::string> arrOverrides;
+		std::string strParent;
+		ScanModelJson(ExtractZipText(&zip, arrFluidTags[i]), arrStrings, strParent, arrOverrides);
+
+		for (size_t k = 0; k < arrStrings.size(); ++k)
+		{
+			std::string strNamespace;
+			std::string strName;
+			if (SplitFluidId(arrStrings[k], strNamespace, strName))
+				AddName(strNamespace, strName);
+		}
+	}
+
+	for (size_t i = 0; i < arrFluids.size(); ++i)
+	{
+		const std::string& strNamespace = arrFluids[i].strNamespace;
+		const std::string& strName = arrFluids[i].strName;
+
+		if (strNamespace == "minecraft" || lang.HasKey(strNamespace, "fluid", strName))
+			AddName(strNamespace, strName);
+		else
+			AddName("minecraft", strName);
 	}
 
 	mz_zip_reader_end(&zip);
