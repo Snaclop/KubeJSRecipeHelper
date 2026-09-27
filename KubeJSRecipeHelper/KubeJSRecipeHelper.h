@@ -19,6 +19,7 @@ class CKubeJSRecipeHelperApp : public CWinApp
 {
 public:
 	CKubeJSRecipeHelperApp();
+	BOOL m_bIsCreate = FALSE;
 
 // 重写
 public:

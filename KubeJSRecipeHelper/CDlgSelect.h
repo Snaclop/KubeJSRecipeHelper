@@ -31,8 +31,8 @@ public:
 	int     GetSelectedCount() const { return m_nSelectedCount; }
 
 protected:
-	// 数量的上下限，与 MC 单个格子的最大堆叠数一致
-	enum { COUNT_MIN = 1, COUNT_MAX = 64 };
+	// 数量的上下限，考虑液体兼容，最大值为 99999999
+	enum { COUNT_MIN = 1, COUNT_MAX = 99999999 };
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL OnInitDialog();
@@ -54,9 +54,11 @@ protected:
 	CListBox m_List;					// 物品列表
 	CEdit    m_EditSearch;				// 搜索框
 	CEdit    m_EditNumber;				// 数量
-	CSpinButtonCtrl m_Spin;				// 数量微调按钮
+	CSpinButtonCtrl m_SpinNumber;		// 数量微调按钮
 
 	afx_msg void OnEnChangeEditSearch();
 	afx_msg void OnLbnDblclkList();
 	DECLARE_MESSAGE_MAP()
+	CSpinButtonCtrl m_SpinPossibility;
+	CEdit m_EditPossibility;
 };

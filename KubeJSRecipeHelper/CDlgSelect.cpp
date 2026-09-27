@@ -65,7 +65,9 @@ void CDlgSelect::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST, m_List);
 	DDX_Control(pDX, IDC_EDITSEARCH, m_EditSearch);
 	DDX_Control(pDX, IDC_EDITNUMBER, m_EditNumber);
-	DDX_Control(pDX, IDC_SPIN1, m_Spin);
+	DDX_Control(pDX, IDC_SPINNUMBER, m_SpinNumber);
+	DDX_Control(pDX, IDC_SPINPOSSIBILITY, m_SpinPossibility);
+	DDX_Control(pDX, IDC_EDITPOSSIBILITY, m_EditPossibility);
 }
 
 void CDlgSelect::SetItemList(const CStringArray* pItemList)
@@ -90,10 +92,18 @@ BOOL CDlgSelect::OnInitDialog()
 	if (nCount > COUNT_MAX)
 		nCount = COUNT_MAX;
 
-	// 数量框交给微调按钮控制，范围就是 MC 单格的堆叠上限
-	m_Spin.SetRange32(COUNT_MIN, COUNT_MAX);
-	m_Spin.SetBuddy(&m_EditNumber);
-	m_Spin.SetPos(nCount);
+	m_SpinNumber.SetRange32(COUNT_MIN, COUNT_MAX);
+	m_SpinNumber.SetPos(nCount);
+
+	m_SpinPossibility.SetRange32(0, 100);
+	m_SpinPossibility.SetPos(100);
+
+	CKubeJSRecipeHelperApp* pApp = (CKubeJSRecipeHelperApp*)AfxGetApp();
+	if (pApp->m_bIsCreate == FALSE)
+	{
+		m_SpinPossibility.EnableWindow(FALSE);
+		m_EditPossibility.EnableWindow(FALSE);
+	}
 
 	CString strCount;
 	strCount.Format(_T("%d"), nCount);

@@ -159,6 +159,8 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut()
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncreate()
 {
 	// TODO: 在此添加控件通知处理程序代码，机械动力
+	CKubeJSRecipeHelperApp* pApp = (CKubeJSRecipeHelperApp*)AfxGetApp();
+	pApp -> m_bIsCreate = TRUE;
 	CDlgCreate dlg;
 	dlg.DoModal();
 }
