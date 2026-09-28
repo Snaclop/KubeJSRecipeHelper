@@ -85,7 +85,7 @@ protected:
 	int   m_nCellSize;							// 单个格子的边长
 	int   m_nHoverSlot;							// 鼠标悬停的格子序号，-1 表示没有悬停
 	BOOL  m_bTrackingMouse;						// 是否已经请求过 WM_MOUSELEAVE
-	CFont m_fontSmall;							// 画命名空间、数量用的小号字体
+	CFont m_fontSmall;							// 画命名空间、数量用的字体
 
 	const CStringArray* m_pItemSource;			// 可选物品的来源列表，可为空
 

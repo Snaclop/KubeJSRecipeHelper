@@ -14,7 +14,7 @@
 namespace
 {
 	// 格子与“输入”分组框、说明文字之间的间距（像素）
-	const int GROUP_TITLE_H = 16;	// 分组框标题占用的高度
+	const int GROUP_TITLE_H = 24;	// 分组框标题占用的高度
 	const int SLOT_GAP      = 6;	// 分组框内边距、说明文字上方的留白
 	const int SLOT_GAP_H    = 10;	// 格子之间的水平间距
 	const int LABEL_GAP     = 4;	// 格子与下面一行说明文字的间距
@@ -61,13 +61,11 @@ BOOL CDlgSmith::OnInitDialog()
 	// 四个格子和箭头没有对应的资源控件，位置大小在这里一次性算好
 	CalcSlotRects();
 
-	// 物品名一般比较长，单独准备一个小号字体画命名空间和数量
+	// 命名空间和数量使用与对话框相同大小的字体
 	CFont* pFont = GetFont();
 	LOGFONT lf;
 	if (pFont != nullptr && pFont->GetLogFont(&lf))
 	{
-		lf.lfHeight = lf.lfHeight * 3 / 4;
-		lf.lfWidth = lf.lfWidth * 3 / 4;
 		m_fontSmall.CreateFontIndirect(&lf);
 	}
 
@@ -308,7 +306,7 @@ void CDlgSmith::DrawSlotItem(CDC* pDC, const CRect& rect, const CString& strItem
 	// 中间：物品名称，太长时自动折行并做垂直居中
 	CRect rcName(rcText);
 	if (nCount > 1)
-		rcName.bottom -= 10;	// 给右下角的数量让位
+		rcName.bottom -= 15;	// 给右下角的数量让位
 
 	if (rcName.bottom > rcName.top)
 	{

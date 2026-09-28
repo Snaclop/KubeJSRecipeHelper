@@ -16,7 +16,7 @@ namespace
 	// 格子的摆放尺寸（像素）
 	const int SLOT_MARGIN   = 24;	// 格子区域到对话框左边、上边的距离
 	const int HINT_GAP      = 85;	// 格子区域与提示文字之间的间距
-	const int HINT_HEIGHT   = 18;	// 提示文字占用的高度
+	const int HINT_HEIGHT   = 27;	// 提示文字占用的高度
 	const int GRID_MAX_CELL = 100;	// 单个格子的边长上限
 	const int GRID_MIN_CELL = 8;	// 单个格子的边长下限
 
@@ -79,13 +79,11 @@ BOOL CDlgCraftBase::OnInitDialog()
 	// 九宫格和输出格没有对应的资源控件，位置大小在这里一次性算好
 	CalcSlotRects();
 
-	// 物品名一般比较长，单独准备一个小号字体画命名空间和数量
+	// 命名空间和数量使用与对话框相同大小的字体
 	CFont* pFont = GetFont();
 	LOGFONT lf;
 	if (pFont != nullptr && pFont->GetLogFont(&lf))
 	{
-		lf.lfHeight = lf.lfHeight * 3 / 4;
-		lf.lfWidth = lf.lfWidth * 3 / 4;
 		m_fontSmall.CreateFontIndirect(&lf);
 	}
 
@@ -352,7 +350,7 @@ void CDlgCraftBase::DrawSlotItem(CDC* pDC, const CRect& rect, const CString& str
 	// 中间：物品名称，太长时自动折行并做垂直居中
 	CRect rcName(rcText);
 	if (nCount > 1)
-		rcName.bottom -= 10;	// 给右下角的数量让位
+		rcName.bottom -= 15;	// 给右下角的数量让位
 
 	if (rcName.bottom > rcName.top)
 	{
