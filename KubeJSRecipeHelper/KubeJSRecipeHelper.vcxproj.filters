@@ -57,6 +57,9 @@
     <ClInclude Include="CDlgSelect.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ItemTextureStore.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="KubeJSRecipeHelper.cpp">
@@ -93,6 +96,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgSelect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemTextureStore.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

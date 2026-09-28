@@ -204,6 +204,7 @@
     <ClInclude Include="CDlgSmith.h" />
     <ClInclude Include="CDlgStonecut.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="ItemTextureStore.h" />
     <ClInclude Include="KubeJSRecipeHelper.h" />
     <ClInclude Include="KubeJSRecipeHelperDlg.h" />
     <ClInclude Include="pch.h" />
@@ -219,6 +220,7 @@
     <ClCompile Include="CDlgShapeless.cpp" />
     <ClCompile Include="CDlgSmith.cpp" />
     <ClCompile Include="CDlgStonecut.cpp" />
+    <ClCompile Include="ItemTextureStore.cpp" />
     <ClCompile Include="KubeJSRecipeHelper.cpp" />
     <ClCompile Include="KubeJSRecipeHelperDlg.cpp" />
     <ClCompile Include="miniz.c">

@@ -114,6 +114,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped()
 	// 有序合成：把已导入的物品列表交给九宫格，点击方格时从中选择物品
 	CDlgShaped dlg;
 	dlg.SetItemSource(&m_arrNames);
+	dlg.SetTextureStore(&m_itemTextures);
 	if (dlg.DoModal() != IDOK)
 		return;
 
@@ -125,6 +126,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless()
 	// 无序合成：界面跟有序合成一样，只是生成 event.shapeless
 	CDlgShapeless dlg;
 	dlg.SetItemSource(&m_arrNames);
+	dlg.SetTextureStore(&m_itemTextures);
 	if (dlg.DoModal() != IDOK)
 		return;
 
@@ -136,6 +138,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith()
 	// 锻造台：点击四个矩形时从已导入的物品列表中选择物品
 	CDlgSmith dlg;
 	dlg.SetItemSource(&m_arrNames);
+	dlg.SetTextureStore(&m_itemTextures);
 	if (dlg.DoModal() != IDOK)
 		return;
 
@@ -655,7 +658,7 @@ namespace
 	//
 	// 引用没写命名空间时游戏按 minecraft 算，这里顺手把模型自己的命名空间也认一下，
 	// 免得漏掉把贴图放在自己命名空间下的写法
-	BOOL HasTexture(const std::set<std::string>& setTextures, const std::string& strRef,
+	std::string FindTexture(const std::set<std::string>& setTextures, const std::string& strRef,
 		const std::string& strDefaultNamespace)
 	{
 		std::string strNamespace = "minecraft";
@@ -668,25 +671,29 @@ namespace
 			strPath = strRef.substr(nColon + 1);
 		}
 
-		if (setTextures.count(MakeRefKey(strNamespace, strPath)) > 0)
-			return TRUE;
+		const std::string strKey = MakeRefKey(strNamespace, strPath);
+		if (setTextures.count(strKey) > 0)
+			return strKey;
 
-		return nColon == std::string::npos && setTextures.count(MakeRefKey(strDefaultNamespace, strPath)) > 0;
+		const std::string strDefaultKey = MakeRefKey(strDefaultNamespace, strPath);
+		if (nColon == std::string::npos && setTextures.count(strDefaultKey) > 0)
+			return strDefaultKey;
+		return std::string();
 	}
 
 	// 这个模型有没有引用到真实存在的贴图（自己没写就顺着 parent 往上找）
 	//
 	// 能拿在手上的东西都有贴图：air.json 是空模型，item/generated.json 这种模板只有 display，
 	// 而 stone.json 只是转手指向 block/stone。正好用这一点把不是物品的模型筛掉
-	BOOL ModelHasTexture(const std::string& strKey, const std::string& strNamespace,
+	std::string FindModelTexture(const std::string& strKey, const std::string& strNamespace,
 		const std::set<std::string>& setTextures, ModelCache& models, std::set<std::string>& setVisited)
 	{
 		if (!setVisited.insert(strKey).second)	// 模型互相引用时别绕圈
-			return FALSE;
+			return std::string();
 
 		const std::string& strText = models.GetText(strKey);
 		if (strText.empty())
-			return FALSE;
+			return std::string();
 
 		std::vector<std::string> arrStrings;
 		std::vector<std::string> arrOverrides;
@@ -703,16 +710,17 @@ namespace
 			if (arrStrings[i].find('/') == std::string::npos || setModelRefs.count(arrStrings[i]) > 0)
 				continue;
 
-			if (HasTexture(setTextures, arrStrings[i], strNamespace))
-				return TRUE;
+			const std::string strTexture = FindTexture(setTextures, arrStrings[i], strNamespace);
+			if (!strTexture.empty())
+				return strTexture;
 		}
 
 		// parent 一般不写扩展名，最多往上找几层（setVisited 里每层加一个键，顺便当层数用）
 		ModelPath parent;
 		if (setVisited.size() >= 8 || !SplitModelRef(strParent, parent))
-			return FALSE;
+			return std::string();
 
-		return ModelHasTexture(MakePathKey(parent.strNamespace, parent.strKind, parent.strRelative),
+		return FindModelTexture(MakePathKey(parent.strNamespace, parent.strKind, parent.strRelative),
 			parent.strNamespace, setTextures, models, setVisited);
 	}
 }
@@ -737,6 +745,7 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	ModelCache models;
 	models.pZip = &zip;
 	std::set<std::string> setTextures;		// 包里有哪些贴图
+	std::map<std::string, std::string> mapTexturePaths;	// 贴图键 -> JAR 内的 PNG 路径
 	std::vector<FluidPath> arrFluids;		// 候选流体（来自 textures/fluid 贴图）
 	std::vector<int> arrFluidTags;			// 流体标签文件在 zip 里的序号
 	LangCache lang;
@@ -763,7 +772,9 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		std::string strTextureRelative;
 		if (SplitTexturePath(st.m_filename, strTextureNamespace, strTextureRelative))
 		{
-			setTextures.insert(MakeRefKey(strTextureNamespace, strTextureRelative));
+			const std::string strTextureKey = MakeRefKey(strTextureNamespace, strTextureRelative);
+			setTextures.insert(strTextureKey);
+			mapTexturePaths[strTextureKey] = st.m_filename;
 
 			// 流体：textures/fluid/<名称>_still.png / _flow.png
 			std::string strFluidName;
@@ -821,6 +832,7 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	// ---------- 第三步：逐个物品模型推出物品 id ----------
 	std::vector<std::string> arrNames;
 	std::set<std::string> setNames;
+	std::map<std::string, std::string> mapItemTextures;	// 物品 ID -> 贴图键
 
 	// 收录一个名字，按 “命名空间:名字” 去重
 	auto AddName = [&arrNames, &setNames](const std::string& strNamespace, const std::string& strName)
@@ -831,6 +843,21 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		const std::string strFull = strNamespace + ":" + strName;
 		if (setNames.insert(strFull).second)
 			arrNames.push_back(strFull);
+	};
+
+	auto AddModelName = [&AddName, &mapItemTextures, &setTextures, &models](
+		const std::string& strNamespace, const std::string& strName, const std::string& strModelKey)
+	{
+		AddName(strNamespace, strName);
+		const std::string strFull = strNamespace + ":" + strName;
+		if (mapItemTextures.count(strFull) != 0)
+			return;
+
+		std::set<std::string> setVisited;
+		const std::string strTexture = FindModelTexture(strModelKey, strNamespace,
+			setTextures, models, setVisited);
+		if (!strTexture.empty())
+			mapItemTextures[strFull] = strTexture;
 	};
 
 	for (size_t i = 0; i < arrModels.size(); ++i)
@@ -849,10 +876,14 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 			// 模型得真的引用到一张存在的贴图：air 这种空模型、item/generated 这种
 			// 光有 display 的模板都没引用贴图，正好筛掉
 			std::set<std::string> setVisited;
-			if (!ModelHasTexture(strKey, model.strNamespace, setTextures, models, setVisited))
+			const std::string strTexture = FindModelTexture(strKey, model.strNamespace,
+				setTextures, models, setVisited);
+			if (strTexture.empty())
 				continue;
 
-			AddName(model.strNamespace, WithoutJsonExt(model.strRelative));
+			const std::string strName = WithoutJsonExt(model.strRelative);
+			AddName(model.strNamespace, strName);
+			mapItemTextures[model.strNamespace + ":" + strName] = strTexture;
 			continue;
 		}
 
@@ -866,7 +897,8 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		// 文件夹里有 item.json 时（Create 等模组的自定义模型写法），文件夹名就是物品名
 		if (models.Has(MakePathKey(model.strNamespace, "item", strFolder + "/item.json")))
 		{
-			AddName(model.strNamespace, strFolder);
+			AddModelName(model.strNamespace, strFolder,
+				MakePathKey(model.strNamespace, "item", strFolder + "/item.json"));
 			continue;
 		}
 
@@ -883,15 +915,15 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		if (lang.Has(model.strNamespace))
 		{
 			if (lang.HasName(model.strNamespace, strFolder))
-				AddName(model.strNamespace, strFolder);
+				AddModelName(model.strNamespace, strFolder, strKey);
 			if (lang.HasName(model.strNamespace, strRelativeName))
-				AddName(model.strNamespace, strRelativeName);
+				AddModelName(model.strNamespace, strRelativeName, strKey);
 		}
 		else
 		{
 			// 没有语言文件可查，就按物品模型的约定路径收录：
 			// models/item/<id>.json 里的 <id> 就是物品 id
-			AddName(model.strNamespace, strRelativeName);
+			AddModelName(model.strNamespace, strRelativeName, strKey);
 		}
 	}
 
@@ -916,7 +948,13 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 			std::string strNamespace;
 			std::string strName;
 			if (SplitFluidId(arrStrings[k], strNamespace, strName))
+			{
 				AddName(strNamespace, strName);
+				const std::string strBlockTexture = MakeRefKey(strNamespace,
+					"block/" + strName + "_still");
+				if (setTextures.count(strBlockTexture) > 0)
+					mapItemTextures[strNamespace + ":" + strName] = strBlockTexture;
+			}
 		}
 	}
 
@@ -925,10 +963,18 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		const std::string& strNamespace = arrFluids[i].strNamespace;
 		const std::string& strName = arrFluids[i].strName;
 
-		if (strNamespace == "minecraft" || lang.HasKey(strNamespace, "fluid", strName))
-			AddName(strNamespace, strName);
-		else
-			AddName("minecraft", strName);
+		const std::string strIdNamespace =
+			(strNamespace == "minecraft" || lang.HasKey(strNamespace, "fluid", strName))
+			? strNamespace : "minecraft";
+		AddName(strIdNamespace, strName);
+
+		const std::string strStill = MakeRefKey(strNamespace, "fluid/" + strName + "_still");
+		const std::string strFlow = MakeRefKey(strNamespace, "fluid/" + strName + "_flow");
+		const std::string strId = strIdNamespace + ":" + strName;
+		if (setTextures.count(strStill) > 0)
+			mapItemTextures[strId] = strStill;
+		else if (mapItemTextures.count(strId) == 0 && setTextures.count(strFlow) > 0)
+			mapItemTextures[strId] = strFlow;
 	}
 
 	mz_zip_reader_end(&zip);
@@ -949,6 +995,14 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	// zip 内文件名均为 UTF-8，转成 CString 时按 UTF-8 解释
 	for (int i = 0; i < nCount; ++i)
 		pArr[i] = CString(CA2T(arrNames[i].c_str(), CP_UTF8));
+
+	for (const auto& itemTexture : mapItemTextures)
+	{
+		const auto itPath = mapTexturePaths.find(itemTexture.second);
+		if (itPath != mapTexturePaths.end())
+			m_itemTextures.Register(CString(CA2T(itemTexture.first.c_str(), CP_UTF8)),
+				lpszJarPath, itPath->second);
+	}
 
 	pNames = pArr;
 	return nCount;

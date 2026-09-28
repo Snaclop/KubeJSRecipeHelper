@@ -42,6 +42,7 @@ CDlgSmith::CDlgSmith(CWnd* pParent /*=nullptr*/)
 	, m_nHoverSlot(-1)
 	, m_bTrackingMouse(FALSE)
 	, m_pItemSource(nullptr)
+	, m_pTextureStore(nullptr)
 {
 }
 
@@ -75,6 +76,11 @@ BOOL CDlgSmith::OnInitDialog()
 void CDlgSmith::SetItemSource(const CStringArray* pItemSource)
 {
 	m_pItemSource = pItemSource;
+}
+
+void CDlgSmith::SetTextureStore(CItemTextureStore* pTextureStore)
+{
+	m_pTextureStore = pTextureStore;
 }
 
 
@@ -269,60 +275,63 @@ void CDlgSmith::DrawArrow(CDC* pDC)
 
 void CDlgSmith::DrawSlotItem(CDC* pDC, const CRect& rect, const CString& strItem, int nCount)
 {
-	// 物品 id 形如“命名空间:名称”，拆开显示：上面是命名空间，中间是名称
-	CString strNamespace;
-	CString strName;
-	const int nColon = strItem.Find(_T(':'));
-	if (nColon > 0)
-	{
-		strNamespace = strItem.Left(nColon);
-		strName = strItem.Mid(nColon + 1);
-	}
-	else
-	{
-		strName = strItem;
-	}
-
-	CFont* pFont = GetFont();
 	pDC->SetBkMode(TRANSPARENT);
-
-	CRect rcText(rect);
-	rcText.DeflateRect(4, 3);
-
-	// 顶部一行小字：命名空间（也就是模组名）
-	if (!strNamespace.IsEmpty() && m_fontSmall.GetSafeHandle() != nullptr)
+	if (m_pTextureStore == nullptr || !m_pTextureStore->Draw(pDC, rect, strItem))
 	{
-		CFont* pOldFont = pDC->SelectObject(&m_fontSmall);
-		const CSize sizeText = pDC->GetTextExtent(strNamespace);
-		CRect rcNamespace(rcText.left, rcText.top, rcText.right, rcText.top + sizeText.cy);
+		// 物品 id 形如“命名空间:名称”，拆开显示：上面是命名空间，中间是名称
+		CString strNamespace;
+		CString strName;
+		const int nColon = strItem.Find(_T(':'));
+		if (nColon > 0)
+		{
+			strNamespace = strItem.Left(nColon);
+			strName = strItem.Mid(nColon + 1);
+		}
+		else
+		{
+			strName = strItem;
+		}
 
-		pDC->SetTextColor(CR_NAMESPACE);
-		pDC->DrawText(strNamespace, rcNamespace, DT_SINGLELINE | DT_CENTER | DT_TOP | DT_END_ELLIPSIS);
-		pDC->SelectObject(pOldFont);
+		CFont* pFont = GetFont();
 
-		rcText.top = rcNamespace.bottom;
-	}
+		CRect rcText(rect);
+		rcText.DeflateRect(4, 3);
 
-	// 中间：物品名称，太长时自动折行并做垂直居中
-	CRect rcName(rcText);
-	if (nCount > 1)
-		rcName.bottom -= 15;	// 给右下角的数量让位
+		// 顶部一行小字：命名空间（也就是模组名）
+		if (!strNamespace.IsEmpty() && m_fontSmall.GetSafeHandle() != nullptr)
+		{
+			CFont* pOldFont = pDC->SelectObject(&m_fontSmall);
+			const CSize sizeText = pDC->GetTextExtent(strNamespace);
+			CRect rcNamespace(rcText.left, rcText.top, rcText.right, rcText.top + sizeText.cy);
 
-	if (rcName.bottom > rcName.top)
-	{
-		CFont* pOldFont = (pFont != nullptr) ? pDC->SelectObject(pFont) : nullptr;
-
-		// 先算出折行后需要的高度，再把它挪到垂直居中的位置
-		CRect rcCalc(0, 0, rcName.Width(), 0);
-		pDC->DrawText(strName, rcCalc, DT_CALCRECT | DT_WORDBREAK | DT_CENTER);
-		if (rcCalc.Height() < rcName.Height())
-			rcName.top += (rcName.Height() - rcCalc.Height()) / 2;
-
-		pDC->SetTextColor(CR_ITEM);
-		pDC->DrawText(strName, rcName, DT_WORDBREAK | DT_CENTER);
-
-		if (pOldFont != nullptr)
+			pDC->SetTextColor(CR_NAMESPACE);
+			pDC->DrawText(strNamespace, rcNamespace, DT_SINGLELINE | DT_CENTER | DT_TOP | DT_END_ELLIPSIS);
 			pDC->SelectObject(pOldFont);
+
+			rcText.top = rcNamespace.bottom;
+		}
+
+		// 中间：物品名称，太长时自动折行并做垂直居中
+		CRect rcName(rcText);
+		if (nCount > 1)
+			rcName.bottom -= 15;	// 给右下角的数量让位
+
+		if (rcName.bottom > rcName.top)
+		{
+			CFont* pOldFont = (pFont != nullptr) ? pDC->SelectObject(pFont) : nullptr;
+
+			// 先算出折行后需要的高度，再把它挪到垂直居中的位置
+			CRect rcCalc(0, 0, rcName.Width(), 0);
+			pDC->DrawText(strName, rcCalc, DT_CALCRECT | DT_WORDBREAK | DT_CENTER);
+			if (rcCalc.Height() < rcName.Height())
+				rcName.top += (rcName.Height() - rcCalc.Height()) / 2;
+
+			pDC->SetTextColor(CR_ITEM);
+			pDC->DrawText(strName, rcName, DT_WORDBREAK | DT_CENTER);
+
+			if (pOldFont != nullptr)
+				pDC->SelectObject(pOldFont);
+		}
 	}
 
 	// 右下角：数量（MC 里数量是带阴影的白色数字）

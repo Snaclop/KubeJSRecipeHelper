@@ -3,6 +3,7 @@
 
 #pragma once
 #include "afxdialogex.h"
+#include "ItemTextureStore.h"
 
 
 // CDlgCraftBase 对话框：合成界面的公共部分（九宫格 + 输出格）
@@ -21,6 +22,7 @@ public:
 	// 设置可选物品的来源列表（由主对话框传入）。
 	// 只保存指针，调用方需保证该列表的生命周期覆盖本对话框。
 	void SetItemSource(const CStringArray* pItemSource);
+	void SetTextureStore(CItemTextureStore* pTextureStore);
 
 	// 取生成好的 KubeJS 脚本；格子内容不完整时返回空串
 	CString GetRecipeScript() const { return BuildRecipeScript(); }
@@ -88,6 +90,7 @@ protected:
 	CFont m_fontSmall;							// 画命名空间、数量用的字体
 
 	const CStringArray* m_pItemSource;			// 可选物品的来源列表，可为空
+	CItemTextureStore* m_pTextureStore;		// 已导入物品的贴图，可为空
 
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
