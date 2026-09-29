@@ -28,6 +28,7 @@
 #define IDC_EDITNUMBER                  1017
 #define IDC_SPIN1                       1018
 #define IDC_SPINNUMBER                  1018
+#define IDC_SPINCOOKTIME                1018
 #define IDC_STATICSMITHGROUP            1019
 #define IDC_STATICSMITHLABEL0           1020
 #define IDC_STATICSMITHLABEL1           1021
@@ -36,6 +37,9 @@
 #define IDC_STATICSMITHHINT             1024
 #define IDC_EDITPOSSIBILITY             1025
 #define IDC_SPINPOSSIBILITY             1026
+#define IDC_COMBOCOOK                   1027
+#define IDC_EDIT1                       1028
+#define IDC_EDITCOOKTIME                1028
 
 // Next default values for new objects
 // 
@@ -43,7 +47,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        148
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1027
+#define _APS_NEXT_CONTROL_VALUE         1029
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

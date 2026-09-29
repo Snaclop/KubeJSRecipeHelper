@@ -51,6 +51,7 @@ CDlgSelect::CDlgSelect(CWnd* pParent /*=nullptr*/)
 	, m_pItemList(nullptr)
 	, m_nInitialCount(1)
 	, m_nSelectedCount(1)
+	, m_nMaxCount(COUNT_MAX)
 {
 
 }
@@ -81,6 +82,12 @@ void CDlgSelect::SetInitialSelection(const CString& strItem, int nCount)
 	m_nInitialCount = nCount;
 }
 
+void CDlgSelect::SetCountLimit(int nMaxCount)
+{
+	m_nMaxCount = (nMaxCount < COUNT_MIN) ? COUNT_MIN :
+		(nMaxCount > COUNT_MAX ? COUNT_MAX : nMaxCount);
+}
+
 BOOL CDlgSelect::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -89,11 +96,16 @@ BOOL CDlgSelect::OnInitDialog()
 	int nCount = m_nInitialCount;
 	if (nCount < COUNT_MIN)
 		nCount = COUNT_MIN;
-	if (nCount > COUNT_MAX)
-		nCount = COUNT_MAX;
+	if (nCount > m_nMaxCount)
+		nCount = m_nMaxCount;
 
-	m_SpinNumber.SetRange32(COUNT_MIN, COUNT_MAX);
+	m_SpinNumber.SetRange32(COUNT_MIN, m_nMaxCount);
 	m_SpinNumber.SetPos(nCount);
+	if (m_nMaxCount == COUNT_MIN)
+	{
+		m_SpinNumber.EnableWindow(FALSE);
+		m_EditNumber.EnableWindow(FALSE);
+	}
 
 	m_SpinPossibility.SetRange32(0, 100);
 	m_SpinPossibility.SetPos(100);
@@ -205,8 +217,8 @@ void CDlgSelect::OnOK()
 	int nCount = (int)GetDlgItemInt(IDC_EDITNUMBER, &bValid, FALSE);
 	if (!bValid || nCount < COUNT_MIN)
 		nCount = COUNT_MIN;
-	if (nCount > COUNT_MAX)
-		nCount = COUNT_MAX;
+	if (nCount > m_nMaxCount)
+		nCount = m_nMaxCount;
 
 	m_strSelectedItem = strItem;
 	m_nSelectedCount = nCount;

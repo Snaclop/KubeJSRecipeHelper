@@ -147,9 +147,15 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncook()
 {
-	// TODO: 在此添加控件通知处理程序代码，熔炉
+	// 物品选择器的概率输入只用于机械动力配方。
+	((CKubeJSRecipeHelperApp*)AfxGetApp())->m_bIsCreate = FALSE;
 	CDlgCook dlg;
-	dlg.DoModal();
+	dlg.SetItemSource(&m_arrNames);
+	dlg.SetTextureStore(&m_itemTextures);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	ShowRecipeScript(dlg.GetRecipeScript());
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut()
