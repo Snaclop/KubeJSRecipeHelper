@@ -160,9 +160,15 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtncook()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut()
 {
-	// TODO: 在此添加控件通知处理程序代码，切石机
+	// 物品选择器的概率输入只用于机械动力配方。
+	((CKubeJSRecipeHelperApp*)AfxGetApp())->m_bIsCreate = FALSE;
 	CDlgStonecut dlg;
-	dlg.DoModal();
+	dlg.SetItemSource(&m_arrNames);
+	dlg.SetTextureStore(&m_itemTextures);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	ShowRecipeScript(dlg.GetRecipeScript());
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncreate()
