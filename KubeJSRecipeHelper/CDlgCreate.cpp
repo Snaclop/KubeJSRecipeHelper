@@ -230,6 +230,10 @@ BOOL CDlgCreate::OnCommand(WPARAM wp,LPARAM lp) {
 }
 int CDlgCreate::Hit(CPoint point) const { for(size_t i=0;i<m_slots.size();++i) if(m_slots[i].rect.PtInRect(point)) return (int)i; return -1; }
 void CDlgCreate::Select(const Slot& slot) {
+    if (m_source == nullptr || m_source->GetSize() == 0) {
+        AfxMessageBox(_T("还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION);
+        return;
+    }
     SaveControls(); Entry& e=EntryAt(slot);
     CDlgSelect select(this); select.SetItemList(m_source); select.SetCatalog(m_catalog,e.kind);
     bool output=slot.group==Output;
