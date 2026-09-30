@@ -11,6 +11,11 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 
 本程序只生成脚本文本，不会修改游戏实例或自动安装配方。生成的脚本应根据所使用的 KubeJS 与模组版本进行检查。
 
+## Todo List
+
+- [ ] 删除配方
+- [ ] 编辑配方
+
 ## 构建要求
 
 - Windows。
@@ -35,20 +40,6 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 
 JAR 解析依赖文件中的资源结构，未被识别的项目不会出现在选择列表中。输出前请确认物品 ID、数量、概率及生成的脚本符合目标游戏环境。
 
-## 测试
-
-`tests/CreateRecipeModelTests.cpp` 测试机械动力配方的生成与输入校验，并写出用于脚本检查的样例文件。`tests/ValidateCreateScripts.js` 使用 Node.js 解析这些样例，检查生成脚本的结构。
-
-在已配置 MSVC 的开发者命令行中，从仓库根目录执行：
-
-```bat
-cl /nologo /EHsc /std:c++17 /DCREATE_MODEL_STANDALONE tests\CreateRecipeModelTests.cpp KubeJSRecipeHelper\CreateRecipeModel.cpp /Fe:CreateRecipeModelTests.exe
-CreateRecipeModelTests.exe create-fixtures.js
-node tests\ValidateCreateScripts.js create-fixtures.js
-```
-
-上述命令需要 Node.js，并会在当前目录生成测试可执行文件、目标文件和 `create-fixtures.js`。测试完成后可删除这些生成文件。
-
 ## 项目结构
 
 - `KubeJSRecipeHelper/`：MFC 程序、配方对话框、JAR 解析及脚本生成代码。
@@ -58,7 +49,3 @@ node tests\ValidateCreateScripts.js create-fixtures.js
 ## 参与贡献
 
 欢迎通过 GitHub Issues 报告问题或提出建议。提交代码变更时，请说明复现步骤或使用场景，并尽可能附上相关测试结果。对配方生成逻辑的修改应同时检查生成脚本的内容。
-
-## 许可证
-
-仓库目前未包含项目许可证文件。
