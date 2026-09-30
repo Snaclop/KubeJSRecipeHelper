@@ -126,7 +126,7 @@
     <None Include="PROJECT_DOCUMENTATION.md" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\KubeJSRecipeHelper.ico">
+    <Image Include="res\RecipeWorkbench.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
