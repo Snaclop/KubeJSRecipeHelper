@@ -10,13 +10,6 @@
 #define new DEBUG_NEW
 #endif
 
-namespace
-{
-	const COLORREF CR_SLOT = RGB(0x8B, 0x8B, 0x8B);
-	const COLORREF CR_HOVER = RGB(0xB0, 0xB0, 0xB0);
-	const COLORREF CR_DARK = RGB(0x37, 0x37, 0x37);
-	const COLORREF CR_LIGHT = RGB(0xFF, 0xFF, 0xFF);
-}
 
 IMPLEMENT_DYNAMIC(CDlgStonecut, CDialogEx)
 
@@ -55,36 +48,20 @@ END_MESSAGE_MAP()
 BOOL CDlgStonecut::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+	m_ui.Initialize(this, 700, 380);
 	CalcSlotRects();
 	return TRUE;
 }
 
 void CDlgStonecut::CalcSlotRects()
 {
-	CRect rcClient, rcButton;
-	GetClientRect(&rcClient);
-	GetDlgItem(IDOK)->GetWindowRect(&rcButton);
-	ScreenToClient(&rcButton);
-
-	int nCell = rcClient.Width() / 5;
-	if (nCell > 112)
-		nCell = 112;
-	const int nAvailableH = rcButton.top - 90;
-	if (nCell > nAvailableH / 2)
-		nCell = nAvailableH / 2;
-	if (nCell < 24)
-		nCell = 24;
-	const int nTop = max(35, (rcButton.top - nCell) / 2 - 35);
-	const int nInputX = rcClient.Width() / 4 - nCell / 2;
-	const int nOutputX = rcClient.Width() * 3 / 4 - nCell / 2;
-	m_rcSlots[SLOT_INPUT].SetRect(nInputX, nTop, nInputX + nCell, nTop + nCell);
-	m_rcSlots[SLOT_OUTPUT].SetRect(nOutputX, nTop, nOutputX + nCell, nTop + nCell);
-	m_rcArrow.SetRect(m_rcSlots[SLOT_INPUT].right + 12, nTop,
-		m_rcSlots[SLOT_OUTPUT].left - 12, nTop + nCell);
-	for (int i = 0; i < SLOT_COUNT; ++i)
-		m_rcLabels[i].SetRect(m_rcSlots[i].left - 18, m_rcSlots[i].bottom + 4,
-			m_rcSlots[i].right + 18, m_rcSlots[i].bottom + 28);
-	m_rcHint.SetRect(20, rcButton.top - 78, rcClient.right - 20, rcButton.top - 40);
+	m_rcSlots[SLOT_INPUT] = m_ui.Rect(150, 110, 70, 70);
+	m_rcSlots[SLOT_OUTPUT] = m_ui.Rect(480, 110, 70, 70);
+	m_rcArrow = m_ui.Rect(260, 110, 180, 70);
+	m_rcLabels[SLOT_INPUT] = m_ui.Rect(150, 70, 70, 25);
+	m_rcLabels[SLOT_OUTPUT] = m_ui.Rect(480, 70, 70, 25);
+	m_rcHint = m_ui.Rect(22, 290, 656, 40);
+	for (int slot = 0; slot < SLOT_COUNT; ++slot) InvalidateSlot(slot);
 }
 
 int CDlgStonecut::HitTestSlot(CPoint point) const
@@ -97,85 +74,30 @@ int CDlgStonecut::HitTestSlot(CPoint point) const
 
 void CDlgStonecut::InvalidateSlot(int nSlot)
 {
-	if (nSlot >= 0 && nSlot < SLOT_COUNT)
-		InvalidateRect(&m_rcSlots[nSlot], FALSE);
+	if (nSlot < 0 || nSlot >= SLOT_COUNT) return;
+	m_ui.Tip(nSlot + 1, m_rcSlots[nSlot], nSlot == SLOT_INPUT ? _T("原料") : _T("产物"),
+		m_slots[nSlot].strItem, m_slots[nSlot].nCount);
+	InvalidateRect(&m_rcSlots[nSlot], FALSE);
 }
 
 void CDlgStonecut::OnPaint()
 {
-	CDialogEx::OnPaint();
-	CClientDC dc(this);
+	CPaintDC dc(this);
 	DrawSlots(&dc);
 }
 
 void CDlgStonecut::DrawSlots(CDC* pDC)
 {
-	CFont* pFont = GetFont();
-	CFont* pOldFont = pFont != nullptr ? pDC->SelectObject(pFont) : nullptr;
-	pDC->SetBkMode(TRANSPARENT);
-
-	if (m_rcArrow.Width() >= 8)
+	m_ui.Text(pDC, _T("切石机"), m_ui.Rect(22, 16, 656, 29));
+	m_ui.Text(pDC, _T("原料"), m_rcLabels[SLOT_INPUT], false, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+	m_ui.Text(pDC, _T("产物"), m_rcLabels[SLOT_OUTPUT], false, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+	m_ui.Arrow(pDC, m_rcArrow);
+	for (int slot = 0; slot < SLOT_COUNT; ++slot)
 	{
-		const int y = m_rcArrow.CenterPoint().y;
-		const int x = m_rcArrow.left + m_rcArrow.Width() * 2 / 3;
-		const int nHalfHead = max(4, m_rcArrow.Height() / 7);
-		POINT arrow[] =
-		{
-			{ x, y - nHalfHead }, { m_rcArrow.right, y }, { x, y + nHalfHead }
-		};
-		CPen pen(PS_SOLID, 2, CR_DARK);
-		CBrush brush(CR_DARK);
-		CPen* pOldPen = pDC->SelectObject(&pen);
-		CBrush* pOldBrush = pDC->SelectObject(&brush);
-		pDC->MoveTo(m_rcArrow.left, y);
-		pDC->LineTo(x, y);
-		pDC->Polygon(arrow, _countof(arrow));
-		pDC->SelectObject(pOldBrush);
-		pDC->SelectObject(pOldPen);
+		m_ui.Slot(pDC, m_rcSlots[slot], slot == m_nHoverSlot, m_slots[slot].strItem, m_slots[slot].nCount, m_pTextureStore);
+		m_ui.Text(pDC, _T("物品"), m_ui.Rect(slot == SLOT_INPUT ? 150 : 480, 184, 70, 27), false, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
 	}
-
-	for (int i = 0; i < SLOT_COUNT; ++i)
-	{
-		const CRect& rc = m_rcSlots[i];
-		pDC->FillSolidRect(rc, i == m_nHoverSlot ? CR_HOVER : CR_SLOT);
-		pDC->FillSolidRect(rc.left, rc.top, rc.Width() - 1, 1, CR_DARK);
-		pDC->FillSolidRect(rc.left, rc.top, 1, rc.Height() - 1, CR_DARK);
-		pDC->FillSolidRect(rc.left + 1, rc.bottom - 1, rc.Width() - 1, 1, CR_LIGHT);
-		pDC->FillSolidRect(rc.right - 1, rc.top + 1, 1, rc.Height() - 1, CR_LIGHT);
-
-		const StonecutCell& cell = m_slots[i];
-		if (cell.strItem.IsEmpty())
-			continue;
-		if (m_pTextureStore == nullptr || !m_pTextureStore->Draw(pDC, rc, cell.strItem))
-		{
-			CRect rcText(rc);
-			rcText.DeflateRect(3, 3);
-			pDC->SetTextColor(RGB(0x20, 0x20, 0x20));
-			pDC->DrawText(cell.strItem, rcText,
-				DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_END_ELLIPSIS);
-		}
-		if (cell.nCount > 1)
-		{
-			CString strCount;
-			strCount.Format(_T("%d"), cell.nCount);
-			CRect rcCount(rc.right - 35, rc.bottom - 22, rc.right - 3, rc.bottom - 2);
-			CRect rcShadow(rcCount);
-			rcShadow.OffsetRect(1, 1);
-			pDC->SetTextColor(CR_DARK);
-			pDC->DrawText(strCount, rcShadow, DT_RIGHT | DT_SINGLELINE);
-			pDC->SetTextColor(CR_LIGHT);
-			pDC->DrawText(strCount, rcCount, DT_RIGHT | DT_SINGLELINE);
-		}
-	}
-
-	pDC->SetTextColor(GetSysColor(COLOR_WINDOWTEXT));
-	pDC->DrawText(_T("原料"), m_rcLabels[SLOT_INPUT], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	pDC->DrawText(_T("产物"), m_rcLabels[SLOT_OUTPUT], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	pDC->SetTextColor(GetSysColor(COLOR_GRAYTEXT));
-	pDC->DrawText(_T("左键选择物品，右键清空格子"), m_rcHint,
-		DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-	if (pOldFont != nullptr)
-		pDC->SelectObject(pOldFont);
+	m_ui.Text(pDC, _T("左键选择，右键清空；停留在格子上可查看 ID 和数量。"), m_rcHint, true, DT_LEFT | DT_WORDBREAK);
 }
 
 void CDlgStonecut::SelectSlotItem(int nSlot)
@@ -273,4 +195,10 @@ CString CDlgStonecut::BuildRecipeScript() const
 		output.strItem.GetString(), strOutput.GetString(),
 		m_slots[SLOT_INPUT].strItem.GetString());
 	return strScript;
+}
+
+BOOL CDlgStonecut::PreTranslateMessage(MSG* message)
+{
+	m_ui.Relay(message);
+	return CDialogEx::PreTranslateMessage(message);
 }

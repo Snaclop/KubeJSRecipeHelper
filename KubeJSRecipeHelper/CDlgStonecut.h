@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "afxdialogex.h"
 #include "ItemTextureStore.h"
+#include "RecipeDialogUI.h"
 
 // 切石机配方对话框：输入格、输出格和说明文字均由代码绘制。
 class CDlgStonecut : public CDialogEx
@@ -28,6 +29,8 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();
+	BOOL PreTranslateMessage(MSG* message) override;
+	CRecipeDialogUI m_ui;
 	virtual void OnOK();
 	void CalcSlotRects();
 	int HitTestSlot(CPoint point) const;

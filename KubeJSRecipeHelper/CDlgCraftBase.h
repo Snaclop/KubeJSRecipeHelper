@@ -4,6 +4,7 @@
 #pragma once
 #include "afxdialogex.h"
 #include "ItemTextureStore.h"
+#include "RecipeDialogUI.h"
 
 
 // CDlgCraftBase 对话框：合成界面的公共部分（九宫格 + 输出格）
@@ -54,6 +55,8 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL OnInitDialog();
+	BOOL PreTranslateMessage(MSG* message) override;
+	CRecipeDialogUI m_ui;
 	virtual void OnOK();
 
 	// 按格子内容生成 KubeJS 脚本，由子类实现
@@ -72,9 +75,6 @@ protected:
 
 	// 绘制
 	void DrawSlots(CDC* pDC);
-	void DrawSlotFrame(CDC* pDC, const CRect& rect, BOOL bHover);
-	void DrawSlotItem(CDC* pDC, const CRect& rect, const CString& strItem, int nCount);
-	void DrawArrow(CDC* pDC);									// 九宫格与输出格之间的箭头
 
 	// 点击格子后弹出选择对话框，返回 TRUE 表示用户确认了选择
 	BOOL SelectSlotItem(int nSlot);
@@ -82,12 +82,9 @@ protected:
 	CraftCell m_cells[GRID_ROWS][GRID_COLS];	// 九个合成格的内容
 	CraftCell m_outputCell;						// 输出格的内容
 	CRect m_rcSlots[SLOT_COUNT];				// 每个格子的矩形
-	CRect m_rcSlotArea;							// 所有格子（含中间箭头）占用的整块区域
 	CRect m_rcHint;								// 操作提示文字占用的矩形
-	int   m_nCellSize;							// 单个格子的边长
 	int   m_nHoverSlot;							// 鼠标悬停的格子序号，-1 表示没有悬停
 	BOOL  m_bTrackingMouse;						// 是否已经请求过 WM_MOUSELEAVE
-	CFont m_fontSmall;							// 画命名空间、数量用的字体
 
 	const CStringArray* m_pItemSource;			// 可选物品的来源列表，可为空
 	CItemTextureStore* m_pTextureStore;		// 已导入物品的贴图，可为空

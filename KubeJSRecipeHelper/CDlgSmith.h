@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "afxdialogex.h"
 #include "ItemTextureStore.h"
+#include "RecipeDialogUI.h"
 
 
 // CDlgSmith 对话框：锻造台
@@ -11,7 +12,7 @@
 //   - 右键点击某个格子，清空该格；
 //   - 鼠标悬停时格子底色变亮，配色跟合成界面完全一致。
 //
-// 三个输入格摆在“输入”分组框里，输出格放在分组框右边，中间画一个箭头；
+// 三个原料格与产物格分列显示，中间画一个箭头；
 // 点“确定”后按四个格子生成 KubeJS 锻造台脚本（event.smithing）。
 class CDlgSmith : public CDialogEx
 {
@@ -57,9 +58,11 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL OnInitDialog();
+	BOOL PreTranslateMessage(MSG* message) override;
+	CRecipeDialogUI m_ui;
 	virtual void OnOK();
 
-	// 按“输入”分组框算出四个格子与箭头的位置，并把说明文字对齐到格子下面
+	// 按统一的逻辑坐标摆放格子、箭头与说明文字
 	void CalcSlotRects();
 
 	SmithCell* GetSlot(int nSlot);							// 取某个格子里的内容
@@ -72,9 +75,6 @@ protected:
 
 	// 绘制
 	void DrawSlots(CDC* pDC);
-	void DrawSlotFrame(CDC* pDC, const CRect& rect, BOOL bHover);
-	void DrawSlotItem(CDC* pDC, const CRect& rect, const CString& strItem, int nCount);
-	void DrawArrow(CDC* pDC);								// 输入格与输出格之间的箭头
 
 	// 按四个格子的内容生成 KubeJS 锻造台脚本（event.smithing）
 	CString BuildRecipeScript() const;
@@ -82,10 +82,8 @@ protected:
 	SmithCell m_slots[SLOT_COUNT];		// 四个格子的内容
 	CRect m_rcSlots[SLOT_COUNT];		// 每个格子的矩形
 	CRect m_rcArrow;					// 箭头占用的矩形
-	int   m_nCellSize;					// 单个格子的边长
 	int   m_nHoverSlot;					// 鼠标悬停的格子序号，-1 表示没有悬停
 	BOOL  m_bTrackingMouse;				// 是否已经请求过 WM_MOUSELEAVE
-	CFont m_fontSmall;					// 画命名空间、数量用的字体
 
 	const CStringArray* m_pItemSource;	// 可选物品的来源列表，可为空
 	CItemTextureStore* m_pTextureStore;	// 已导入物品的贴图，可为空

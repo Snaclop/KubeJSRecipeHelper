@@ -42,6 +42,9 @@
     <ClInclude Include="CDlgCreate.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="RecipeDialogUI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="RecipeCatalog.h">
       <Filter>头文件</Filter>
     </ClInclude>

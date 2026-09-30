@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "afxdialogex.h"
 #include "ItemTextureStore.h"
+#include "RecipeDialogUI.h"
 
 // 熔炉、高炉和烟熏炉配方对话框
 class CDlgCook : public CDialogEx
@@ -28,6 +29,8 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();
+	BOOL PreTranslateMessage(MSG* message) override;
+	CRecipeDialogUI m_ui;
 	virtual void OnOK();
 	void CalcSlotRects();
 	int HitTestSlot(CPoint point) const;
