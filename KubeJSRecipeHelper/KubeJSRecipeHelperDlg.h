@@ -53,6 +53,7 @@ public:
 
 	// 累积保存历次导入得到的所有名称
 	CStringArray m_arrNames;
+	RecipeTypeMap m_entryTypes;
 	CItemTextureStore m_itemTextures;
 
 	// 把 m_arrNames 的内容刷新显示到输出框

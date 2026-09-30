@@ -40,6 +40,10 @@
 #define IDC_COMBOCOOK                   1027
 #define IDC_EDIT1                       1028
 #define IDC_EDITCOOKTIME                1028
+#define IDC_COMBO1                      1029
+#define IDC_COMBOCREATE                 1029
+#define IDC_GROUPCOUNT                  1030
+#define IDC_GROUPCHANCE                 1031
 
 // Next default values for new objects
 // 
@@ -47,7 +51,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        148
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1029
+#define _APS_NEXT_CONTROL_VALUE         1032
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

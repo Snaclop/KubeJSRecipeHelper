@@ -42,6 +42,12 @@
     <ClInclude Include="CDlgCreate.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="RecipeCatalog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateRecipeModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="CDlgShaped.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -81,6 +87,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgCreate.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateRecipeModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgShaped.cpp">

@@ -173,11 +173,17 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncreate()
 {
-	// TODO: 在此添加控件通知处理程序代码，机械动力
 	CKubeJSRecipeHelperApp* pApp = (CKubeJSRecipeHelperApp*)AfxGetApp();
-	pApp -> m_bIsCreate = TRUE;
-	CDlgCreate dlg;
-	dlg.DoModal();
+	const BOOL previous = pApp->m_bIsCreate;
+	pApp->m_bIsCreate = TRUE;
+	CDlgCreate dlg(this);
+	dlg.SetItemSource(&m_arrNames);
+	dlg.SetCatalog(&m_entryTypes);
+	dlg.SetTextureStore(&m_itemTextures);
+	const INT_PTR result = dlg.DoModal();
+	pApp->m_bIsCreate = previous;
+	if (result == IDOK)
+		ShowRecipeScript(dlg.GetRecipeScript());
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
@@ -845,14 +851,16 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	std::vector<std::string> arrNames;
 	std::set<std::string> setNames;
 	std::map<std::string, std::string> mapItemTextures;	// 物品 ID -> 贴图键
+	std::map<std::string, unsigned> entryTypes;
 
 	// 收录一个名字，按 “命名空间:名字” 去重
-	auto AddName = [&arrNames, &setNames](const std::string& strNamespace, const std::string& strName)
+	auto AddName = [&arrNames, &setNames, &entryTypes](const std::string& strNamespace, const std::string& strName, unsigned kind = RecipeItem)
 	{
 		if (strNamespace.empty() || strName.empty())
 			return;
 
 		const std::string strFull = strNamespace + ":" + strName;
+		entryTypes[strFull] |= kind;
 		if (setNames.insert(strFull).second)
 			arrNames.push_back(strFull);
 	};
@@ -961,7 +969,7 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 			std::string strName;
 			if (SplitFluidId(arrStrings[k], strNamespace, strName))
 			{
-				AddName(strNamespace, strName);
+				AddName(strNamespace, strName, RecipeFluid);
 				const std::string strBlockTexture = MakeRefKey(strNamespace,
 					"block/" + strName + "_still");
 				if (setTextures.count(strBlockTexture) > 0)
@@ -978,7 +986,7 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 		const std::string strIdNamespace =
 			(strNamespace == "minecraft" || lang.HasKey(strNamespace, "fluid", strName))
 			? strNamespace : "minecraft";
-		AddName(strIdNamespace, strName);
+		AddName(strIdNamespace, strName, RecipeFluid);
 
 		const std::string strStill = MakeRefKey(strNamespace, "fluid/" + strName + "_still");
 		const std::string strFlow = MakeRefKey(strNamespace, "fluid/" + strName + "_flow");
@@ -1007,6 +1015,11 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	// zip 内文件名均为 UTF-8，转成 CString 时按 UTF-8 解释
 	for (int i = 0; i < nCount; ++i)
 		pArr[i] = CString(CA2T(arrNames[i].c_str(), CP_UTF8));
+	for (const auto& entry : entryTypes)
+	{
+		const CString id(CA2T(entry.first.c_str(), CP_UTF8));
+		m_entryTypes[std::wstring(id.GetString())] |= entry.second;
+	}
 
 	for (const auto& itemTexture : mapItemTextures)
 	{

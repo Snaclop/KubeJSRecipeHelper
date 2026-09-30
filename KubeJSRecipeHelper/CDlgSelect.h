@@ -3,6 +3,8 @@
 
 #pragma once
 #include "afxdialogex.h"
+#include "RecipeCatalog.h"
+#include <vector>
 
 
 // CDlgSelect 对话框：从已导入的物品列表里挑一个物品，并指定数量
@@ -27,6 +29,11 @@ public:
 	void SetInitialSelection(const CString& strItem, int nCount);
 	// 某些配方只允许单个原料，或限制产物堆叠数量。
 	void SetCountLimit(int nMaxCount);
+	void SetCatalog(const RecipeTypeMap* catalog, unsigned allowedKinds) { m_catalog = catalog; m_allowedKinds = allowedKinds; }
+	void SetChanceMode(bool enabled, bool weights = false) { m_allowChance = enabled; m_weights = weights; }
+	void SetInitialDetails(RecipeEntryKind kind, double chance) { m_kind = kind; m_chance = chance; }
+	RecipeEntryKind GetSelectedKind() const { return m_kind; }
+	double GetSelectedChance() const { return m_chance; }
 
 	// 选择结果，DoModal 返回 IDOK 之后才有效
 	CString GetSelectedItem() const { return m_strSelectedItem; }
@@ -61,6 +68,16 @@ protected:
 
 	afx_msg void OnEnChangeEditSearch();
 	afx_msg void OnLbnDblclkList();
+	afx_msg void OnSelectionChanged();
+	afx_msg void OnChanceSpin(NMHDR* header, LRESULT* result);
+	const RecipeTypeMap* m_catalog = nullptr;
+	unsigned m_allowedKinds = RecipeItem;
+	RecipeEntryKind m_kind = RecipeItem;
+	double m_chance = 100;
+	bool m_allowChance = true, m_weights = false;
+	struct Choice { CString id; RecipeEntryKind kind; };
+	std::vector<Choice> m_choices;
+	int CurrentLimit() const;
 	DECLARE_MESSAGE_MAP()
 	CSpinButtonCtrl m_SpinPossibility;
 	CEdit m_EditPossibility;
