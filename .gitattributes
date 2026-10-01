@@ -1,3 +1,7 @@
 # 强制头文件按 C++ 统计，避免 GitHub 把 MFC 项目识别成 C
 *.h linguist-language=C++
 *.hpp linguist-language=C++
+
+# miniz 是随项目附带的第三方 C 库，不计入项目语言占比
+KubeJSRecipeHelper/miniz.c linguist-vendored
+KubeJSRecipeHelper/miniz.h linguist-language=C linguist-vendored
