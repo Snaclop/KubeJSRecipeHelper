@@ -8,6 +8,7 @@
 #include "KubeJSRecipeHelperDlg.h"
 #include "afxdialogex.h"
 #include "miniz.h"
+#include <atlbase.h>
 #include <fstream>
 #include <map>
 #include <set>
@@ -186,39 +187,79 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtncreate()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	// 导入jar文件并解析
 	CFileDialog dlgFile(TRUE, _T("jar"), nullptr,
-		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT,
 		_T("JAR 文件 (*.jar)|*.jar|所有文件 (*.*)|*.*||"), this);
 	if (dlgFile.DoModal() != IDOK)
 		return;
 
-	CString strJarPath = dlgFile.GetPathName();
-
-	// 解析选中的 jar 文件，收集 models 目录下 item / block 里的物品、方块 id
-	CString* pNames = nullptr;
-	int nCount = ParseJarModels(strJarPath, pNames);
-	if (nCount < 0)
+	// 直接枚举系统对话框的全部结果，避免固定文件名缓冲区截断多选列表。
+	CComPtr<IShellItemArray> selectedFiles;
+	selectedFiles.Attach(dlgFile.GetResults());
+	DWORD fileCount = 0;
+	if (!selectedFiles || FAILED(selectedFiles->GetCount(&fileCount)))
 	{
-		AfxMessageBox(_T("JAR 文件解析失败！"), MB_ICONERROR);
+		AfxMessageBox(_T("无法读取所选文件列表。"), MB_ICONERROR);
 		return;
 	}
 
-	// 追加到累积列表（保留之前导入的数据）
-	for (int i = 0; i < nCount; ++i)
-		m_arrNames.Add(pNames[i]);
+	CStringArray paths;
+	for (DWORD i = 0; i < fileCount; ++i)
+	{
+		CComPtr<IShellItem> item;
+		CComHeapPtr<wchar_t> path;
+		if (FAILED(selectedFiles->GetItemAt(i, &item)) ||
+			FAILED(item->GetDisplayName(SIGDN_FILESYSPATH, &path)))
+		{
+			AfxMessageBox(_T("无法读取所选文件的路径。"), MB_ICONERROR);
+			return;
+		}
+		paths.Add(CString(path));
+	}
 
-	delete[] pNames;
+	CString failures;
+	int failedCount = 0;
+	{
+		CWaitCursor wait;
+		// 按选择列表顺序解析，一个文件完成后才处理下一个。
+		for (INT_PTR i = 0; i < paths.GetSize(); ++i)
+		{
+			CString progress;
+			progress.Format(_T("正在解析 %d/%d：\r\n%s"),
+				(int)i + 1, (int)paths.GetSize(), paths[i].GetString());
+			SetDlgItemText(IDC_EDITOUTPUT, progress);
+			GetDlgItem(IDC_EDITOUTPUT)->UpdateWindow();
 
-	// 刷新显示全部累积结果
-	RefreshNamesOutput();
+			CString* pNames = nullptr;
+			const int nCount = ParseJarModels(paths[i], pNames);
+			if (nCount < 0)
+			{
+				++failedCount;
+				failures += paths[i] + _T("\r\n");
+			}
+			else
+			{
+				for (int n = 0; n < nCount; ++n)
+					m_arrNames.Add(pNames[n]);
+			}
+			delete[] pNames;
+		}
+	}
+
+	CString summary;
+	summary.Format(_T("导入完成：成功 %d 个 JAR，失败 %d 个。\r\n\r\n"),
+		(int)paths.GetSize() - failedCount, failedCount);
+	RefreshNamesOutput(summary);
+	if (failedCount > 0)
+		AfxMessageBox(summary + _T("以下文件解析失败，已继续处理其他文件：\r\n") + failures,
+			MB_ICONWARNING);
 }
 
-void CKubeJSRecipeHelperDlg::RefreshNamesOutput()
+void CKubeJSRecipeHelperDlg::RefreshNamesOutput(const CString& strSummary)
 {
 	CString strOutput;
 	strOutput.Format(_T("共找到 %d 个 item：\r\n"), (int)m_arrNames.GetSize());
+	strOutput = strSummary + strOutput;
 	for (INT_PTR i = 0; i < m_arrNames.GetSize(); ++i)
 	{
 		strOutput += m_arrNames[i];

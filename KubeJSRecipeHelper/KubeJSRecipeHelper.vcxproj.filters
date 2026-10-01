@@ -123,7 +123,6 @@
     <None Include="res\KubeJSRecipeHelper.rc2">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="PROJECT_DOCUMENTATION.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\RecipeWorkbench.ico">

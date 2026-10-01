@@ -243,7 +243,6 @@
     <ResourceCompile Include="KubeJSRecipeHelper.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="PROJECT_DOCUMENTATION.md" />
     <None Include="res\KubeJSRecipeHelper.rc2" />
   </ItemGroup>
   <ItemGroup>

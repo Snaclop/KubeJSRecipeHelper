@@ -57,7 +57,7 @@ public:
 	CItemTextureStore m_itemTextures;
 
 	// 把 m_arrNames 的内容刷新显示到输出框
-	void RefreshNamesOutput();
+	void RefreshNamesOutput(const CString& strSummary = CString());
 
 	// 把子对话框生成好的 KubeJS 脚本显示到输出框（覆盖掉之前的内容）
 	void ShowRecipeScript(const CString& strScript);
