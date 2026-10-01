@@ -1,0 +1,3 @@
+# 强制头文件按 C++ 统计，避免 GitHub 把 MFC 项目识别成 C
+*.h linguist-language=C++
+*.hpp linguist-language=C++
