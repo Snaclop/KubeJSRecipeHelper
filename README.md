@@ -22,7 +22,7 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 
 - Windows。
 - Visual Studio，安装“使用 C++ 的桌面开发”及 MFC 组件。
-- Windows 10 SDK。项目当前配置使用 MSVC `v145` 平台工具集和动态链接的 MFC；如果本机没有该工具集，需要在项目属性中调整平台工具集。
+- Windows 10 SDK。项目当前配置使用 MSVC `v145` 平台工具集和动态链接的 MFC。
 
 ## 构建与运行
 
@@ -41,12 +41,6 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 5. 检查并整理生成的脚本，将其放入游戏实例的 `kubejs/server_scripts/` 目录。配方脚本的放置位置参见 [KubeJS 官方文档](https://kubejs.com/wiki/folder-structure/server-scripts)。
 
 JAR 解析依赖文件中的资源结构，未被识别的项目不会出现在选择列表中。输出前请确认物品 ID、数量、概率及生成的脚本符合目标游戏环境。
-
-## 项目结构
-
-- `KubeJSRecipeHelper/`：MFC 程序、配方对话框、JAR 解析及脚本生成代码。
-- `KubeJSRecipeHelper/CreateRecipeModel.*`：机械动力配方的数据模型、校验和脚本生成。
-- `tests/`：机械动力配方模型及生成脚本的测试。
 
 ## 参与贡献
 
