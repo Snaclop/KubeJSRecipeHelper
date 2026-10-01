@@ -38,8 +38,7 @@ void CKubeJSRecipeHelperDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BTNSHAPED, &CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped)
-	ON_BN_CLICKED(IDC_BTNSHAPELESS, &CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless)
+	ON_BN_CLICKED(IDC_BTNCRAFTABLE, &CKubeJSRecipeHelperDlg::OnBnClickedBtncraftable)
 	ON_BN_CLICKED(IDC_BTNSMITH, &CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith)
 	ON_BN_CLICKED(IDC_BTNCOOK, &CKubeJSRecipeHelperDlg::OnBnClickedBtncook)
 	ON_BN_CLICKED(IDC_BTNSTONECUT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut)
@@ -108,22 +107,10 @@ void CKubeJSRecipeHelperDlg::ShowRecipeScript(const CString& strScript)
 		SetDlgItemText(IDC_EDITOUTPUT, strScript);
 }
 
-void CKubeJSRecipeHelperDlg::OnBnClickedBtnshaped()
+void CKubeJSRecipeHelperDlg::OnBnClickedBtncraftable()
 {
-	// 有序合成：把已导入的物品列表交给九宫格，点击方格时从中选择物品
-	CDlgShaped dlg;
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetTextureStore(&m_itemTextures);
-	if (dlg.DoModal() != IDOK)
-		return;
-
-	ShowRecipeScript(dlg.GetRecipeScript());
-}
-
-void CKubeJSRecipeHelperDlg::OnBnClickedBtnshapeless()
-{
-	// 无序合成：界面跟有序合成一样，只是生成 event.shapeless
-	CDlgShapeless dlg;
+	// 工作台共用九宫格，在对话框内选择有序或无序合成。
+	CDlgCraftable dlg;
 	dlg.SetItemSource(&m_arrNames);
 	dlg.SetTextureStore(&m_itemTextures);
 	if (dlg.DoModal() != IDOK)

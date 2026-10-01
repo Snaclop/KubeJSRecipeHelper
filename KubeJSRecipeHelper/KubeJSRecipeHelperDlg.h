@@ -6,8 +6,7 @@
 
 #include "CDlgCook.h"
 #include "CDlgCreate.h"
-#include "CDlgShaped.h"
-#include "CDlgShapeless.h"
+#include "CDlgCraftable.h"
 #include "CDlgSmith.h"
 #include "CDlgStonecut.h"
 #include "ItemTextureStore.h"
@@ -38,8 +37,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedBtnshaped();
-	afx_msg void OnBnClickedBtnshapeless();
+	afx_msg void OnBnClickedBtncraftable();
 	afx_msg void OnBnClickedBtnsmith();
 	afx_msg void OnBnClickedBtncook();
 	afx_msg void OnBnClickedBtnstonecut();

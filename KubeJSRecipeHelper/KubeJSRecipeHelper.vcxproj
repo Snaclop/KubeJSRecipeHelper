@@ -196,14 +196,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CDlgCook.h" />
-    <ClInclude Include="CDlgCraftBase.h" />
     <ClInclude Include="CDlgCreate.h" />
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
     <ClInclude Include="CreateRecipeModel.h" />
     <ClInclude Include="CDlgSelect.h" />
-    <ClInclude Include="CDlgShaped.h" />
-    <ClInclude Include="CDlgShapeless.h" />
+    <ClInclude Include="CDlgCraftable.h" />
     <ClInclude Include="CDlgSmith.h" />
     <ClInclude Include="CDlgStonecut.h" />
     <ClInclude Include="framework.h" />
@@ -216,14 +214,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDlgCook.cpp" />
-    <ClCompile Include="CDlgCraftBase.cpp" />
     <ClCompile Include="CDlgCreate.cpp" />
     <ClCompile Include="CreateRecipeModel.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CDlgSelect.cpp" />
-    <ClCompile Include="CDlgShaped.cpp" />
-    <ClCompile Include="CDlgShapeless.cpp" />
+    <ClCompile Include="CDlgCraftable.cpp" />
     <ClCompile Include="CDlgSmith.cpp" />
     <ClCompile Include="CDlgStonecut.cpp" />
     <ClCompile Include="ItemTextureStore.cpp" />
