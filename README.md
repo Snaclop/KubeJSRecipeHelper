@@ -1,6 +1,6 @@
 # KubeJSRecipeHelper
 
-KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS 配方脚本。程序可以从 Minecraft 或模组的 JAR 文件中读取可选的物品、方块和流体 ID，在配方对话框中选择原料与产物，并预览生成的 JavaScript。
+KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS 配方脚本。程序可以从 Minecraft 或模组的 JAR 文件中读取可选的物品、方块和流体 ID，在配方对话框中选择原料与产物，并预览生成的 JavaScript，生成的脚本目前仅在 Minecraft 1.21.1 下测试通过，其它版本可自行尝试
 
 ## 功能
 
@@ -13,8 +13,10 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 
 ## Todo List
 
-- [ ] 删除配方
-- [ ] 编辑配方
+- [ ] 增加其他模组配方和自定义配方，均采用 event.custom 实现
+- [ ] 删除配方，支持通过3种方式删除：输出、输入、配方id
+- [ ] 编辑配方，支持通过2种方式替换：输出、输入
+- [ ] 增加对 Minecraft 1.20.1 的支持
 
 ## 构建要求
 
