@@ -100,6 +100,7 @@ BEGIN
     PUSHBUTTON      "导出到 output.js",IDC_BTNDWNLOAD,17,177,62,12
     PUSHBUTTON      "清除内容",IDC_BTNCLEAR,83,177,62,12
     PUSHBUTTON      "编辑配方（待实现）",IDC_BTNMODIFY,18,144,127,12,WS_DISABLED
+    PUSHBUTTON      "其它配方",IDC_BTNOTHER,83,96,62,12,WS_DISABLED
 END
 
 IDD_DLGCRAFTABLE DIALOGEX 0, 0, 379, 193
@@ -302,6 +303,7 @@ BEGIN
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 100, 100,
+    0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0
