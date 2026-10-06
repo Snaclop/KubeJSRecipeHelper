@@ -1,6 +1,6 @@
 # KubeJSRecipeHelper
 
-KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS 配方脚本。程序可以从 Minecraft 或模组的 JAR 文件中读取可选的物品、方块和流体 ID，在配方对话框中选择原料与产物，并预览生成的 JavaScript，生成的脚本目前仅在 Minecraft 1.21.1 下测试通过，其它版本可自行尝试
+可视化 KubeJS 配方脚本生成器。程序可以从 Minecraft 或模组的 JAR 文件中读取可选的物品、方块和流体 ID，在配方对话框中选择原料与产物，并预览生成的 JavaScript。
 
 ## 功能
 
@@ -11,27 +11,6 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 
 本程序只生成脚本文本，不会修改游戏实例或自动安装配方。生成的脚本应根据所使用的 KubeJS 与模组版本进行检查。
 
-## Todo List
-
-- [ ] 增加其他模组配方和自定义配方，均采用 event.custom 实现
-- [ ] 删除配方，支持通过3种方式删除：输出、输入、配方id
-- [ ] 编辑配方，支持通过2种方式替换：输出、输入
-- [ ] 增加对 Minecraft 1.20.1 的支持
-
-## 构建要求
-
-- Windows。
-- Visual Studio，安装“使用 C++ 的桌面开发”及 MFC 组件。
-- Windows 10 SDK。项目当前配置使用 MSVC `v145` 平台工具集和动态链接的 MFC。
-
-## 构建与运行
-
-1. 在 Visual Studio 中打开仓库根目录的 `KubeJSRecipeHelper.slnx`。
-2. 选择 `Debug` 或 `Release` 配置，以及 `x64` 或 `Win32` 平台。
-3. 构建并运行 `KubeJSRecipeHelper` 项目。
-
-项目包含 `miniz` 源码，用于读取 JAR 文件。运行程序不需要单独安装 `miniz`。
-
 ## 使用方法
 
 1. 点击“导入 .jar 文件”，选择包含所需物品或流体资源的 JAR。可一次选择多个文件，程序会按列表顺序逐个解析并显示当前进度；某个文件解析失败时会继续处理其余文件，结束后统一提示失败文件。可以多次导入；识别出的 ID 会加入当前会话的可选列表。
@@ -41,6 +20,21 @@ KubeJSRecipeHelper 是一个 Windows 桌面程序，用图形界面生成 KubeJS
 5. 检查并整理生成的脚本，将其放入游戏实例的 `kubejs/server_scripts/` 目录。配方脚本的放置位置参见 [KubeJS 官方文档](https://kubejs.com/wiki/folder-structure/server-scripts)。
 
 JAR 解析依赖文件中的资源结构，未被识别的项目不会出现在选择列表中。输出前请确认物品 ID、数量、概率及生成的脚本符合目标游戏环境。
+
+## Todo List
+
+- [x] Create 模块增加对 Minecraft 1.20.1 版本的支持
+- [ ] 增加其他模组配方和自定义配方，均采用 event.custom 实现
+- [ ] 删除配方，支持通过3种方式删除：输出、输入、配方id
+- [ ] 编辑配方，支持通过2种方式替换：输出、输入
+
+## 构建与运行
+
+1. 在 Visual Studio 中打开仓库根目录的 `KubeJSRecipeHelper.slnx`。
+2. 选择 `Debug` 或 `Release` 配置，以及 `x64` 或 `Win32` 平台。
+3. 构建并运行 `KubeJSRecipeHelper` 项目。
+
+项目包含 `miniz` 源码，用于读取 JAR 文件。运行程序不需要单独安装 `miniz`。
 
 ## 参与贡献
 
