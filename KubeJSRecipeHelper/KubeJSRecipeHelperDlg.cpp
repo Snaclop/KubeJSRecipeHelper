@@ -46,6 +46,7 @@ BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTNIMPORT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnimport)
 	ON_BN_CLICKED(IDC_BTNCLEAR, &CKubeJSRecipeHelperDlg::OnBnClickedBtnclear)
 	ON_BN_CLICKED(IDC_BTNDWNLOAD, &CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload)
+	ON_BN_CLICKED(IDC_BTNOTHER, &CKubeJSRecipeHelperDlg::OnBnClickedBtnother)
 END_MESSAGE_MAP()
 
 
@@ -1072,4 +1073,9 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload()
 	std::ofstream out("output.js", std::ios::app | std::ios::binary);
 	out << CT2A(m_strOutput, CP_UTF8) << std::endl;
 	MessageBox(_T("文件已输出至软件同目录下"));
+}
+
+void CKubeJSRecipeHelperDlg::OnBnClickedBtnother()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

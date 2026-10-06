@@ -197,6 +197,7 @@
   <ItemGroup>
     <ClInclude Include="CDlgCook.h" />
     <ClInclude Include="CDlgCreate.h" />
+    <ClInclude Include="CDlgOther.h" />
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
     <ClInclude Include="CreateRecipeModel.h" />
@@ -215,6 +216,7 @@
   <ItemGroup>
     <ClCompile Include="CDlgCook.cpp" />
     <ClCompile Include="CDlgCreate.cpp" />
+    <ClCompile Include="CDlgOther.cpp" />
     <ClCompile Include="CreateRecipeModel.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>

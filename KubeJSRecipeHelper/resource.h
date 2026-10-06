@@ -10,6 +10,7 @@
 #define IDD_DLGSTONECUT                 138
 #define IDD_DLGCREATE                   140
 #define IDD_DLGSELECT                   146
+#define IDD_DLGOTHER                    148
 #define IDC_BTNIMPORT                   1000
 #define IDC_OUTPUT                      1002
 #define IDC_EDITOUTPUT                  1003
@@ -54,7 +55,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        148
+#define _APS_NEXT_RESOURCE_VALUE        150
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
