@@ -58,6 +58,13 @@ public:
 
     void Relay(MSG* message) { if (m_tips.GetSafeHwnd()) m_tips.RelayEvent(message); }
 
+    void ClearTips()
+    {
+        if (m_tips.GetSafeHwnd())
+            for (auto id : m_tipIds) m_tips.DelTool(m_dialog, id);
+        m_tipIds.clear();
+    }
+
     void Tip(UINT_PTR id, const CRect& rect, const CString& label, const CString& item, int count)
     {
         CString text = label + _T("：左键选择，右键清空");

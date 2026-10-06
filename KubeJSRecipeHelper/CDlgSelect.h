@@ -30,7 +30,7 @@ public:
 	// 某些配方只允许单个原料，或限制产物堆叠数量。
 	void SetCountLimit(int nMaxCount);
 	void SetCatalog(const RecipeTypeMap* catalog, unsigned allowedKinds) { m_catalog = catalog; m_allowedKinds = allowedKinds; }
-	void SetChanceMode(bool enabled, bool weights = false) { m_allowChance = enabled; m_weights = weights; }
+	void SetChanceMode(bool enabled, bool weights = false) { m_allowChance = enabled; m_weights = weights; m_hasChanceMode = true; }
 	void SetInitialDetails(RecipeEntryKind kind, double chance) { m_kind = kind; m_chance = chance; }
 	RecipeEntryKind GetSelectedKind() const { return m_kind; }
 	double GetSelectedChance() const { return m_chance; }
@@ -75,6 +75,7 @@ protected:
 	RecipeEntryKind m_kind = RecipeItem;
 	double m_chance = 100;
 	bool m_allowChance = true, m_weights = false;
+	bool m_hasChanceMode = false;
 	struct Choice { CString id; RecipeEntryKind kind; };
 	std::vector<Choice> m_choices;
 	int CurrentLimit() const;

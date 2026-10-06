@@ -42,6 +42,7 @@
 #define IDC_EDITCOOKTIME                1028
 #define IDC_COMBO1                      1029
 #define IDC_COMBOCREATE                 1029
+#define IDC_COMBOOTHER                  1029
 #define IDC_GROUPCOUNT                  1030
 #define IDC_GROUPCHANCE                 1031
 #define IDC_BUTTON1                     1032

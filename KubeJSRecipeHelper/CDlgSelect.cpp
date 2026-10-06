@@ -76,7 +76,7 @@ void CDlgSelect::OnSelectionChanged() {
     m_EditNumber.EnableWindow(limit != 1); m_SpinNumber.EnableWindow(limit != 1);
     GetDlgItem(IDC_GROUPCOUNT)->SetWindowText(m_kind == RecipeFluid ? _T("体积(mB)") : _T("数量"));
     auto app = static_cast<CKubeJSRecipeHelperApp*>(AfxGetApp());
-    BOOL chance = app->m_bIsCreate && m_allowChance && m_kind == RecipeItem;
+    BOOL chance = (m_hasChanceMode ? m_allowChance : app->m_bIsCreate) && m_kind == RecipeItem;
     m_EditPossibility.EnableWindow(chance); m_SpinPossibility.EnableWindow(chance);
 }
 void CDlgSelect::OnOK() {

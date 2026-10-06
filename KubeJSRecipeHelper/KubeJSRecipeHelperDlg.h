@@ -6,6 +6,7 @@
 
 #include "CDlgCook.h"
 #include "CDlgCreate.h"
+#include "CDlgOther.h"
 #include "CDlgCraftable.h"
 #include "CDlgSmith.h"
 #include "CDlgStonecut.h"

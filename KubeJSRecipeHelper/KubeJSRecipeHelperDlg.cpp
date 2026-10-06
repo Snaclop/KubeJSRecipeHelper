@@ -1077,5 +1077,10 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnother()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	CDlgOther dlg(this);
+	dlg.SetItemSource(&m_arrNames);
+	dlg.SetCatalog(&m_entryTypes);
+	dlg.SetTextureStore(&m_itemTextures);
+	if (dlg.DoModal() == IDOK)
+		ShowRecipeScript(dlg.GetRecipeScript());
 }

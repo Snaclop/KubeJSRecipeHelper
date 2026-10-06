@@ -201,6 +201,7 @@
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
     <ClInclude Include="CreateRecipeModel.h" />
+    <ClInclude Include="FarmersDelightRecipe.h" />
     <ClInclude Include="CDlgSelect.h" />
     <ClInclude Include="CDlgCraftable.h" />
     <ClInclude Include="CDlgSmith.h" />
@@ -217,6 +218,9 @@
     <ClCompile Include="CDlgCook.cpp" />
     <ClCompile Include="CDlgCreate.cpp" />
     <ClCompile Include="CDlgOther.cpp" />
+    <ClCompile Include="FarmersDelightRecipe.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="CreateRecipeModel.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
