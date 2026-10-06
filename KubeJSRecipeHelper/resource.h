@@ -9,6 +9,8 @@
 #define IDD_DLGOTHER                    148
 #define IDD_DIALOG1                     150
 #define IDD_DLGVANILLA                  150
+#define IDD_DLGREMOVE                   152
+#define IDD_DLGMODIFY                   154
 #define IDC_BTNIMPORT                   1000
 #define IDC_OUTPUT                      1002
 #define IDC_EDITOUTPUT                  1003
@@ -43,7 +45,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        152
+#define _APS_NEXT_RESOURCE_VALUE        156
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101

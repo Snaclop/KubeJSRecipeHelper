@@ -44,6 +44,8 @@ BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTNCLEAR, &CKubeJSRecipeHelperDlg::OnBnClickedBtnclear)
 	ON_BN_CLICKED(IDC_BTNDWNLOAD, &CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload)
 	ON_BN_CLICKED(IDC_BTNOTHER, &CKubeJSRecipeHelperDlg::OnBnClickedBtnother)
+	ON_BN_CLICKED(IDC_BTNREMOVE, &CKubeJSRecipeHelperDlg::OnBnClickedBtnremove)
+	ON_BN_CLICKED(IDC_BTNMODIFY, &CKubeJSRecipeHelperDlg::OnBnClickedBtnmodify)
 END_MESSAGE_MAP()
 
 
@@ -1042,4 +1044,14 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnother()
 	dlg.SetTextureStore(&m_itemTextures);
 	if (dlg.DoModal() == IDOK)
 		ShowRecipeScript(dlg.GetRecipeScript());
+}
+
+void CKubeJSRecipeHelperDlg::OnBnClickedBtnremove()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CKubeJSRecipeHelperDlg::OnBnClickedBtnmodify()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

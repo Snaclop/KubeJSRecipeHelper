@@ -59,4 +59,6 @@ public:
 	afx_msg void OnBnClickedBtndwnload();
 	CString m_strOutput;
 	afx_msg void OnBnClickedBtnother();
+	afx_msg void OnBnClickedBtnremove();
+	afx_msg void OnBnClickedBtnmodify();
 };
