@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "afxdialogex.h"
 #include "FarmersDelightRecipe.h"
+#include "CreateAddonRecipe.h"
 #include "RecipeDialogUI.h"
 #include <memory>
 
@@ -30,12 +31,19 @@ protected:
     afx_msg void OnExperienceSpin(NMHDR* header, LRESULT* result);
     DECLARE_MESSAGE_MAP()
 private:
-    enum class Group { Input, Output, Container, Tool };
+    enum class Group { Input, Output, Container, Tool, FluidInput, FluidOutput };
     struct Slot { Group group; int index; CRect rect; CString label; };
     const CStringArray* m_source=nullptr;
     const RecipeTypeMap* m_catalog=nullptr;
     CItemTextureStore* m_textures=nullptr;
     FarmersDelightRecipe::Draft m_drafts[2];
+    CreateAddonRecipe::Draft m_addonDrafts[CreateAddonRecipe::MethodCount];
+    int m_mod=0, m_addonMethods[2]={0,4}, m_inputPage=0, m_outputPage=0;
+    CreateAddonRecipe::Method AddonMethod() const { return static_cast<CreateAddonRecipe::Method>(m_addonMethods[m_mod-1]); }
+    CreateAddonRecipe::Draft& AddonDraft() { return m_addonDrafts[AddonMethod()]; }
+    void PopulateMethods();
+    void RebuildAddon();
+    void ChangeAddonSlots(Group group, bool add);
     FarmersDelightRecipe::Method m_method=FarmersDelightRecipe::Method::Cooking;
     FarmersDelightRecipe::Version m_version=FarmersDelightRecipe::Version::Minecraft1201;
     CComboBox m_mods, m_methods, m_versions;

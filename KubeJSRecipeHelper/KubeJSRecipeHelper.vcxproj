@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -201,6 +201,7 @@
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
     <ClInclude Include="CreateRecipeModel.h" />
+    <ClInclude Include="CreateAddonRecipe.h" />
     <ClInclude Include="FarmersDelightRecipe.h" />
     <ClInclude Include="CDlgSelect.h" />
     <ClInclude Include="CDlgCraftable.h" />
@@ -218,6 +219,9 @@
     <ClCompile Include="CDlgCook.cpp" />
     <ClCompile Include="CDlgCreate.cpp" />
     <ClCompile Include="CDlgOther.cpp" />
+    <ClCompile Include="CreateAddonRecipe.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="FarmersDelightRecipe.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
