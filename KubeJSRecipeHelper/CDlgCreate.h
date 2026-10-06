@@ -34,6 +34,9 @@ private:
     CreateRecipe::Draft m_drafts[CreateRecipe::MethodCount];
     CreateRecipe::Method m_method = CreateRecipe::Compacting;
     CComboBox m_methods;
+    CComboBox m_versions;
+    CreateRecipe::Version m_version = CreateRecipe::Version::Minecraft1211;
+    bool m_customLoops = false;
     CToolTipCtrl m_tips;
     std::vector<std::unique_ptr<CWnd>> m_controls;
     std::vector<Slot> m_slots;

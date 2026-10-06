@@ -3,6 +3,8 @@
 #include <vector>
 
 namespace CreateRecipe {
+enum class Version { Minecraft1201, Minecraft1211 };
+inline int DefaultLoops(Version version) { return version == Version::Minecraft1201 ? 4 : 5; }
 enum Method { Compacting, Crushing, Cutting, Deploying, Emptying, Filling,
     Haunting, MechanicalCrafting, Milling, Mixing, Pressing, Polishing,
     SequencedAssembly, Splashing, MethodCount };
@@ -33,5 +35,5 @@ struct Draft {
     Entry transition;
     std::vector<Step> steps;
 };
-bool Build(Method method, const Draft& draft, std::wstring& script, std::wstring& error);
+bool Build(Method method, const Draft& draft, std::wstring& script, std::wstring& error, Version version);
 }

@@ -9,7 +9,8 @@ namespace {
 enum Controls { AddInput = 2000, AddInputFluid, RemoveInput, AddOutput, AddOutputFluid, RemoveOutput,
     PrevInput, NextInput, PrevOutput, NextOutput, TimeCheck, TimeEdit, TimeSpin, Heat,
     KeepHeld, Rows, Columns, GridApply, Mirrored, Loops, LoopsSpin,
-    StepList, StepType, StepAdd, StepRemove, StepUp, StepDown, StepKeep, StepTimeCheck, StepTime, StepTimeSpin };
+    StepList, StepType, StepAdd, StepRemove, StepUp, StepDown, StepKeep, StepTimeCheck, StepTime, StepTimeSpin,
+    TargetVersion };
 const Method StepMethods[] = { Pressing, Cutting, Deploying, Filling };
 }
 IMPLEMENT_DYNAMIC(CDlgCreate, CDialogEx)
@@ -20,7 +21,7 @@ CDlgCreate::CDlgCreate(CWnd* parent) : CDialogEx(IDD_DLGCREATE, parent) {
         d.inputs.resize(count); d.outputs.resize(1);
         if (i == Filling) { Entry fluid; fluid.kind = RecipeFluid; d.inputs.push_back(fluid); }
         if (i == Emptying) { Entry fluid; fluid.kind = RecipeFluid; d.outputs.push_back(fluid); }
-        if (i == SequencedAssembly) { d.steps.push_back(Step()); d.outputs[0].chance = 1; }
+        if (i == SequencedAssembly) { d.steps.push_back(Step()); d.outputs[0].chance = 1; d.loops = DefaultLoops(m_version); }
     }
 }
 CDlgCreate::~CDlgCreate() {}
@@ -64,6 +65,13 @@ BOOL CDlgCreate::OnInitDialog() {
     for (int i=0;i<MethodCount;++i) { int index=m_methods.AddString(GetInfo(static_cast<Method>(i)).name); m_methods.SetItemData(index,i); }
     for (int i=0;i<m_methods.GetCount();++i) if(m_methods.GetItemData(i)==Compacting) m_methods.SetCurSel(i);
     m_methods.MoveWindow(Rect(125,16,285,370));
+    m_versions.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,
+        Rect(615,16,265,130),this,TargetVersion);
+    m_versions.SetFont(GetFont());
+    m_versions.AddString(_T("Minecraft 1.20.1"));
+    m_versions.AddString(_T("Minecraft 1.21.1"));
+    m_versions.SetCurSel(m_version == Version::Minecraft1201 ? 0 : 1);
+    m_versions.SetWindowPos(&m_methods,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
     GetDlgItem(IDOK)->MoveWindow(Rect(676,566,100,30)); GetDlgItem(IDCANCEL)->MoveWindow(Rect(790,566,90,30));
     m_tips.Create(this, TTS_ALWAYSTIP); m_tips.SetMaxTipWidth(500); m_tips.Activate(TRUE);
     Rebuild(); return TRUE;
@@ -97,7 +105,9 @@ void CDlgCreate::SaveControls() {
     auto number=[this](UINT id,int& value) { if (GetDlgItem(id)) { BOOL valid; UINT n=GetDlgItemInt(id,&valid,FALSE); value=valid && n<=99999999 ? (int)n : 0; } };
     auto check=[this](UINT id,bool& value) { if (GetDlgItem(id)) value=GetDlgItem(id)->SendMessage(BM_GETCHECK)==BST_CHECKED; };
     number(TimeEdit,d.time); check(TimeCheck,d.customTime); check(KeepHeld,d.keepHeld); check(Mirrored,d.mirrored);
+    const int previousLoops = d.loops;
     number(Loops,d.loops);
+    if (m_method == SequencedAssembly && d.loops != previousLoops) m_customLoops = true;
     if (m_method==MechanicalCrafting) {
         BOOL r,c; UINT rows=GetDlgItemInt(Rows,&r,FALSE),cols=GetDlgItemInt(Columns,&c,FALSE);
         if(r && c && rows>=1 && rows<=9 && cols>=1 && cols<=9) { d.rows=(int)rows; d.columns=(int)cols; }
@@ -113,6 +123,7 @@ void CDlgCreate::Rebuild() {
     for (auto& c:m_controls) if (c->GetSafeHwnd()) c->DestroyWindow();
     m_controls.clear(); m_slots.clear(); m_hover=-1;
     Label(_T("处理方法"),22,20,100);
+    Label(_T("目标版本"),480,20,120);
     auto& d=Draft(); const auto& info=GetInfo(m_method);
     if (m_method==MechanicalCrafting) {
         Label(_T("合成网格（每格一个物品）"),22,64,460);
@@ -197,6 +208,12 @@ void CDlgCreate::AddEntry(bool output,RecipeEntryKind kind) {
 }
 BOOL CDlgCreate::OnCommand(WPARAM wp,LPARAM lp) {
     UINT id=LOWORD(wp),notification=HIWORD(wp); if(m_rebuilding) return CDialogEx::OnCommand(wp,lp);
+    if(id==TargetVersion && notification==CBN_SELCHANGE) {
+        SaveControls();
+        m_version = m_versions.GetCurSel()==0 ? Version::Minecraft1201 : Version::Minecraft1211;
+        if(!m_customLoops) m_drafts[SequencedAssembly].loops = DefaultLoops(m_version);
+        Rebuild(); return TRUE;
+    }
     if(id==IDC_COMBOCREATE && notification==CBN_SELCHANGE) {
         SaveControls(); m_method=static_cast<Method>(m_methods.GetItemData(m_methods.GetCurSel())); m_inputPage=m_outputPage=0; m_step=-1; Rebuild(); return TRUE;
     }
@@ -282,7 +299,7 @@ void CDlgCreate::OnOK() {
         Draft().rows=(int)rows; Draft().columns=(int)cols;
     }
     std::wstring script,error;
-    if(!Build(m_method,Draft(),script,error)) { AfxMessageBox(CString(error.c_str()),MB_ICONINFORMATION); return; }
+    if(!Build(m_method,Draft(),script,error,m_version)) { AfxMessageBox(CString(error.c_str()),MB_ICONINFORMATION); return; }
     m_script=script.c_str(); CDialogEx::OnOK();
 }
 BEGIN_MESSAGE_MAP(CDlgCreate,CDialogEx)

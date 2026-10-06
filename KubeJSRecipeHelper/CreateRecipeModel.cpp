@@ -45,22 +45,25 @@ static std::wstring Quote(const std::wstring& id) {
 static std::wstring Item(const Entry& e) {
     return L"Item.of(" + Quote(e.id) + L", " + std::to_wstring(e.count) + L")";
 }
-static std::wstring Value(const Entry& e, bool output, double weightScale = 0) {
+static std::wstring Value(const Entry& e, bool output, Version version, double weightScale = 0) {
     if (e.kind == RecipeFluid)
         return L"Fluid.of(" + Quote(e.id) + L", " + std::to_wstring(e.count) + L")";
     if (!output) return L"Ingredient.of(" + Quote(e.id) + L")";
-    if (weightScale > 0 || e.chance != 100)
+    if (weightScale > 0 || e.chance != 100) {
+        if (version == Version::Minecraft1201)
+            return Item(e) + L".withChance(" + Number(weightScale > 0 ? e.chance : e.chance / 100) + L")";
         return L"CreateItem.of(" + Item(e) + L", " + Number(weightScale > 0 ? e.chance / weightScale : e.chance / 100) + L")";
+    }
     return Item(e);
 }
-static std::wstring Array(const std::vector<Entry>& entries, bool output, double scale = 0) {
+static std::wstring Array(const std::vector<Entry>& entries, bool output, Version version, double scale = 0) {
     std::wstring result = L"["; bool first = true;
     for (const auto& e : entries) {
         if (e.id.empty()) continue;
         const int repeat = !output && e.kind == RecipeItem ? e.count : 1;
         for (int n = 0; n < repeat; ++n) {
             if (!first) result += L", "; first = false;
-            result += Value(e, output, scale);
+            result += Value(e, output, version, scale);
         }
     }
     return result + L"]";
@@ -79,7 +82,7 @@ static bool Check(const Entry& e, bool output, bool weights, std::wstring& error
     }
     return true;
 }
-bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& error) {
+bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& error, Version version) {
     script.clear(); error.clear();
     const auto& info = GetInfo(method);
     int ii = 0, fi = 0, io = 0, fo = 0;
@@ -127,7 +130,10 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
         const Entry* output = nullptr;
         for (const auto& e : d.outputs) if (!e.id.empty()) output = &e;
         call = L"event.recipes.create.mechanical_crafting(" + Item(*output) + L", " + pattern + L"], " + mapping + L"})";
-        call += d.mirrored ? L".acceptMirrored(true)" : L".acceptMirrored(false)";
+        if (version == Version::Minecraft1201)
+            call += d.mirrored ? L".merge({ acceptMirrored: true })" : L".merge({ acceptMirrored: false })";
+        else
+            call += d.mirrored ? L".acceptMirrored(true)" : L".acceptMirrored(false)";
     } else if (method == SequencedAssembly) {
         if (ii != 1 || fi || fo || d.transition.id.empty() || d.transition.kind != RecipeItem || d.transition.count != 1 ||
             d.steps.empty() || d.loops < 1 || d.loops > 99999999) {
@@ -135,7 +141,7 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
         }
         double largest = 0;
         for (const auto& e : d.outputs) if (!e.id.empty()) largest = (std::max)(largest, e.chance);
-        call = L"event.recipes.create.sequenced_assembly(" + Array(d.outputs, true, largest) + L", " + Array(d.inputs, false).substr(1);
+        call = L"event.recipes.create.sequenced_assembly(" + Array(d.outputs, true, version, largest) + L", " + Array(d.inputs, false, version).substr(1);
         // The assembly ingredient is singular, not an array.
         call.pop_back(); call += L", [\r\n";
         for (size_t i = 0; i < d.steps.size(); ++i) {
@@ -152,7 +158,7 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
                 }
                 inputs.push_back(step.secondary);
             }
-            call += L"    event.recipes.create." + std::wstring(GetInfo(step.method).function) + L"(" + Item(d.transition) + L", " + Array(inputs, false) + L")";
+            call += L"    event.recipes.create." + std::wstring(GetInfo(step.method).function) + L"(" + Item(d.transition) + L", " + Array(inputs, false, version) + L")";
             if (step.method == Deploying && step.keepHeld) call += L".keepHeldItem()";
             if (step.method == Cutting && step.customTime) {
                 if (step.time < 1 || step.time > 99999999) { error = L"步骤处理时间须大于 0。"; return false; }
@@ -170,7 +176,7 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
             (method == Emptying && (ii != 1 || io != 1 || fo != 1)) || (method == Compacting && io == 0)) {
             error = L"使用需要两个物品原料；注液需要物品和流体；分液需要物品和流体产物；塑形需要物品产物。"; return false;
         }
-        call = L"event.recipes.create." + std::wstring(info.function) + L"(" + Array(d.outputs, true) + L", " + Array(d.inputs, false) + L")";
+        call = L"event.recipes.create." + std::wstring(info.function) + L"(" + Array(d.outputs, true, version) + L", " + Array(d.inputs, false, version) + L")";
         if (info.heat) {
             if (d.heat < 0 || d.heat > 2) { error = L"请选择合法的加热条件。"; return false; }
             if (d.heat == 1) call += L".heated()";
@@ -179,7 +185,8 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
         if (info.time && d.customTime) call += L".processingTime(" + std::to_wstring(d.time) + L")";
         if (method == Deploying && d.keepHeld) call += L".keepHeldItem()";
     }
-    script = L"ServerEvents.recipes(event => {\r\n  // " + std::wstring(info.name) + L"\r\n  " + call + L"\r\n})\r\n";
+    const wchar_t* target = version == Version::Minecraft1201 ? L"1.20.1" : L"1.21.1";
+    script = L"ServerEvents.recipes(event => {\r\n  // Minecraft " + std::wstring(target) + L" · " + info.name + L"\r\n  " + call + L"\r\n})\r\n";
     return true;
 }
 }
