@@ -7,7 +7,6 @@
 #include "KubeJSRecipeHelper.h"
 #include "KubeJSRecipeHelperDlg.h"
 #include "afxdialogex.h"
-#include "CDlgRecipeChanges.h"
 #include "miniz.h"
 #include <atlbase.h>
 #include <fstream>
@@ -1049,18 +1048,10 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnother()
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnremove()
 {
-	CDlgRecipeChanges dlg(true,this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	if(dlg.DoModal()==IDOK) ShowRecipeScript(dlg.GetRecipeScript());
+	// TODO: 在此添加控件通知处理程序代码
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnmodify()
 {
-	CDlgRecipeChanges dlg(false,this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	if(dlg.DoModal()==IDOK) ShowRecipeScript(dlg.GetRecipeScript());
+	// TODO: 在此添加控件通知处理程序代码
 }
