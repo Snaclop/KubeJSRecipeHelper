@@ -45,7 +45,7 @@ private:
     void RebuildAddon();
     void ChangeAddonSlots(Group group, bool add);
     FarmersDelightRecipe::Method m_method=FarmersDelightRecipe::Method::Cooking;
-    FarmersDelightRecipe::Version m_version=FarmersDelightRecipe::Version::Minecraft1201;
+    FarmersDelightRecipe::Version m_version=FarmersDelightRecipe::Version::Minecraft1211;
     CComboBox m_mods, m_methods, m_versions;
     CRecipeDialogUI m_ui;
     std::vector<std::unique_ptr<CWnd>> m_controls;

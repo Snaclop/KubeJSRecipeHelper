@@ -58,7 +58,7 @@ BOOL CDlgOther::OnInitDialog() {
     m_methods.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,m_ui.Rect(400,16,220,150),this,RecipeType);
     m_methods.SetFont(GetFont()); PopulateMethods();
     m_versions.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,m_ui.Rect(748,16,130,150),this,TargetVersion);
-    m_versions.SetFont(GetFont()); m_versions.AddString(_T("1.20.1")); m_versions.AddString(_T("1.21.1")); m_versions.SetCurSel(0);
+    m_versions.SetFont(GetFont()); m_versions.AddString(_T("1.20.1")); m_versions.AddString(_T("1.21.1")); m_versions.SetCurSel(m_version==Version::Minecraft1201 ? 0 : 1);
     Rebuild(); return TRUE;
 }
 Entry& CDlgOther::EntryAt(const Slot& slot) {
