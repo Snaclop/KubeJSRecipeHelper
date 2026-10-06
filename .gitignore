@@ -433,3 +433,4 @@ FodyWeavers.xsd
 
 test_jar/
 examples/
+output.js
