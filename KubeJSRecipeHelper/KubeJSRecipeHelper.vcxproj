@@ -195,7 +195,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CDlgCook.h" />
+    <ClInclude Include="CDlgVanilla.h" />
+    <ClInclude Include="VanillaRecipe.h" />
     <ClInclude Include="CDlgCreate.h" />
     <ClInclude Include="CDlgOther.h" />
     <ClInclude Include="RecipeCatalog.h" />
@@ -204,9 +205,6 @@
     <ClInclude Include="CreateAddonRecipe.h" />
     <ClInclude Include="FarmersDelightRecipe.h" />
     <ClInclude Include="CDlgSelect.h" />
-    <ClInclude Include="CDlgCraftable.h" />
-    <ClInclude Include="CDlgSmith.h" />
-    <ClInclude Include="CDlgStonecut.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ItemTextureStore.h" />
     <ClInclude Include="KubeJSRecipeHelper.h" />
@@ -216,7 +214,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CDlgCook.cpp" />
+    <ClCompile Include="CDlgVanilla.cpp" />
+    <ClCompile Include="VanillaRecipe.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="CDlgCreate.cpp" />
     <ClCompile Include="CDlgOther.cpp" />
     <ClCompile Include="CreateAddonRecipe.cpp">
@@ -229,9 +231,6 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CDlgSelect.cpp" />
-    <ClCompile Include="CDlgCraftable.cpp" />
-    <ClCompile Include="CDlgSmith.cpp" />
-    <ClCompile Include="CDlgStonecut.cpp" />
     <ClCompile Include="ItemTextureStore.cpp" />
     <ClCompile Include="KubeJSRecipeHelper.cpp" />
     <ClCompile Include="KubeJSRecipeHelperDlg.cpp" />

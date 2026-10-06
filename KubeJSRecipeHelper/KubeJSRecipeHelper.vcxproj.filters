@@ -33,7 +33,10 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CDlgCook.h">
+    <ClInclude Include="CDlgVanilla.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VanillaRecipe.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CDlgCreate.h">
@@ -52,15 +55,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FarmersDelightRecipe.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CDlgCraftable.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CDlgSmith.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CDlgStonecut.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CDlgSelect.h">
@@ -86,7 +80,10 @@
     <ClCompile Include="miniz.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CDlgCook.cpp">
+    <ClCompile Include="CDlgVanilla.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="VanillaRecipe.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgCreate.cpp">
@@ -99,15 +96,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FarmersDelightRecipe.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CDlgCraftable.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CDlgSmith.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CDlgStonecut.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgSelect.cpp">

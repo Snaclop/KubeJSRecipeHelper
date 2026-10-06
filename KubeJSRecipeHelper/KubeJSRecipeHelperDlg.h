@@ -4,12 +4,9 @@
 
 #pragma once
 
-#include "CDlgCook.h"
+#include "CDlgVanilla.h"
 #include "CDlgCreate.h"
 #include "CDlgOther.h"
-#include "CDlgCraftable.h"
-#include "CDlgSmith.h"
-#include "CDlgStonecut.h"
 #include "ItemTextureStore.h"
 
 // CKubeJSRecipeHelperDlg 对话框
@@ -38,10 +35,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedBtncraftable();
-	afx_msg void OnBnClickedBtnsmith();
-	afx_msg void OnBnClickedBtncook();
-	afx_msg void OnBnClickedBtnstonecut();
+	afx_msg void OnBnClickedBtnvanilla();
 	afx_msg void OnBnClickedBtncreate();
 	afx_msg void OnBnClickedBtnimport();
 

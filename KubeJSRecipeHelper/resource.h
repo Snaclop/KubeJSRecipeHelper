@@ -4,17 +4,15 @@
 //
 #define IDD_KUBEJSRECIPEHELPER_DIALOG   102
 #define IDR_MAINFRAME                   128
-#define IDD_DLGCRAFTABLE                130
-#define IDD_DLGSMITH                    133
-#define IDD_DLGCOOK                     136
-#define IDD_DLGSTONECUT                 138
 #define IDD_DLGCREATE                   140
 #define IDD_DLGSELECT                   146
 #define IDD_DLGOTHER                    148
+#define IDD_DIALOG1                     150
+#define IDD_DLGVANILLA                  150
 #define IDC_BTNIMPORT                   1000
 #define IDC_OUTPUT                      1002
 #define IDC_EDITOUTPUT                  1003
-#define IDC_BTNCRAFTABLE                1004
+#define IDC_BTNVANILLA                  1004
 #define IDC_BTNSHAPELESS                1005
 #define IDC_BTNSMITH                    1006
 #define IDC_BTNCOOK                     1007
@@ -28,18 +26,9 @@
 #define IDC_EDITNUMBER                  1017
 #define IDC_SPIN1                       1018
 #define IDC_SPINNUMBER                  1018
-#define IDC_SPINCOOKTIME                1018
-#define IDC_STATICSMITHGROUP            1019
-#define IDC_STATICSMITHLABEL0           1020
-#define IDC_STATICSMITHLABEL1           1021
-#define IDC_STATICSMITHLABEL2           1022
-#define IDC_STATICSMITHLABEL3           1023
-#define IDC_STATICSMITHHINT             1024
 #define IDC_EDITPOSSIBILITY             1025
 #define IDC_SPINPOSSIBILITY             1026
-#define IDC_COMBOCOOK                   1027
 #define IDC_EDIT1                       1028
-#define IDC_EDITCOOKTIME                1028
 #define IDC_COMBO1                      1029
 #define IDC_COMBOCREATE                 1029
 #define IDC_COMBOOTHER                  1029
@@ -47,8 +36,6 @@
 #define IDC_GROUPCHANCE                 1031
 #define IDC_BUTTON1                     1032
 #define IDC_BTNMODIFY                   1032
-#define IDC_RADIOSHAPED                 1034
-#define IDC_RADIOSHAPELESS              1035
 #define IDC_BUTTON2                     1036
 #define IDC_BTNOTHER                    1036
 
@@ -56,7 +43,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        150
+#define _APS_NEXT_RESOURCE_VALUE        152
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101

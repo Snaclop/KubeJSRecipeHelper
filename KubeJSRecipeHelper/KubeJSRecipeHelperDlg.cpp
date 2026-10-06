@@ -38,10 +38,7 @@ void CKubeJSRecipeHelperDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BTNCRAFTABLE, &CKubeJSRecipeHelperDlg::OnBnClickedBtncraftable)
-	ON_BN_CLICKED(IDC_BTNSMITH, &CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith)
-	ON_BN_CLICKED(IDC_BTNCOOK, &CKubeJSRecipeHelperDlg::OnBnClickedBtncook)
-	ON_BN_CLICKED(IDC_BTNSTONECUT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut)
+	ON_BN_CLICKED(IDC_BTNVANILLA, &CKubeJSRecipeHelperDlg::OnBnClickedBtnvanilla)
 	ON_BN_CLICKED(IDC_BTNCREATE, &CKubeJSRecipeHelperDlg::OnBnClickedBtncreate)
 	ON_BN_CLICKED(IDC_BTNIMPORT, &CKubeJSRecipeHelperDlg::OnBnClickedBtnimport)
 	ON_BN_CLICKED(IDC_BTNCLEAR, &CKubeJSRecipeHelperDlg::OnBnClickedBtnclear)
@@ -108,49 +105,11 @@ void CKubeJSRecipeHelperDlg::ShowRecipeScript(const CString& strScript)
 		SetDlgItemText(IDC_EDITOUTPUT, strScript);
 }
 
-void CKubeJSRecipeHelperDlg::OnBnClickedBtncraftable()
+void CKubeJSRecipeHelperDlg::OnBnClickedBtnvanilla()
 {
-	// 工作台共用九宫格，在对话框内选择有序或无序合成。
-	CDlgCraftable dlg;
+	CDlgVanilla dlg(this);
 	dlg.SetItemSource(&m_arrNames);
-	dlg.SetTextureStore(&m_itemTextures);
-	if (dlg.DoModal() != IDOK)
-		return;
-
-	ShowRecipeScript(dlg.GetRecipeScript());
-}
-
-void CKubeJSRecipeHelperDlg::OnBnClickedBtnsmith()
-{
-	// 锻造台：点击四个矩形时从已导入的物品列表中选择物品
-	CDlgSmith dlg;
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetTextureStore(&m_itemTextures);
-	if (dlg.DoModal() != IDOK)
-		return;
-
-	ShowRecipeScript(dlg.GetRecipeScript());
-}
-
-void CKubeJSRecipeHelperDlg::OnBnClickedBtncook()
-{
-	// 物品选择器的概率输入只用于机械动力配方。
-	((CKubeJSRecipeHelperApp*)AfxGetApp())->m_bIsCreate = FALSE;
-	CDlgCook dlg;
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetTextureStore(&m_itemTextures);
-	if (dlg.DoModal() != IDOK)
-		return;
-
-	ShowRecipeScript(dlg.GetRecipeScript());
-}
-
-void CKubeJSRecipeHelperDlg::OnBnClickedBtnstonecut()
-{
-	// 物品选择器的概率输入只用于机械动力配方。
-	((CKubeJSRecipeHelperApp*)AfxGetApp())->m_bIsCreate = FALSE;
-	CDlgStonecut dlg;
-	dlg.SetItemSource(&m_arrNames);
+	dlg.SetCatalog(&m_entryTypes);
 	dlg.SetTextureStore(&m_itemTextures);
 	if (dlg.DoModal() != IDOK)
 		return;
