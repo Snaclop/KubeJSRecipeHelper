@@ -195,6 +195,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDlgRecipeChanges.h" />
+    <ClInclude Include="RecipeChanges.h" />
     <ClInclude Include="CDlgVanilla.h" />
     <ClInclude Include="VanillaRecipe.h" />
     <ClInclude Include="CDlgCreate.h" />
@@ -214,6 +216,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDlgRecipeChanges.cpp" />
+    <ClCompile Include="RecipeChanges.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="CDlgVanilla.cpp" />
     <ClCompile Include="VanillaRecipe.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
