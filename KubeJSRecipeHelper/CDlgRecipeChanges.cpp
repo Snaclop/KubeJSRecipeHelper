@@ -2,6 +2,7 @@
 #include "KubeJSRecipeHelper.h"
 #include "CDlgRecipeChanges.h"
 #include "CDlgSelect.h"
+#include "Language.h"
 #include <set>
 
 using namespace RecipeChanges;
@@ -23,7 +24,9 @@ CWnd* CDlgRecipeChanges::Control(LPCTSTR cls,const CString& text,UINT id,int x,i
 }
 void CDlgRecipeChanges::Label(const CString& text,int x,int y,int w) { Control(_T("STATIC"),text,0,x,y,w,28); }
 BOOL CDlgRecipeChanges::OnInitDialog() {
-    CDialogEx::OnInitDialog(); m_ui.Initialize(this,760,460);
+    CDialogEx::OnInitDialog();
+    UiLanguage::ApplyDialog(*this);
+    m_ui.Initialize(this,760,460);
     m_radios=m_remove ? std::vector<UINT>{IDC_RADIORMINPUT,IDC_RADIORMOUTPUT,IDC_RADIOMOD,IDC_RADIORECIPEID} :
         std::vector<UINT>{IDC_RADIOMODIFYINPUT,IDC_RADIOMODIFYOUTPUT};
     for(size_t i=0;i<m_radios.size();++i) {
@@ -49,7 +52,7 @@ void CDlgRecipeChanges::Rebuild() {
     m_controls.clear(); m_slots.clear(); m_hover=-1;
     auto& d=Draft();
     if(m_method==Method::RemoveMod) {
-        Label(_T("模组 ID"),22,120,130);
+        Label(UiLanguage::Text(L"模组 ID"),22,120,130);
         auto combo=Control(_T("COMBOBOX"),_T(""),ModId,155,116,580,220,CBS_DROPDOWN | WS_TABSTOP | WS_VSCROLL | CBS_AUTOHSCROLL);
         if(combo) {
             std::set<std::wstring> mods;
@@ -60,23 +63,23 @@ void CDlgRecipeChanges::Rebuild() {
             for(const auto& mod:mods) combo->SendMessage(CB_ADDSTRING,0,reinterpret_cast<LPARAM>(mod.c_str()));
             combo->SetWindowText(d.mod.c_str());
         }
-        Label(_T("选择已导入的命名空间，或手动填写，例如 farmersdelight。"),22,175,713);
-        Label(_T("移除该命名空间下的全部配方。"),22,230,713);
+        Label(UiLanguage::Text(L"选择已导入的命名空间，或手动填写，例如 farmersdelight。"),22,175,713);
+        Label(UiLanguage::Text(L"移除该命名空间下的全部配方。"),22,230,713);
     } else if(m_method==Method::RemoveId) {
-        Label(_T("配方 ID"),22,120,130);
+        Label(UiLanguage::Text(L"配方 ID"),22,120,130);
         Control(_T("EDIT"),CString(d.recipeId.c_str()),RecipeId,155,116,580,28,WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL);
-        Label(_T("例如 minecraft:iron_ingot_from_smelting_raw_iron。"),22,175,713);
-        Label(_T("填写完整配方 ID；它可能与产物 ID 不同。"),22,230,713);
+        Label(UiLanguage::Text(L"例如 minecraft:iron_ingot_from_smelting_raw_iron。"),22,175,713);
+        Label(UiLanguage::Text(L"填写完整配方 ID；它可能与产物 ID 不同。"),22,230,713);
     } else if(m_remove) {
-        AddSlot(false,330,145,m_method==Method::RemoveInput ? _T("匹配输入物品") : _T("匹配输出物品"));
-        Label(m_method==Method::RemoveInput ? _T("移除所有使用该物品作为原料的配方。") : _T("移除所有产出该物品的配方。"),22,270,713);
+        AddSlot(false,330,145,m_method==Method::RemoveInput ? UiLanguage::Text(L"匹配输入物品") : UiLanguage::Text(L"匹配输出物品"));
+        Label(m_method==Method::RemoveInput ? UiLanguage::Text(L"移除所有使用该物品作为原料的配方。") : UiLanguage::Text(L"移除所有产出该物品的配方。"),22,270,713);
     } else {
-        AddSlot(false,165,145,_T("替换前的物品")); AddSlot(true,535,145,_T("替换后的物品"));
-        Label(_T("限定配方 ID"),22,278,150);
+        AddSlot(false,165,145,UiLanguage::Text(L"替换前的物品")); AddSlot(true,535,145,UiLanguage::Text(L"替换后的物品"));
+        Label(UiLanguage::Text(L"限定配方 ID"),22,278,150);
         Control(_T("EDIT"),CString(d.recipeId.c_str()),RecipeId,175,275,560,28,WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL);
-        Label(_T("留空时替换所有匹配的配方；填写后仅修改指定配方。"),22,315,713);
+        Label(UiLanguage::Text(L"留空时替换所有匹配的配方；填写后仅修改指定配方。"),22,315,713);
     }
-    Label(_T("物品格：左键选择，右键清空，悬停查看物品 ID。"),22,365,713);
+    Label(UiLanguage::Text(L"物品格：左键选择，右键清空，悬停查看物品 ID。"),22,365,713);
     // Group the resource radios separately from parameters and action buttons.
     if(!m_controls.empty()) m_controls.front()->ModifyStyle(0,WS_GROUP);
     CWnd* previous=nullptr;
@@ -103,7 +106,7 @@ void CDlgRecipeChanges::Select(const Slot& slot) {
     bool available=false;
     if(m_source) for(INT_PTR i=0;i<m_source->GetSize();++i)
         if(RecipeKinds(m_catalog,std::wstring(m_source->GetAt(i).GetString())) & RecipeItem) { available=true; break; }
-    if(!available) { AfxMessageBox(_T("请先在主界面导入包含物品的 jar 文件。"),MB_ICONINFORMATION); return; }
+    if(!available) { AfxMessageBox(UiLanguage::Text(L"请先在主界面导入包含物品的 jar 文件。"),MB_ICONINFORMATION); return; }
     SaveControls(); auto& item=EntryAt(slot);
     CDlgSelect select(this); select.SetItemList(m_source); select.SetCatalog(m_catalog,RecipeItem);
     select.SetCountLimit(1); select.SetChanceMode(false); select.SetInitialSelection(CString(item.c_str()),1);
@@ -124,6 +127,6 @@ void CDlgRecipeChanges::OnMouseLeave() { m_tracking=false; if(m_hover>=0) Invali
 BOOL CDlgRecipeChanges::PreTranslateMessage(MSG* message) { m_ui.Relay(message); return CDialogEx::PreTranslateMessage(message); }
 void CDlgRecipeChanges::OnOK() {
     SaveControls(); std::wstring script,error;
-    if(!Build(m_method,Draft(),script,error)) { AfxMessageBox(CString(error.c_str()),MB_ICONINFORMATION); return; }
+    if(!Build(m_method,Draft(),script,error)) { AfxMessageBox(UiLanguage::Text(error.c_str()),MB_ICONINFORMATION); return; }
     m_script=script.c_str(); CDialogEx::OnOK();
 }

@@ -2,6 +2,7 @@
 #include "KubeJSRecipeHelper.h"
 #include "CDlgOther.h"
 #include "CDlgSelect.h"
+#include "Language.h"
 #include <cmath>
 #include <cwchar>
 #include <limits>
@@ -50,9 +51,11 @@ CWnd* CDlgOther::Combo(UINT id,int x,int y,int w,const std::vector<CString>& cho
     return control;
 }
 BOOL CDlgOther::OnInitDialog() {
-    CDialogEx::OnInitDialog(); m_rebuilding=true;
+    CDialogEx::OnInitDialog();
+    UiLanguage::ApplyDialog(*this);
+    m_rebuilding=true;
     m_ui.Initialize(this,900,580);
-    const wchar_t* mods[]={L"农夫乐事",L"机械动力：龙+",L"机械动力：柴油动力"};
+    const wchar_t* mods[]={UiLanguage::Text(L"农夫乐事"),UiLanguage::Text(L"机械动力：龙+"),UiLanguage::Text(L"机械动力：柴油动力")};
     for(int i=0;i<3;++i) { int n=m_mods.AddString(mods[i]); m_mods.SetItemData(n,i); }
     m_mods.SetCurSel(m_mods.FindStringExact(-1,mods[0])); m_ui.Move(IDC_COMBOOTHER,82,16,215,150);
     m_methods.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,m_ui.Rect(400,16,220,150),this,RecipeType);
@@ -83,7 +86,7 @@ void CDlgOther::UpdateTips() {
     for(size_t i=0;i<m_slots.size();++i) {
         auto& e=EntryAt(m_slots[i]); CString label=m_slots[i].label;
         if((m_mod || m_method==Method::Cutting) && m_slots[i].group==Group::Output && !e.id.empty()) {
-            CString probability; probability.Format(_T("（概率 %.12g%%）"),e.chance); label+=probability;
+            CString probability; probability.Format(UiLanguage::Text(L"（概率 %.12g%%）"),e.chance); label+=probability;
         }
         if(e.kind==RecipeFluid && !e.id.empty()) label+=_T("（mB）");
         m_ui.Tip(i+1,m_slots[i].rect,label,CString(e.id.c_str()),e.count);
@@ -121,10 +124,10 @@ void CDlgOther::SaveControls() {
 }
 void CDlgOther::PopulateMethods() {
     m_methods.ResetContent();
-    if(!m_mod) { m_methods.AddString(_T("厨锅烹饪")); m_methods.AddString(_T("砧板切割")); m_methods.SetCurSel((int)m_method); return; }
+    if(!m_mod) { m_methods.AddString(UiLanguage::Text(L"厨锅烹饪")); m_methods.AddString(UiLanguage::Text(L"砧板切割")); m_methods.SetCurSel((int)m_method); return; }
     int first=m_mod==1 ? 0 : 4, last=m_mod==1 ? 4 : CreateAddonRecipe::MethodCount;
     for(int i=first;i<last;++i) {
-        int n=m_methods.AddString(CreateAddonRecipe::GetInfo(static_cast<CreateAddonRecipe::Method>(i)).name);
+        int n=m_methods.AddString(UiLanguage::Text(CreateAddonRecipe::GetInfo(static_cast<CreateAddonRecipe::Method>(i)).name));
         m_methods.SetItemData(n,i); if(i==m_addonMethods[m_mod-1]) m_methods.SetCurSel(n);
     }
 }
@@ -135,67 +138,67 @@ void CDlgOther::RebuildAddon() {
     auto buttons=[&](int x,bool output) {
         int items=output ? info.itemsOut : info.itemsIn, fluids=output ? info.fluidsOut : info.fluidsIn;
         if(items>1) {
-            Control(_T("BUTTON"),_T("+物品"),output ? AddOutputItem : AddInputItem,x,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
-            Control(_T("BUTTON"),_T("−物品"),output ? RemoveOutputItem : RemoveInputItem,x+172,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
+            Control(_T("BUTTON"),UiLanguage::Text(L"+物品"),output ? AddOutputItem : AddInputItem,x,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
+            Control(_T("BUTTON"),UiLanguage::Text(L"−物品"),output ? RemoveOutputItem : RemoveInputItem,x+172,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
         }
         if(fluids>1) {
-            Control(_T("BUTTON"),_T("+流体"),output ? AddOutputFluid : AddInputFluid,x+86,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
-            Control(_T("BUTTON"),_T("−流体"),output ? RemoveOutputFluid : RemoveInputFluid,x+258,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
+            Control(_T("BUTTON"),UiLanguage::Text(L"+流体"),output ? AddOutputFluid : AddInputFluid,x+86,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
+            Control(_T("BUTTON"),UiLanguage::Text(L"−流体"),output ? RemoveOutputFluid : RemoveInputFluid,x+258,52,80,28,BS_PUSHBUTTON | WS_TABSTOP);
         }
     };
     buttons(22,false); buttons(480,true);
     CString title;
     if(info.itemsIn) {
-        title.Format(_T("原料（物品总数 ≤%d）"),info.itemsIn); Label(title,22,85,245);
+        title.Format(UiLanguage::Text(L"原料（物品总数 ≤%d）"),info.itemsIn); Label(title,22,85,245);
         if(d.inputs.size()>9) {
-            std::vector<CString> pages; for(int i=0;i<((int)d.inputs.size()+8)/9;++i) { CString text; text.Format(_T("第 %d 页"),i+1); pages.push_back(text); }
+            std::vector<CString> pages; for(int i=0;i<((int)d.inputs.size()+8)/9;++i) { CString text; text.Format(UiLanguage::Text(L"第 %d 页"),i+1); pages.push_back(text); }
             Combo(InputPage,270,85,100,pages,m_inputPage);
         }
         int first=m_inputPage*9;
         for(int i=first;i<(std::min)(first+9,(int)d.inputs.size());++i) {
-            title.Format(_T("原料 %d"),i+1); int n=i-first; AddSlot(Group::Input,i,22+(n%3)*82,125+(n/3)*82,58,title);
+            title.Format(UiLanguage::Text(L"原料 %d"),i+1); int n=i-first; AddSlot(Group::Input,i,22+(n%3)*82,125+(n/3)*82,58,title);
         }
-    } else Label(_T("流体原料"),22,85,260);
+    } else Label(UiLanguage::Text(L"流体原料"),22,85,260);
     for(int i=0;i<(int)d.fluidInputs.size();++i) {
-        title.Format(_T("流体原料 %d"),i+1); AddSlot(Group::FluidInput,i,info.itemsIn ? 295 : 60,125+i*100,58,title);
+        title.Format(UiLanguage::Text(L"流体原料 %d"),i+1); AddSlot(Group::FluidInput,i,info.itemsIn ? 295 : 60,125+i*100,58,title);
     }
-    Label(info.itemsOut ? _T("产物（物品可设置概率）") : _T("流体产物（按格子顺序输出）"),480,85,270);
+    Label(info.itemsOut ? UiLanguage::Text(L"产物（物品可设置概率）") : UiLanguage::Text(L"流体产物（按格子顺序输出）"),480,85,270);
     if(d.outputs.size()>9) {
-        std::vector<CString> pages; for(int i=0;i<((int)d.outputs.size()+8)/9;++i) { CString text; text.Format(_T("第 %d 页"),i+1); pages.push_back(text); }
+        std::vector<CString> pages; for(int i=0;i<((int)d.outputs.size()+8)/9;++i) { CString text; text.Format(UiLanguage::Text(L"第 %d 页"),i+1); pages.push_back(text); }
         Combo(OutputPage,750,85,128,pages,m_outputPage);
     }
     for(int i=m_outputPage*9;i<(std::min)(m_outputPage*9+9,(int)d.outputs.size());++i) {
         int local=i-m_outputPage*9;
-        title.Format(_T("产物 %d"),i+1); AddSlot(Group::Output,i,480+(local%3)*82,125+(local/3)*82,58,title);
+        title.Format(UiLanguage::Text(L"产物 %d"),i+1); AddSlot(Group::Output,i,480+(local%3)*82,125+(local/3)*82,58,title);
     }
     for(int i=0;i<(int)d.fluidOutputs.size();++i) {
-        title.Format(_T("流体产物 %d"),i+1);
+        title.Format(UiLanguage::Text(L"流体产物 %d"),i+1);
         AddSlot(Group::FluidOutput,i,info.itemsOut ? 750 : 480+(i%3)*82,125+(info.itemsOut ? i : i/3)*100,58,title);
     }
     if(info.mold) {
-        Label(_T("模具"),22,389,112); int chosen=4; for(int i=0;i<4;++i) if(d.mold==Molds[i]) chosen=i;
-        Combo(MoldMode,135,385,285,{_T("棒状铸模"),_T("碗铸模"),_T("锁链铸模"),_T("波纹铸模"),_T("自定义模具 ID")},chosen);
-        if(chosen==4) { Label(_T("模具 ID"),22,424,112); Edit(CString(d.mold.c_str()),MoldId,135,420,285); }
-        Label(_T("模具作为工具使用，不放入消耗原料。"),480,389,398);
+        Label(UiLanguage::Text(L"模具"),22,389,112); int chosen=4; for(int i=0;i<4;++i) if(d.mold==Molds[i]) chosen=i;
+        Combo(MoldMode,135,385,285,{UiLanguage::Text(L"棒状铸模"),UiLanguage::Text(L"碗铸模"),UiLanguage::Text(L"锁链铸模"),UiLanguage::Text(L"波纹铸模"),UiLanguage::Text(L"自定义模具 ID")},chosen);
+        if(chosen==4) { Label(UiLanguage::Text(L"模具 ID"),22,424,112); Edit(CString(d.mold.c_str()),MoldId,135,420,285); }
+        Label(UiLanguage::Text(L"模具作为工具使用，不放入消耗原料。"),480,389,398);
     }
     if(method==CreateAddonRecipe::Coloring) {
-        Label(_T("染料颜色"),22,389,112); int chosen=16;
+        Label(UiLanguage::Text(L"染料颜色"),22,389,112); int chosen=16;
         for(int i=0;i<16;++i) if(d.color==std::wstring(L"minecraft:")+Colors[i]) chosen=i;
-        Combo(ColorMode,135,385,285,{_T("白色"),_T("橙色"),_T("品红色"),_T("淡蓝色"),_T("黄色"),_T("黄绿色"),_T("粉红色"),_T("灰色"),_T("淡灰色"),_T("青色"),_T("紫色"),_T("蓝色"),_T("棕色"),_T("绿色"),_T("红色"),_T("黑色"),_T("自定义染料变种 ID")},chosen);
-        if(chosen==16) { Label(_T("颜色 ID"),22,424,112); Edit(CString(d.color.c_str()),ColorId,135,420,285); }
-        Label(_T("染料用量"),480,389,112); Edit(Integer(d.dyeAmount),DyeEdit,590,385,110,true); Spin(DyeEdit,DyeSpin,680,385,d.dyeAmount);
+        Combo(ColorMode,135,385,285,{UiLanguage::Text(L"白色"),UiLanguage::Text(L"橙色"),UiLanguage::Text(L"品红色"),UiLanguage::Text(L"淡蓝色"),UiLanguage::Text(L"黄色"),UiLanguage::Text(L"黄绿色"),UiLanguage::Text(L"粉红色"),UiLanguage::Text(L"灰色"),UiLanguage::Text(L"淡灰色"),UiLanguage::Text(L"青色"),UiLanguage::Text(L"紫色"),UiLanguage::Text(L"蓝色"),UiLanguage::Text(L"棕色"),UiLanguage::Text(L"绿色"),UiLanguage::Text(L"红色"),UiLanguage::Text(L"黑色"),UiLanguage::Text(L"自定义染料变种 ID")},chosen);
+        if(chosen==16) { Label(UiLanguage::Text(L"颜色 ID"),22,424,112); Edit(CString(d.color.c_str()),ColorId,135,420,285); }
+        Label(UiLanguage::Text(L"染料用量"),480,389,112); Edit(Integer(d.dyeAmount),DyeEdit,590,385,110,true); Spin(DyeEdit,DyeSpin,680,385,d.dyeAmount);
         GetDlgItem(DyeSpin)->SendMessage(UDM_SETRANGE32,1,1000); Label(_T("mB"),715,389,65);
-        Label(_T("默认 32 mB；颜色例如 minecraft:red。"),480,424,398);
+        Label(UiLanguage::Text(L"默认 32 mB；颜色例如 minecraft:red。"),480,424,398);
     }
     if(info.time) {
-        auto check=Control(_T("BUTTON"),_T("指定处理时间"),CustomTime,22,454,190,28,BS_AUTOCHECKBOX | WS_TABSTOP);
+        auto check=Control(_T("BUTTON"),UiLanguage::Text(L"指定处理时间"),CustomTime,22,454,190,28,BS_AUTOCHECKBOX | WS_TABSTOP);
         if(check) check->SendMessage(BM_SETCHECK,d.customTime ? BST_CHECKED : BST_UNCHECKED);
         Edit(Integer(d.time),TimeEdit,215,454,120,true); Spin(TimeEdit,TimeSpin,315,454,d.time);
         GetDlgItem(TimeEdit)->EnableWindow(d.customTime); GetDlgItem(TimeSpin)->EnableWindow(d.customTime);
         Label(_T("tick"),345,458,65);
     }
-    if(info.heat) { Label(_T("热量条件"),480,458,112); Combo(HeatMode,590,454,288,{_T("无需加热"),_T("加热"),_T("超级加热")},d.heat); }
-    Label(info.time ? _T("左键选择，右键清空；流体单位 mB。未指定处理时间时使用模组默认值。") : _T("左键选择，右键清空；物品产物可设置概率，流体单位 mB。"),22,502,856);
+    if(info.heat) { Label(UiLanguage::Text(L"热量条件"),480,458,112); Combo(HeatMode,590,454,288,{UiLanguage::Text(L"无需加热"),UiLanguage::Text(L"加热"),UiLanguage::Text(L"超级加热")},d.heat); }
+    Label(info.time ? UiLanguage::Text(L"左键选择，右键清空；流体单位 mB。未指定处理时间时使用模组默认值。") : UiLanguage::Text(L"左键选择，右键清空；物品产物可设置概率，流体单位 mB。"),22,502,856);
 }
 void CDlgOther::ChangeAddonSlots(Group group,bool add) {
     auto& d=AddonDraft(); const auto& info=CreateAddonRecipe::GetInfo(AddonMethod());
@@ -204,7 +207,7 @@ void CDlgOther::ChangeAddonSlots(Group group,bool add) {
     if(add) {
         int used=(int)entries.size();
         if(group==Group::Input) { used=0; for(const auto& e:entries) used+=(std::max)(1,e.count); }
-        if(used>=limit) { AfxMessageBox(_T("此类型格子或物品总数量已达到该配方的上限。"),MB_ICONINFORMATION); return; }
+        if(used>=limit) { AfxMessageBox(UiLanguage::Text(L"此类型格子或物品总数量已达到该配方的上限。"),MB_ICONINFORMATION); return; }
         Entry entry; entry.kind=group==Group::FluidInput || group==Group::FluidOutput ? RecipeFluid : RecipeItem; entries.push_back(entry);
     } else if(entries.size()>1) entries.pop_back();
     if(group==Group::Input) m_inputPage=((int)entries.size()-1)/9;
@@ -214,39 +217,39 @@ void CDlgOther::Rebuild() {
     m_rebuilding=true; m_ui.ClearTips();
     for(auto& control:m_controls) if(control->GetSafeHwnd()) control->DestroyWindow();
     m_controls.clear(); m_slots.clear(); m_hover=-1;
-    Label(_T("模组"),22,20,55); Label(_T("配方类型"),315,20,85); Label(_T("目标版本"),650,20,95);
+    Label(UiLanguage::Text(L"模组"),22,20,55); Label(UiLanguage::Text(L"配方类型"),315,20,85); Label(UiLanguage::Text(L"目标版本"),650,20,95);
     if(m_mod) { RebuildAddon(); UpdateTips(); m_rebuilding=false; Invalidate(TRUE); return; }
     auto& d=Draft();
     if(m_method==Method::Cooking) {
-        Label(_T("原料（最多 6 格，每格消耗 1 个）"),22,90,470);
-        for(int i=0;i<6;++i) { CString label; label.Format(_T("原料 %d"),i+1); AddSlot(Group::Input,i,50+(i%3)*90,140+(i/3)*105,72,label); }
-        Label(_T("产物"),565,90,115); AddSlot(Group::Output,0,565,140,82,_T("产物"));
-        Label(_T("容器（可选）"),715,90,165); AddSlot(Group::Container,0,715,140,82,_T("容器"));
-        Label(_T("留空容器时，由产物决定是否需要容器。"),480,287,400);
-        Label(_T("处理时间"),22,389,112); Edit(Integer(d.cookingTime),TimeEdit,135,385,120,true); Spin(TimeEdit,TimeSpin,235,385,d.cookingTime);
-        Label(_T("tick"),270,389,65); Label(_T("经验"),375,389,80); Edit(Decimal(d.experience),ExperienceEdit,455,385,120);
+        Label(UiLanguage::Text(L"原料（最多 6 格，每格消耗 1 个）"),22,90,470);
+        for(int i=0;i<6;++i) { CString label; label.Format(UiLanguage::Text(L"原料 %d"),i+1); AddSlot(Group::Input,i,50+(i%3)*90,140+(i/3)*105,72,label); }
+        Label(UiLanguage::Text(L"产物"),565,90,115); AddSlot(Group::Output,0,565,140,82,UiLanguage::Text(L"产物"));
+        Label(UiLanguage::Text(L"容器（可选）"),715,90,165); AddSlot(Group::Container,0,715,140,82,UiLanguage::Text(L"容器"));
+        Label(UiLanguage::Text(L"留空容器时，由产物决定是否需要容器。"),480,287,400);
+        Label(UiLanguage::Text(L"处理时间"),22,389,112); Edit(Integer(d.cookingTime),TimeEdit,135,385,120,true); Spin(TimeEdit,TimeSpin,235,385,d.cookingTime);
+        Label(_T("tick"),270,389,65); Label(UiLanguage::Text(L"经验"),375,389,80); Edit(Decimal(d.experience),ExperienceEdit,455,385,120);
         auto spin=Control(UPDOWN_CLASS,_T(""),ExperienceSpin,555,385,20,28,UDS_ALIGNRIGHT | UDS_ARROWKEYS);
         if(spin) { spin->SendMessage(UDM_SETBUDDY,reinterpret_cast<WPARAM>(GetDlgItem(ExperienceEdit)->GetSafeHwnd())); spin->SendMessage(UDM_SETRANGE32,0,1000000); }
-        Label(_T("配方书"),635,389,95);
+        Label(UiLanguage::Text(L"配方书"),635,389,95);
         int tab=0; for(int i=0;i<4;++i) if(d.tab==Tabs[i]) tab=i;
-        Combo(BookTab,730,385,148,{_T("默认"),_T("餐点"),_T("饮品"),_T("杂项")},tab);
-        Label(_T("默认 200 tick；20 tick = 1 秒。经验可填写小数。"),22,424,850);
+        Combo(BookTab,730,385,148,{UiLanguage::Text(L"默认"),UiLanguage::Text(L"餐点"),UiLanguage::Text(L"饮品"),UiLanguage::Text(L"杂项")},tab);
+        Label(UiLanguage::Text(L"默认 200 tick；20 tick = 1 秒。经验可填写小数。"),22,424,850);
     } else {
-        Label(_T("原料（1 个）"),22,90,300); AddSlot(Group::Input,0,60,140,82,_T("原料"));
-        Label(_T("产物（最多 4 格，分别设置概率）"),480,90,400);
-        for(int i=0;i<4;++i) { CString label; label.Format(_T("产物 %d"),i+1); AddSlot(Group::Output,i,480+i*96,140,78,label); }
-        Label(_T("工具类型"),22,304,112);
-        Combo(ToolMode,135,300,285,{_T("刀具（标签）"),_T("斧（去皮工具／标签）"),_T("指定工具物品"),_T("自定义工具标签")},(int)d.tool);
-        if(d.tool==Tool::Item) AddSlot(Group::Tool,0,60,350,72,_T("工具"));
-        else if(d.tool==Tool::Tag) { Label(_T("标签 ID"),22,357,112); Edit(CString(d.toolTag.c_str()),ToolTag,135,353,285); Label(m_version==Version::Minecraft1201 ? _T("例如 forge:tools/knives，可带 #。") : _T("例如 c:tools/knife，可带 #。"),22,394,400); }
-        else Label(d.tool==Tool::Knives ? _T("匹配任意刀具；标签随目标版本切换。") : _T("匹配可去皮的工具或 minecraft:axes。"),22,354,400);
-        Label(_T("切割声音"),480,304,110);
-        Combo(SoundMode,590,300,288,{_T("默认（由工具决定）"),_T("斧去皮"),_T("剪刀剪切"),_T("自定义声音 ID")},m_soundMode);
-        if(m_soundMode==3) { Label(_T("声音 ID"),480,357,110); Edit(CString(d.sound.c_str()),SoundId,590,353,288); }
-        Label(_T("产物概率是每个物品的掉落概率，支持小数。"),480,414,400);
+        Label(UiLanguage::Text(L"原料（1 个）"),22,90,300); AddSlot(Group::Input,0,60,140,82,UiLanguage::Text(L"原料"));
+        Label(UiLanguage::Text(L"产物（最多 4 格，分别设置概率）"),480,90,400);
+        for(int i=0;i<4;++i) { CString label; label.Format(UiLanguage::Text(L"产物 %d"),i+1); AddSlot(Group::Output,i,480+i*96,140,78,label); }
+        Label(UiLanguage::Text(L"工具类型"),22,304,112);
+        Combo(ToolMode,135,300,285,{UiLanguage::Text(L"刀具（标签）"),UiLanguage::Text(L"斧（去皮工具／标签）"),UiLanguage::Text(L"指定工具物品"),UiLanguage::Text(L"自定义工具标签")},(int)d.tool);
+        if(d.tool==Tool::Item) AddSlot(Group::Tool,0,60,350,72,UiLanguage::Text(L"工具"));
+        else if(d.tool==Tool::Tag) { Label(UiLanguage::Text(L"标签 ID"),22,357,112); Edit(CString(d.toolTag.c_str()),ToolTag,135,353,285); Label(m_version==Version::Minecraft1201 ? UiLanguage::Text(L"例如 forge:tools/knives，可带 #。") : UiLanguage::Text(L"例如 c:tools/knife，可带 #。"),22,394,400); }
+        else Label(d.tool==Tool::Knives ? UiLanguage::Text(L"匹配任意刀具；标签随目标版本切换。") : UiLanguage::Text(L"匹配可去皮的工具或 minecraft:axes。"),22,354,400);
+        Label(UiLanguage::Text(L"切割声音"),480,304,110);
+        Combo(SoundMode,590,300,288,{UiLanguage::Text(L"默认（由工具决定）"),UiLanguage::Text(L"斧去皮"),UiLanguage::Text(L"剪刀剪切"),UiLanguage::Text(L"自定义声音 ID")},m_soundMode);
+        if(m_soundMode==3) { Label(UiLanguage::Text(L"声音 ID"),480,357,110); Edit(CString(d.sound.c_str()),SoundId,590,353,288); }
+        Label(UiLanguage::Text(L"产物概率是每个物品的掉落概率，支持小数。"),480,414,400);
     }
-    Label(_T("配方分组"),22,459,112); Edit(CString(d.group.c_str()),RecipeGroup,135,455,743);
-    Label(_T("左键选择，右键清空；悬停查看 ID、数量和概率。分组可留空。"),22,502,856);
+    Label(UiLanguage::Text(L"配方分组"),22,459,112); Edit(CString(d.group.c_str()),RecipeGroup,135,455,743);
+    Label(UiLanguage::Text(L"左键选择，右键清空；悬停查看 ID、数量和概率。分组可留空。"),22,502,856);
     UpdateTips(); m_rebuilding=false; Invalidate(TRUE);
 }
 BOOL CDlgOther::OnCommand(WPARAM wp,LPARAM lp) {
@@ -287,7 +290,7 @@ BOOL CDlgOther::OnCommand(WPARAM wp,LPARAM lp) {
 }
 int CDlgOther::Hit(CPoint point) const { for(size_t i=0;i<m_slots.size();++i) if(m_slots[i].rect.PtInRect(point)) return (int)i; return -1; }
 void CDlgOther::Select(const Slot& slot) {
-    if(!m_source || !m_source->GetSize()) { AfxMessageBox(_T("请先在主界面导入 jar 文件。"),MB_ICONINFORMATION); return; }
+    if(!m_source || !m_source->GetSize()) { AfxMessageBox(UiLanguage::Text(L"请先在主界面导入 jar 文件。"),MB_ICONINFORMATION); return; }
     SaveControls(); auto& e=EntryAt(slot); bool output=slot.group==Group::Output;
     bool fluid=slot.group==Group::FluidInput || slot.group==Group::FluidOutput;
     RecipeEntryKind kind=fluid ? RecipeFluid : RecipeItem;
@@ -330,7 +333,7 @@ BOOL CDlgOther::PreTranslateMessage(MSG* message) { m_ui.Relay(message); return 
 void CDlgOther::OnOK() {
     SaveControls(); std::wstring script,error;
     bool valid=m_mod ? CreateAddonRecipe::Build(AddonMethod(),m_version,AddonDraft(),script,error) : Build(m_method,m_version,Draft(),script,error);
-    if(!valid) { AfxMessageBox(CString(error.c_str()),MB_ICONINFORMATION); return; }
+    if(!valid) { AfxMessageBox(UiLanguage::Text(error.c_str()),MB_ICONINFORMATION); return; }
     m_script=script.c_str(); CDialogEx::OnOK();
 }
 BEGIN_MESSAGE_MAP(CDlgOther,CDialogEx)

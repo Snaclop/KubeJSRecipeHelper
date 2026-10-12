@@ -7,6 +7,7 @@
 #include "KubeJSRecipeHelper.h"
 #include "KubeJSRecipeHelperDlg.h"
 #include "afxdialogex.h"
+#include "Language.h"
 #include "CDlgRecipeChanges.h"
 #include "miniz.h"
 #include <atlbase.h>
@@ -34,6 +35,7 @@ CKubeJSRecipeHelperDlg::CKubeJSRecipeHelperDlg(CWnd* pParent /*=nullptr*/)
 void CKubeJSRecipeHelperDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COMBOLANGUAGE, m_ComboLanguage);
 }
 
 BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
@@ -47,6 +49,7 @@ BEGIN_MESSAGE_MAP(CKubeJSRecipeHelperDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTNOTHER, &CKubeJSRecipeHelperDlg::OnBnClickedBtnother)
 	ON_BN_CLICKED(IDC_BTNREMOVE, &CKubeJSRecipeHelperDlg::OnBnClickedBtnremove)
 	ON_BN_CLICKED(IDC_BTNMODIFY, &CKubeJSRecipeHelperDlg::OnBnClickedBtnmodify)
+	ON_CBN_SELCHANGE(IDC_COMBOLANGUAGE, &CKubeJSRecipeHelperDlg::OnCbnSelchangeCombolanguage)
 END_MESSAGE_MAP()
 
 
@@ -60,6 +63,16 @@ BOOL CKubeJSRecipeHelperDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+	// DLGINIT 中的选项是 ANSI 文本，使用 Unicode 重填以兼容不同系统代码页。
+	m_ComboLanguage.ResetContent();
+	m_ComboLanguage.AddString(_T("English"));
+	m_ComboLanguage.AddString(_T("简体中文"));
+	m_ComboLanguage.AddString(_T("繁體中文"));
+
+	UiLanguage::Set(UiLanguage::SystemDefault());
+	m_ComboLanguage.SetCurSel(static_cast<int>(UiLanguage::Get()));
+	UiLanguage::ApplyDialog(*this);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -139,7 +152,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 {
 	CFileDialog dlgFile(TRUE, _T("jar"), nullptr,
 		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT,
-		_T("JAR 文件 (*.jar)|*.jar|所有文件 (*.*)|*.*||"), this);
+		UiLanguage::Text(L"JAR 文件 (*.jar)|*.jar|所有文件 (*.*)|*.*||"), this);
 	if (dlgFile.DoModal() != IDOK)
 		return;
 
@@ -149,7 +162,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 	DWORD fileCount = 0;
 	if (!selectedFiles || FAILED(selectedFiles->GetCount(&fileCount)))
 	{
-		AfxMessageBox(_T("无法读取所选文件列表。"), MB_ICONERROR);
+		AfxMessageBox(UiLanguage::Text(L"无法读取所选文件列表。"), MB_ICONERROR);
 		return;
 	}
 
@@ -161,7 +174,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 		if (FAILED(selectedFiles->GetItemAt(i, &item)) ||
 			FAILED(item->GetDisplayName(SIGDN_FILESYSPATH, &path)))
 		{
-			AfxMessageBox(_T("无法读取所选文件的路径。"), MB_ICONERROR);
+			AfxMessageBox(UiLanguage::Text(L"无法读取所选文件的路径。"), MB_ICONERROR);
 			return;
 		}
 		paths.Add(CString(path));
@@ -175,7 +188,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 		for (INT_PTR i = 0; i < paths.GetSize(); ++i)
 		{
 			CString progress;
-			progress.Format(_T("正在解析 %d/%d：\r\n%s"),
+			progress.Format(UiLanguage::Text(L"正在解析 %d/%d：\r\n%s"),
 				(int)i + 1, (int)paths.GetSize(), paths[i].GetString());
 			SetDlgItemText(IDC_EDITOUTPUT, progress);
 			GetDlgItem(IDC_EDITOUTPUT)->UpdateWindow();
@@ -197,18 +210,18 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
 	}
 
 	CString summary;
-	summary.Format(_T("导入完成：成功 %d 个 JAR，失败 %d 个。\r\n\r\n"),
+	summary.Format(UiLanguage::Text(L"导入完成：成功 %d 个 JAR，失败 %d 个。\r\n\r\n"),
 		(int)paths.GetSize() - failedCount, failedCount);
 	RefreshNamesOutput(summary);
 	if (failedCount > 0)
-		AfxMessageBox(summary + _T("以下文件解析失败，已继续处理其他文件：\r\n") + failures,
+		AfxMessageBox(summary + UiLanguage::Text(L"以下文件解析失败，已继续处理其他文件：\r\n") + failures,
 			MB_ICONWARNING);
 }
 
 void CKubeJSRecipeHelperDlg::RefreshNamesOutput(const CString& strSummary)
 {
 	CString strOutput;
-	strOutput.Format(_T("共找到 %d 个 item：\r\n"), (int)m_arrNames.GetSize());
+	strOutput.Format(UiLanguage::Text(L"共找到 %d 个 item：\r\n"), (int)m_arrNames.GetSize());
 	strOutput = strSummary + strOutput;
 	for (INT_PTR i = 0; i < m_arrNames.GetSize(); ++i)
 	{
@@ -1034,7 +1047,7 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload()
 	GetDlgItemText(IDC_EDITOUTPUT, m_strOutput);
 	std::ofstream out("output.js", std::ios::app | std::ios::binary);
 	out << CT2A(m_strOutput, CP_UTF8) << std::endl;
-	MessageBox(_T("文件已输出至软件同目录下"));
+	MessageBox(UiLanguage::Text(L"文件已输出至软件同目录下"));
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnother()
@@ -1063,4 +1076,12 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtnmodify()
 	dlg.SetCatalog(&m_entryTypes);
 	dlg.SetTextureStore(&m_itemTextures);
 	if(dlg.DoModal()==IDOK) ShowRecipeScript(dlg.GetRecipeScript());
+}
+
+void CKubeJSRecipeHelperDlg::OnCbnSelchangeCombolanguage()
+{
+	const int selected = m_ComboLanguage.GetCurSel();
+	if (selected == CB_ERR) return;
+	UiLanguage::Set(static_cast<UiLanguage::Language>(selected));
+	UiLanguage::ApplyDialog(*this);
 }

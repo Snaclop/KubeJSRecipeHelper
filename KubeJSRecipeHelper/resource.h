@@ -11,6 +11,7 @@
 #define IDD_DLGVANILLA                  150
 #define IDD_DLGREMOVE                   152
 #define IDD_DLGMODIFY                   154
+#define IDI_LANGUAGE                    156
 #define IDC_BTNIMPORT                   1000
 #define IDC_OUTPUT                      1002
 #define IDC_EDITOUTPUT                  1003
@@ -40,20 +41,22 @@
 #define IDC_BTNMODIFY                   1032
 #define IDC_BUTTON2                     1036
 #define IDC_BTNOTHER                    1036
-
 #define IDC_RADIORMINPUT                1037
 #define IDC_RADIORMOUTPUT               1038
 #define IDC_RADIOMOD                    1039
 #define IDC_RADIORECIPEID               1040
 #define IDC_RADIOMODIFYINPUT            1041
 #define IDC_RADIOMODIFYOUTPUT           1042
+#define IDC_PICLANGUAGE                 1043
+#define IDC_COMBOLANGUAGE               1044
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        156
+#define _APS_NEXT_RESOURCE_VALUE        158
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1043
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

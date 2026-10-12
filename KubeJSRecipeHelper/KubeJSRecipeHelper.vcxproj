@@ -201,6 +201,7 @@
     <ClInclude Include="VanillaRecipe.h" />
     <ClInclude Include="CDlgCreate.h" />
     <ClInclude Include="CDlgOther.h" />
+    <ClInclude Include="Language.h" />
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
     <ClInclude Include="CreateRecipeModel.h" />
@@ -228,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="CDlgCreate.cpp" />
     <ClCompile Include="CDlgOther.cpp" />
+    <ClCompile Include="Language.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="CreateAddonRecipe.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -258,6 +262,7 @@
     <None Include="res\KubeJSRecipeHelper.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\Language.ico" />
     <Image Include="res\RecipeWorkbench.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

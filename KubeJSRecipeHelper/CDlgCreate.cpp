@@ -2,6 +2,7 @@
 #include "KubeJSRecipeHelper.h"
 #include "CDlgCreate.h"
 #include "CDlgSelect.h"
+#include "Language.h"
 #include <algorithm>
 
 using namespace CreateRecipe;
@@ -53,6 +54,7 @@ void CDlgCreate::Spin(UINT edit, UINT id, int x, int y, int value, int maximum) 
 }
 BOOL CDlgCreate::OnInitDialog() {
     CDialogEx::OnInitDialog();
+    UiLanguage::ApplyDialog(*this);
     CClientDC dc(this); m_scale = dc.GetDeviceCaps(LOGPIXELSX) / 96.0;
     // Keep the complete editor within the current monitor's working area.
     MONITORINFO monitor = {sizeof(MONITORINFO)};
@@ -62,7 +64,7 @@ BOOL CDlgCreate::OnInitDialog() {
     CRect outer = Rect(0,0,900,610); AdjustWindowRectEx(&outer, GetStyle(), FALSE, GetExStyle());
     SetWindowPos(nullptr,0,0,outer.Width(),outer.Height(),SWP_NOMOVE | SWP_NOZORDER); CenterWindow();
     m_methods.ModifyStyle(CBS_SORT, 0);
-    for (int i=0;i<MethodCount;++i) { int index=m_methods.AddString(GetInfo(static_cast<Method>(i)).name); m_methods.SetItemData(index,i); }
+    for (int i=0;i<MethodCount;++i) { int index=m_methods.AddString(UiLanguage::Text(GetInfo(static_cast<Method>(i)).name)); m_methods.SetItemData(index,i); }
     for (int i=0;i<m_methods.GetCount();++i) if(m_methods.GetItemData(i)==Compacting) m_methods.SetCurSel(i);
     m_methods.MoveWindow(Rect(125,16,285,370));
     m_versions.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,
@@ -87,16 +89,16 @@ Entry& CDlgCreate::EntryAt(const Slot& slot) {
 void CDlgCreate::AddSlot(Group group,int index,int x,int y,int size,const CString& label) {
     Slot slot = {Rect(x,y,size,size),group,index,label}; m_slots.push_back(slot);
     const auto& e = EntryAt(slot); CString tip(e.id.c_str());
-    if (tip.IsEmpty()) tip = label + _T("：左键选择，右键清空");
-    else { CString detail; detail.Format(e.kind == RecipeFluid ? _T("\n%d mB") : _T("\n数量：%d"),e.count); tip+=detail;
-        if (group == Output && e.kind == RecipeItem) { detail.Format(m_method == SequencedAssembly ? _T("\n权重：%.12g") : _T("\n概率：%.12g%%"),e.chance); tip+=detail; } }
+    if (tip.IsEmpty()) tip = label + UiLanguage::Text(L"：左键选择，右键清空");
+    else { CString detail; detail.Format(e.kind == RecipeFluid ? _T("\n%d mB") : UiLanguage::Text(L"\n数量：%d"),e.count); tip+=detail;
+        if (group == Output && e.kind == RecipeItem) { detail.Format(m_method == SequencedAssembly ? UiLanguage::Text(L"\n权重：%.12g") : UiLanguage::Text(L"\n概率：%.12g%%"),e.chance); tip+=detail; } }
     m_tips.AddTool(this,tip,slot.rect,static_cast<UINT_PTR>(m_slots.size()));
 }
 void CDlgCreate::PageSlots(Group group,std::vector<Entry>& entries,int page,int x,int y) {
     for (int i=page*12;i<(int)entries.size() && i<(page+1)*12;++i) {
         int local=i-page*12; CString label;
-        label.Format(entries[i].kind == RecipeFluid ? _T("流体 %d") : _T("物品 %d"),i+1);
-        if (m_method == Deploying && group == Input) label = i==0 ? _T("原料") : _T("手持物品");
+        label.Format(entries[i].kind == RecipeFluid ? UiLanguage::Text(L"流体 %d") : UiLanguage::Text(L"物品 %d"),i+1);
+        if (m_method == Deploying && group == Input) label = i==0 ? UiLanguage::Text(L"原料") : UiLanguage::Text(L"手持物品");
         AddSlot(group,i,x+(local%6)*67,y+(local/6)*94,58,label);
     }
 }
@@ -122,87 +124,87 @@ void CDlgCreate::Rebuild() {
     for (size_t i=0;i<m_slots.size();++i) m_tips.DelTool(this,i+1);
     for (auto& c:m_controls) if (c->GetSafeHwnd()) c->DestroyWindow();
     m_controls.clear(); m_slots.clear(); m_hover=-1;
-    Label(_T("处理方法"),22,20,100);
-    Label(_T("目标版本"),480,20,120);
+    Label(UiLanguage::Text(L"处理方法"),22,20,100);
+    Label(UiLanguage::Text(L"目标版本"),480,20,120);
     auto& d=Draft(); const auto& info=GetInfo(m_method);
     if (m_method==MechanicalCrafting) {
-        Label(_T("合成网格（每格一个物品）"),22,64,460);
-        Label(_T("行"),22,101,26); Edit(d.rows,Rows,52,96,52); Label(_T("列"),115,101,26); Edit(d.columns,Columns,145,96,52);
-        Button(_T("更新网格"),GridApply,210,96,110);
+        Label(UiLanguage::Text(L"合成网格（每格一个物品）"),22,64,460);
+        Label(UiLanguage::Text(L"行"),22,101,26); Edit(d.rows,Rows,52,96,52); Label(UiLanguage::Text(L"列"),115,101,26); Edit(d.columns,Columns,145,96,52);
+        Button(UiLanguage::Text(L"更新网格"),GridApply,210,96,110);
         for(int r=0;r<d.rows;++r) for(int c=0;c<d.columns;++c)
             AddSlot(Grid,r*9+c,22+c*41,140+r*41,38,_T(""));
-        Label(_T("产物"),505,70); AddSlot(Output,0,505,105,70,_T("物品"));
-        Check(_T("允许镜像合成"),Mirrored,d.mirrored,505,225);
-        Label(_T("缩小网格后，范围外的格子会保留。"),430,310,445);
-        Label(_T("只有当前网格范围会生成到脚本中。"),430,344,445);
+        Label(UiLanguage::Text(L"产物"),505,70); AddSlot(Output,0,505,105,70,UiLanguage::Text(L"物品"));
+        Check(UiLanguage::Text(L"允许镜像合成"),Mirrored,d.mirrored,505,225);
+        Label(UiLanguage::Text(L"缩小网格后，范围外的格子会保留。"),430,310,445);
+        Label(UiLanguage::Text(L"只有当前网格范围会生成到脚本中。"),430,344,445);
     } else if(m_method==SequencedAssembly) {
         BuildSequence();
     } else {
-        CString title; title.Format(_T("原料（物品 ≤%d，流体 ≤%d）"),info.itemsIn,info.fluidsIn); Label(title,22,70,420);
-        title.Format(_T("产物（物品 ≤%d，流体 ≤%d）"),info.itemsOut,info.fluidsOut); Label(title,480,70,420);
+        CString title; title.Format(UiLanguage::Text(L"原料（物品 ≤%d，流体 ≤%d）"),info.itemsIn,info.fluidsIn); Label(title,22,70,420);
+        title.Format(UiLanguage::Text(L"产物（物品 ≤%d，流体 ≤%d）"),info.itemsOut,info.fluidsOut); Label(title,480,70,420);
         PageSlots(Input,d.inputs,m_inputPage,22,110); PageSlots(Output,d.outputs,m_outputPage,480,110);
-        if(info.itemsIn>1 && m_method!=Deploying) Button(_T("+物品"),AddInput,22,315,83);
-        if(info.fluidsIn && m_method!=Filling) Button(_T("+流体"),AddInputFluid,113,315,83);
-        if(m_method==Mixing || m_method==Compacting) Button(_T("减一格"),RemoveInput,204,315,87);
-        if(info.itemsOut>1) Button(_T("+物品"),AddOutput,480,315,83);
-        if(info.fluidsOut && m_method!=Emptying) Button(_T("+流体"),AddOutputFluid,571,315,83);
-        if(info.itemsOut>1) Button(_T("减一格"),RemoveOutput,662,315,87);
-        if(d.inputs.size()>12) { Button(_T("上一页"),PrevInput,22,354,83); Button(_T("下一页"),NextInput,113,354,83); title.Format(_T("%d / %d"),m_inputPage+1,((int)d.inputs.size()+11)/12); Label(title,220,358,100); }
-        if(d.outputs.size()>12) { Button(_T("上一页"),PrevOutput,480,354,83); Button(_T("下一页"),NextOutput,571,354,83); }
+        if(info.itemsIn>1 && m_method!=Deploying) Button(UiLanguage::Text(L"+物品"),AddInput,22,315,83);
+        if(info.fluidsIn && m_method!=Filling) Button(UiLanguage::Text(L"+流体"),AddInputFluid,113,315,83);
+        if(m_method==Mixing || m_method==Compacting) Button(UiLanguage::Text(L"减一格"),RemoveInput,204,315,87);
+        if(info.itemsOut>1) Button(UiLanguage::Text(L"+物品"),AddOutput,480,315,83);
+        if(info.fluidsOut && m_method!=Emptying) Button(UiLanguage::Text(L"+流体"),AddOutputFluid,571,315,83);
+        if(info.itemsOut>1) Button(UiLanguage::Text(L"减一格"),RemoveOutput,662,315,87);
+        if(d.inputs.size()>12) { Button(UiLanguage::Text(L"上一页"),PrevInput,22,354,83); Button(UiLanguage::Text(L"下一页"),NextInput,113,354,83); title.Format(_T("%d / %d"),m_inputPage+1,((int)d.inputs.size()+11)/12); Label(title,220,358,100); }
+        if(d.outputs.size()>12) { Button(UiLanguage::Text(L"上一页"),PrevOutput,480,354,83); Button(UiLanguage::Text(L"下一页"),NextOutput,571,354,83); }
         int y=410;
         if(info.heat) {
-            Label(_T("加热条件"),22,y,100);
+            Label(UiLanguage::Text(L"加热条件"),22,y,100);
             auto box=Control(_T("COMBOBOX"),_T(""),Heat,135,y-3,220,160,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP);
-            for(auto text:{_T("无需加热"),_T("加热"),_T("超级加热")}) box->SendMessage(CB_ADDSTRING,0,reinterpret_cast<LPARAM>(text));
+            for(auto text:{UiLanguage::Text(L"无需加热"),UiLanguage::Text(L"加热"),UiLanguage::Text(L"超级加热")}) box->SendMessage(CB_ADDSTRING,0,reinterpret_cast<LPARAM>(text));
             box->SendMessage(CB_SETCURSEL,d.heat); y+=45;
         }
         if(info.time) {
-            Check(_T("自定义处理时间"),TimeCheck,d.customTime,22,y,220);
+            Check(UiLanguage::Text(L"自定义处理时间"),TimeCheck,d.customTime,22,y,220);
             Edit(d.time,TimeEdit,250,y); Spin(TimeEdit,TimeSpin,330,y,d.time);
             GetDlgItem(TimeEdit)->EnableWindow(d.customTime); GetDlgItem(TimeSpin)->EnableWindow(d.customTime);
-            Label(_T("tick（默认 100，20 tick = 1 秒）"),375,y+3,480);
+            Label(UiLanguage::Text(L"tick（默认 100，20 tick = 1 秒）"),375,y+3,480);
         }
-        if(m_method==Deploying) Check(_T("保留机械手持有的物品"),KeepHeld,d.keepHeld,22,y);
+        if(m_method==Deploying) Check(UiLanguage::Text(L"保留机械手持有的物品"),KeepHeld,d.keepHeld,22,y);
     }
-    Label(_T("左键选择，右键清空；停留在格子上可查看 ID、数量和概率。"),22,535,855);
+    Label(UiLanguage::Text(L"左键选择，右键清空；停留在格子上可查看 ID、数量和概率。"),22,535,855);
     m_rebuilding=false; Invalidate(TRUE);
 }
 void CDlgCreate::BuildSequence() {
     auto& d=Draft(); if(m_step<0 || m_step>=(int)d.steps.size()) m_step=d.steps.empty() ? -1 : 0;
-    Label(_T("原料"),22,67,85); Label(_T("过渡物品"),124,67,140); Label(_T("产物（按权重抽取一个）"),480,67,410);
-    AddSlot(Input,0,22,103,65,_T("原料")); AddSlot(Transition,0,132,103,65,_T("过渡物品"));
+    Label(UiLanguage::Text(L"原料"),22,67,85); Label(UiLanguage::Text(L"过渡物品"),124,67,140); Label(UiLanguage::Text(L"产物（按权重抽取一个）"),480,67,410);
+    AddSlot(Input,0,22,103,65,UiLanguage::Text(L"原料")); AddSlot(Transition,0,132,103,65,UiLanguage::Text(L"过渡物品"));
     PageSlots(Output,d.outputs,m_outputPage,480,103);
-    Label(_T("循环次数"),22,213,112); Edit(d.loops,Loops,140,208,100); Spin(Loops,LoopsSpin,220,208,d.loops);
-    Button(_T("+产物"),AddOutput,480,299,88); Button(_T("减一格"),RemoveOutput,576,299,88);
-    if(d.outputs.size()>12) { Button(_T("上一页"),PrevOutput,675,299,88); Button(_T("下一页"),NextOutput,773,299,88); }
-    Label(_T("步骤（按顺序执行）"),22,253,390);
+    Label(UiLanguage::Text(L"循环次数"),22,213,112); Edit(d.loops,Loops,140,208,100); Spin(Loops,LoopsSpin,220,208,d.loops);
+    Button(UiLanguage::Text(L"+产物"),AddOutput,480,299,88); Button(UiLanguage::Text(L"减一格"),RemoveOutput,576,299,88);
+    if(d.outputs.size()>12) { Button(UiLanguage::Text(L"上一页"),PrevOutput,675,299,88); Button(UiLanguage::Text(L"下一页"),NextOutput,773,299,88); }
+    Label(UiLanguage::Text(L"步骤（按顺序执行）"),22,253,390);
     auto list=Control(_T("LISTBOX"),_T(""),StepList,22,287,375,202,WS_BORDER | WS_VSCROLL | LBS_NOTIFY | WS_TABSTOP);
-    for(size_t i=0;i<d.steps.size();++i) { CString text; text.Format(_T("%d. %s"),(int)i+1,GetInfo(d.steps[i].method).name); list->SendMessage(LB_ADDSTRING,0,reinterpret_cast<LPARAM>(text.GetString())); }
+    for(size_t i=0;i<d.steps.size();++i) { CString text; text.Format(_T("%d. %s"),(int)i+1,UiLanguage::Text(GetInfo(d.steps[i].method).name)); list->SendMessage(LB_ADDSTRING,0,reinterpret_cast<LPARAM>(text.GetString())); }
     list->SendMessage(LB_SETCURSEL,m_step);
-    Button(_T("添加"),StepAdd,22,497,80); Button(_T("删除"),StepRemove,114,497,80); Button(_T("上移"),StepUp,206,497,80); Button(_T("下移"),StepDown,298,497,80);
+    Button(UiLanguage::Text(L"添加"),StepAdd,22,497,80); Button(UiLanguage::Text(L"删除"),StepRemove,114,497,80); Button(UiLanguage::Text(L"上移"),StepUp,206,497,80); Button(UiLanguage::Text(L"下移"),StepDown,298,497,80);
     if(m_step<0) return;
     auto& step=d.steps[m_step];
-    Label(_T("当前步骤"),430,353,120);
+    Label(UiLanguage::Text(L"当前步骤"),430,353,120);
     auto box=Control(_T("COMBOBOX"),_T(""),StepType,550,345,305,185,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP);
-    for(int i=0;i<4;++i) { box->SendMessage(CB_ADDSTRING,0,reinterpret_cast<LPARAM>(GetInfo(StepMethods[i]).name)); if(step.method==StepMethods[i]) box->SendMessage(CB_SETCURSEL,i); }
+    for(int i=0;i<4;++i) { box->SendMessage(CB_ADDSTRING,0,reinterpret_cast<LPARAM>(UiLanguage::Text(GetInfo(StepMethods[i]).name))); if(step.method==StepMethods[i]) box->SendMessage(CB_SETCURSEL,i); }
     if(step.method==Deploying || step.method==Filling) {
-        AddSlot(Secondary,0,430,395,65,step.method==Deploying ? _T("工具/材料") : _T("流体"));
-        if(step.method==Deploying) Check(_T("保留手持物品"),StepKeep,step.keepHeld,550,404,305);
+        AddSlot(Secondary,0,430,395,65,step.method==Deploying ? UiLanguage::Text(L"工具/材料") : UiLanguage::Text(L"流体"));
+        if(step.method==Deploying) Check(UiLanguage::Text(L"保留手持物品"),StepKeep,step.keepHeld,550,404,305);
     }
     if(step.method==Cutting) {
-        Check(_T("自定义时间"),StepTimeCheck,step.customTime,430,401,220);
+        Check(UiLanguage::Text(L"自定义时间"),StepTimeCheck,step.customTime,430,401,220);
         Edit(step.time,StepTime,680,401,150); Spin(StepTime,StepTimeSpin,810,401,step.time);
         GetDlgItem(StepTime)->EnableWindow(step.customTime); GetDlgItem(StepTimeSpin)->EnableWindow(step.customTime);
-        Label(_T("tick（默认 100）"),680,439,205);
+        Label(UiLanguage::Text(L"tick（默认 100）"),680,439,205);
     }
-    Label(_T("各步骤自动使用过渡物品作为输入和输出。"),430,490,455);
+    Label(UiLanguage::Text(L"各步骤自动使用过渡物品作为输入和输出。"),430,490,455);
 }
 void CDlgCreate::AddEntry(bool output,RecipeEntryKind kind) {
     auto& d=Draft(); auto& entries=output ? d.outputs : d.inputs; const auto& info=GetInfo(m_method);
     int total=0; for(const auto& e:entries) if(e.kind==kind) ++total;
     int limit=kind==RecipeFluid ? (output ? info.fluidsOut : info.fluidsIn) : (output ? info.itemsOut : info.itemsIn);
     if(m_method==SequencedAssembly && output) limit=256;
-    if(total>=limit) { AfxMessageBox(_T("此类型格子已达到该方法的上限。")); return; }
+    if(total>=limit) { AfxMessageBox(UiLanguage::Text(L"此类型格子已达到该方法的上限。")); return; }
     Entry entry; entry.kind=kind; if(m_method==SequencedAssembly) entry.chance=1;
     entries.push_back(entry); (output ? m_outputPage : m_inputPage)=((int)entries.size()-1)/12;
 }
@@ -227,7 +229,7 @@ BOOL CDlgCreate::OnCommand(WPARAM wp,LPARAM lp) {
         case PrevInput: --m_inputPage; break; case NextInput: ++m_inputPage; break;
         case PrevOutput: --m_outputPage; break; case NextOutput: ++m_outputPage; break;
         case GridApply: { BOOL r,c; UINT rows=GetDlgItemInt(Rows,&r,FALSE),cols=GetDlgItemInt(Columns,&c,FALSE);
-            if(!r || !c || rows<1 || rows>9 || cols<1 || cols>9) { AfxMessageBox(_T("行数和列数须为 1–9。")); return TRUE; }
+            if(!r || !c || rows<1 || rows>9 || cols<1 || cols>9) { AfxMessageBox(UiLanguage::Text(L"行数和列数须为 1–9。")); return TRUE; }
             d.rows=(int)rows; d.columns=(int)cols; break; }
         case StepList: m_step=(int)GetDlgItem(StepList)->SendMessage(LB_GETCURSEL); break;
         case StepType: if(m_step>=0) { int n=(int)GetDlgItem(StepType)->SendMessage(CB_GETCURSEL); if(n>=0 && n<4) {
@@ -248,7 +250,7 @@ BOOL CDlgCreate::OnCommand(WPARAM wp,LPARAM lp) {
 int CDlgCreate::Hit(CPoint point) const { for(size_t i=0;i<m_slots.size();++i) if(m_slots[i].rect.PtInRect(point)) return (int)i; return -1; }
 void CDlgCreate::Select(const Slot& slot) {
     if (m_source == nullptr || m_source->GetSize() == 0) {
-        AfxMessageBox(_T("还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION);
+        AfxMessageBox(UiLanguage::Text(L"还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION);
         return;
     }
     SaveControls(); Entry& e=EntryAt(slot);
@@ -257,7 +259,7 @@ void CDlgCreate::Select(const Slot& slot) {
     int count=output ? 64 : 1;
     if(slot.group==Input && (m_method==Mixing || m_method==Compacting)) {
         count=64; for(int i=0;i<(int)Draft().inputs.size();++i) if(i!=slot.index && Draft().inputs[i].kind==RecipeItem && !Draft().inputs[i].id.empty()) count-=Draft().inputs[i].count;
-        if(count<1 && e.kind==RecipeItem) { AfxMessageBox(_T("物品原料总数已经达到 64。")); return; }
+        if(count<1 && e.kind==RecipeItem) { AfxMessageBox(UiLanguage::Text(L"物品原料总数已经达到 64。")); return; }
     }
     select.SetCountLimit(count); select.SetChanceMode(output && m_method!=MechanicalCrafting,m_method==SequencedAssembly);
     select.SetInitialSelection(CString(e.id.c_str()),e.count); select.SetInitialDetails(e.kind,e.chance);
@@ -295,11 +297,11 @@ void CDlgCreate::OnOK() {
     SaveControls();
     if(m_method==MechanicalCrafting) { // Apply typed dimensions even when the grid button was not pressed.
         BOOL r,c; UINT rows=GetDlgItemInt(Rows,&r,FALSE),cols=GetDlgItemInt(Columns,&c,FALSE);
-        if(!r || !c || rows<1 || rows>9 || cols<1 || cols>9) { AfxMessageBox(_T("行数和列数须为 1–9。")); return; }
+        if(!r || !c || rows<1 || rows>9 || cols<1 || cols>9) { AfxMessageBox(UiLanguage::Text(L"行数和列数须为 1–9。")); return; }
         Draft().rows=(int)rows; Draft().columns=(int)cols;
     }
     std::wstring script,error;
-    if(!Build(m_method,Draft(),script,error,m_version)) { AfxMessageBox(CString(error.c_str()),MB_ICONINFORMATION); return; }
+    if(!Build(m_method,Draft(),script,error,m_version)) { AfxMessageBox(UiLanguage::Text(error.c_str()),MB_ICONINFORMATION); return; }
     m_script=script.c_str(); CDialogEx::OnOK();
 }
 BEGIN_MESSAGE_MAP(CDlgCreate,CDialogEx)

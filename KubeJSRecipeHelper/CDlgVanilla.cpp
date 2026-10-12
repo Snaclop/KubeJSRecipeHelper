@@ -2,6 +2,7 @@
 #include "KubeJSRecipeHelper.h"
 #include "CDlgVanilla.h"
 #include "CDlgSelect.h"
+#include "Language.h"
 
 using namespace VanillaRecipe;
 namespace { enum Controls { RecipeType = 2700, TimeEdit, TimeSpin }; }
@@ -29,24 +30,25 @@ void CDlgVanilla::Label(const CString& text, int x, int y, int w) {
 }
 BOOL CDlgVanilla::OnInitDialog() {
     CDialogEx::OnInitDialog();
+    UiLanguage::ApplyDialog(*this);
     // 模板只提供窗口；所有控件都由代码创建，允许资源编辑器保留默认控件。
     while (CWnd* child = GetWindow(GW_CHILD)) child->DestroyWindow();
     m_ui.Initialize(this, 760, 500);
-    Control(_T("STATIC"), _T("合成方式"), 0, 22, 18, 110, 28, 0, true);
+    Control(_T("STATIC"), UiLanguage::Text(L"合成方式"), 0, 22, 18, 110, 28, 0, true);
     if (!m_methods.Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,
         m_ui.Rect(140, 18, 300, 240), this, RecipeType)) {
-        AfxMessageBox(_T("无法创建合成方式选择框。"), MB_ICONERROR);
+        AfxMessageBox(UiLanguage::Text(L"无法创建合成方式选择框。"), MB_ICONERROR);
         EndDialog(IDCANCEL); return FALSE;
     }
     m_methods.SetFont(GetFont());
     for (int i = 0; i < MethodCount; ++i) {
-        const int index = m_methods.AddString(GetInfo(static_cast<Method>(i)).name);
+        const int index = m_methods.AddString(UiLanguage::Text(GetInfo(static_cast<Method>(i)).name));
         m_methods.SetItemData(index, i);
     }
     m_methods.SetCurSel(0);
-    Control(_T("BUTTON"), _T("确定"), IDOK, 536, 456, 100, 30,
+    Control(_T("BUTTON"), UiLanguage::Text(L"确定"), IDOK, 536, 456, 100, 30,
         WS_TABSTOP | BS_DEFPUSHBUTTON, true);
-    Control(_T("BUTTON"), _T("取消"), IDCANCEL, 650, 456, 90, 30, WS_TABSTOP, true);
+    Control(_T("BUTTON"), UiLanguage::Text(L"取消"), IDCANCEL, 650, 456, 90, 30, WS_TABSTOP, true);
     Rebuild();
     m_methods.SetFocus();
     return FALSE;
@@ -69,27 +71,27 @@ void CDlgVanilla::Rebuild() {
     for (auto& control : m_controls) if (control->GetSafeHwnd()) control->DestroyWindow();
     m_controls.clear(); m_slots.clear(); m_hover = -1;
     if (IsCrafting(m_method)) {
-        Label(_T("合成网格（3 × 3）"), 89, 70, 260);
+        Label(UiLanguage::Text(L"合成网格（3 × 3）"), 89, 70, 260);
         for (int row = 0; row < 3; ++row)
             for (int col = 0; col < 3; ++col)
-                m_slots.push_back({row * 3 + col, false, m_ui.Rect(105 + col * 67, 112 + row * 67, 58, 58), _T("原料")});
-        AddSlot(0, true, 566, 174, 70, _T("产物"));
+                m_slots.push_back({row * 3 + col, false, m_ui.Rect(105 + col * 67, 112 + row * 67, 58, 58), UiLanguage::Text(L"原料")});
+        AddSlot(0, true, 566, 174, 70, UiLanguage::Text(L"产物"));
         m_arrow = m_ui.Rect(355, 174, 160, 70);
-        Label(m_method == Method::Shaped ? _T("每格一个原料，按摆放位置生成配方。") :
-            _T("忽略摆放位置；原料总数最多 9 个。"), 22, 337, 700);
+        Label(m_method == Method::Shaped ? UiLanguage::Text(L"每格一个原料，按摆放位置生成配方。") :
+            UiLanguage::Text(L"忽略摆放位置；原料总数最多 9 个。"), 22, 337, 700);
     } else if (m_method == Method::Smithing) {
-        AddSlot(0, false, 68, 174, 70, _T("锻造模板"));
-        AddSlot(1, false, 178, 174, 70, _T("升级物品"));
-        AddSlot(2, false, 288, 174, 70, _T("材料"));
-        AddSlot(0, true, 566, 174, 70, _T("产物"));
+        AddSlot(0, false, 68, 174, 70, UiLanguage::Text(L"锻造模板"));
+        AddSlot(1, false, 178, 174, 70, UiLanguage::Text(L"升级物品"));
+        AddSlot(2, false, 288, 174, 70, UiLanguage::Text(L"材料"));
+        AddSlot(0, true, 566, 174, 70, UiLanguage::Text(L"产物"));
         m_arrow = m_ui.Rect(395, 174, 120, 70);
-        Label(_T("模板、升级物品和材料各一个；产物数量可设置。"), 22, 337, 700);
+        Label(UiLanguage::Text(L"模板、升级物品和材料各一个；产物数量可设置。"), 22, 337, 700);
     } else {
-        AddSlot(0, false, 158, 140, 70, _T("原料"));
-        AddSlot(0, true, 566, 140, 70, _T("产物"));
+        AddSlot(0, false, 158, 140, 70, UiLanguage::Text(L"原料"));
+        AddSlot(0, true, 566, 140, 70, UiLanguage::Text(L"产物"));
         m_arrow = m_ui.Rect(290, 140, 215, 70);
         if (IsCooking(m_method)) {
-            Label(_T("处理时间"), 22, 285, 110);
+            Label(UiLanguage::Text(L"处理时间"), 22, 285, 110);
             CString value; value.Format(_T("%d"), Draft().time);
             auto edit = Control(_T("EDIT"), value, TimeEdit, 140, 285, 110, 28,
                 WS_BORDER | WS_TABSTOP | ES_NUMBER | ES_AUTOHSCROLL);
@@ -100,11 +102,11 @@ void CDlgVanilla::Rebuild() {
                 spin->SendMessage(UDM_SETRANGE32, 1, 1000000);
                 spin->SendMessage(UDM_SETPOS32, 0, Draft().time);
             }
-            Label(_T("tick（20 tick = 1 秒）"), 275, 285, 420);
+            Label(UiLanguage::Text(L"tick（20 tick = 1 秒）"), 275, 285, 420);
         }
-        Label(_T("原料数量固定为 1；产物数量可设置。"), 22, 337, 700);
+        Label(UiLanguage::Text(L"原料数量固定为 1；产物数量可设置。"), 22, 337, 700);
     }
-    Label(_T("左键选择，右键清空；停留在格子上可查看 ID 和数量。"), 22, 389, 700);
+    Label(UiLanguage::Text(L"左键选择，右键清空；停留在格子上可查看 ID 和数量。"), 22, 389, 700);
     // 下拉框 → 参数控件 → 确定 → 取消，重建后也保持键盘导航顺序。
     CWnd* previous = &m_methods;
     for (auto& control : m_controls) {
@@ -144,10 +146,10 @@ void CDlgVanilla::Select(const Slot& slot) {
     if (m_source) for (INT_PTR i = 0; i < m_source->GetSize(); ++i)
         if (RecipeKinds(m_catalog, std::wstring(m_source->GetAt(i).GetString())) & RecipeItem) { available = true; break; }
     if (!available) {
-        AfxMessageBox(_T("还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION); return;
+        AfxMessageBox(UiLanguage::Text(L"还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION); return;
     }
     const int limit = slot.output ? 64 : InputCountLimit(m_method, Draft(), slot.index);
-    if (limit < 1) { AfxMessageBox(_T("无序合成的原料总数已经达到 9 个。"), MB_ICONINFORMATION); return; }
+    if (limit < 1) { AfxMessageBox(UiLanguage::Text(L"无序合成的原料总数已经达到 9 个。"), MB_ICONINFORMATION); return; }
     auto& entry = EntryAt(slot);
     CDlgSelect select(this);
     select.SetItemList(m_source); select.SetCatalog(m_catalog, RecipeItem);
@@ -161,7 +163,7 @@ void CDlgVanilla::Select(const Slot& slot) {
 void CDlgVanilla::OnOK() {
     SaveControls(); std::wstring error;
     if (!Validate(m_method, Draft(), error)) {
-        AfxMessageBox(CString(error.c_str()), MB_ICONINFORMATION); return;
+        AfxMessageBox(UiLanguage::Text(error.c_str()), MB_ICONINFORMATION); return;
     }
     m_script = BuildScript(m_method, Draft()).c_str();
     CDialogEx::OnOK();

@@ -61,4 +61,6 @@ public:
 	afx_msg void OnBnClickedBtnother();
 	afx_msg void OnBnClickedBtnremove();
 	afx_msg void OnBnClickedBtnmodify();
+	CComboBox m_ComboLanguage;
+	afx_msg void OnCbnSelchangeCombolanguage();
 };

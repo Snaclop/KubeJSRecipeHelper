@@ -74,6 +74,8 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\RecipeWorkbench.ico"
 
+IDI_LANGUAGE            ICON                    "res\\Language.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -94,10 +96,12 @@ BEGIN
     PUSHBUTTON      "机械动力",IDC_BTNCREATE,17,80,129,12
     PUSHBUTTON      "移除配方",IDC_BTNREMOVE,18,120,127,12
     EDITTEXT        IDC_EDITOUTPUT,156,23,227,189,ES_MULTILINE | ES_AUTOHSCROLL | ES_NOHIDESEL | WS_VSCROLL | WS_HSCROLL
-    PUSHBUTTON      "导出到 output.js",IDC_BTNDWNLOAD,17,177,62,12
-    PUSHBUTTON      "清除内容",IDC_BTNCLEAR,83,177,62,12
+    PUSHBUTTON      "导出到 output.js",IDC_BTNDWNLOAD,18,162,62,12
+    PUSHBUTTON      "清除内容",IDC_BTNCLEAR,84,162,62,12
     PUSHBUTTON      "编辑配方",IDC_BTNMODIFY,18,144,127,12
     PUSHBUTTON      "其它配方",IDC_BTNOTHER,17,97,129,12
+    COMBOBOX        IDC_COMBOLANGUAGE,31,190,62,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    ICON            IDI_LANGUAGE,IDC_PICLANGUAGE,18,190,10,9,SS_CENTERIMAGE
 END
 
 IDD_DLGCREATE DIALOGEX 0, 0, 310, 178
@@ -297,6 +301,8 @@ BEGIN
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
     0, 0, 0, 0
 END
 
@@ -327,6 +333,23 @@ END
 
 IDD_DLGMODIFY AFX_DIALOG_LAYOUT
 BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_KUBEJSRECIPEHELPER_DIALOG DLGINIT
+BEGIN
+    IDC_COMBOLANGUAGE, 0x403, 8, 0
+0x6e45, 0x6c67, 0x7369, 0x0068, 
+    IDC_COMBOLANGUAGE, 0x403, 9, 0
+0xf2bc, 0xe5cc, 0xd0d6, 0xc4ce, "\000" 
+    IDC_COMBOLANGUAGE, 0x403, 9, 0
+0xb1b7, 0x77f3, 0xd0d6, 0xc4ce, "\000" 
     0
 END
 

@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "KubeJSRecipeHelper.h"
 #include "CDlgSelect.h"
+#include "Language.h"
 #include <cmath>
 #include <cwchar>
 
@@ -20,12 +21,13 @@ void CDlgSelect::SetCountLimit(int count) { m_nMaxCount = max(1, min(COUNT_MAX, 
 int CDlgSelect::CurrentLimit() const { return m_kind == RecipeFluid ? COUNT_MAX : m_nMaxCount; }
 BOOL CDlgSelect::OnInitDialog() {
     CDialogEx::OnInitDialog();
+    UiLanguage::ApplyDialog(*this);
     m_SpinNumber.ModifyStyle(0, UDS_NOTHOUSANDS);
     m_SpinNumber.SetRange32(1, CurrentLimit()); m_SpinNumber.SetPos32(max(1, min(CurrentLimit(), m_nInitialCount)));
     // Decimal chance/weight editing must not be overwritten by an integer buddy.
     m_SpinPossibility.ModifyStyle(UDS_SETBUDDYINT, 0); m_SpinPossibility.SetRange32(0, 1000000);
     CString value; value.Format(_T("%.12g"), m_chance); m_EditPossibility.SetWindowText(value);
-    GetDlgItem(IDC_GROUPCHANCE)->SetWindowText(m_weights ? _T("权重") : _T("概率%"));
+    GetDlgItem(IDC_GROUPCHANCE)->SetWindowText(m_weights ? UiLanguage::Text(L"权重") : UiLanguage::Text(L"概率%"));
     RefreshList(m_strInitialItem); OnSelectionChanged(); return TRUE;
 }
 void CDlgSelect::RefreshList(const CString& prefer) {
@@ -43,7 +45,7 @@ void CDlgSelect::RefreshList(const CString& prefer) {
         for (auto kind : { RecipeItem, RecipeFluid }) {
             if (!(kinds & kind)) continue;
             CString display = id;
-            if (kind == RecipeFluid) display += _T("  [流体]");
+            if (kind == RecipeFluid) display += UiLanguage::Text(L"  [流体]");
             if (m_List.FindStringExact(-1, display) != LB_ERR) continue;
             m_choices.push_back({ id, kind });
             int index = m_List.AddString(display);
@@ -51,7 +53,7 @@ void CDlgSelect::RefreshList(const CString& prefer) {
         }
     }
     if (m_choices.empty()) {
-        int index = m_List.AddString(_T("（没有匹配的项目，请导入相应 jar 或修改搜索词）"));
+        int index = m_List.AddString(UiLanguage::Text(L"（没有匹配的项目，请导入相应 jar 或修改搜索词）"));
         if (index >= 0) m_List.SetItemData(index, 0);
     } else {
         for (int i = 0; i < m_List.GetCount(); ++i) {
@@ -74,13 +76,13 @@ void CDlgSelect::OnSelectionChanged() {
     m_SpinNumber.SetRange32(1, limit);
     m_SpinNumber.SetPos32(valid ? min((int)min(count, (UINT)COUNT_MAX), limit) : 1);
     m_EditNumber.EnableWindow(limit != 1); m_SpinNumber.EnableWindow(limit != 1);
-    GetDlgItem(IDC_GROUPCOUNT)->SetWindowText(m_kind == RecipeFluid ? _T("体积(mB)") : _T("数量"));
+    GetDlgItem(IDC_GROUPCOUNT)->SetWindowText(m_kind == RecipeFluid ? UiLanguage::Text(L"体积(mB)") : UiLanguage::Text(L"数量"));
     auto app = static_cast<CKubeJSRecipeHelperApp*>(AfxGetApp());
     BOOL chance = (m_hasChanceMode ? m_allowChance : app->m_bIsCreate) && m_kind == RecipeItem;
     m_EditPossibility.EnableWindow(chance); m_SpinPossibility.EnableWindow(chance);
 }
 void CDlgSelect::OnOK() {
-    CString id; if (!GetCurSelItem(id)) { AfxMessageBox(_T("请先选择一个项目。")); return; }
+    CString id; if (!GetCurSelItem(id)) { AfxMessageBox(UiLanguage::Text(L"请先选择一个项目。")); return; }
     OnSelectionChanged();
     BOOL valid; UINT count = GetDlgItemInt(IDC_EDITNUMBER, &valid, FALSE);
     m_nSelectedCount = valid ? max(1, min((int)min(count, (UINT)COUNT_MAX), CurrentLimit())) : 1;
@@ -89,7 +91,7 @@ void CDlgSelect::OnOK() {
         double chance = wcstod(text.GetString(), &end);
         if (end == text.GetString() || *end || !std::isfinite(chance) ||
             (m_weights ? chance <= 0 || chance > 1000000 : chance < 0 || chance > 100)) {
-            AfxMessageBox(m_weights ? _T("权重须大于 0 且不超过 1000000。") : _T("概率须为 0–100%，支持小数。")); return;
+            AfxMessageBox(m_weights ? UiLanguage::Text(L"权重须大于 0 且不超过 1000000。") : UiLanguage::Text(L"概率须为 0–100%，支持小数。")); return;
         }
         m_chance = chance;
     } else m_chance = 100;

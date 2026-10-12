@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "afxdialogex.h"
+#include "Language.h"
 #include "ItemTextureStore.h"
 #include <algorithm>
 #include <vector>
@@ -67,8 +68,8 @@ public:
 
     void Tip(UINT_PTR id, const CRect& rect, const CString& label, const CString& item, int count)
     {
-        CString text = label + _T("：左键选择，右键清空");
-        if (!item.IsEmpty()) text.Format(_T("%s\n%s\n数量：%d"), label.GetString(), item.GetString(), count);
+        CString text = label + UiLanguage::Text(L"：左键选择，右键清空");
+        if (!item.IsEmpty()) text.Format(UiLanguage::Text(L"%s\n%s\n数量：%d"), label.GetString(), item.GetString(), count);
         if (std::find(m_tipIds.begin(), m_tipIds.end(), id) == m_tipIds.end())
         {
             m_tips.AddTool(m_dialog, text, rect, id);
