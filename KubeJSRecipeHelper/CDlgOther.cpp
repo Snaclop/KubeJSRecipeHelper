@@ -99,7 +99,7 @@ void CDlgOther::BuildGroups(bool output) {
     const auto& recipe = Recipe(); auto& draft = Draft(); std::vector<size_t> groups;
     for (size_t i = 0; i < recipe.groups.size(); ++i) {
         const auto& group = recipe.groups[i];
-        if ((group.side == "output") == output && Visible(group.when, draft, m_version)) groups.push_back(i);
+        if ((group.side == "output") == output && Visible(group.when, draft)) groups.push_back(i);
     }
     if (groups.empty()) return;
     const int width = 448 / (int)groups.size();
@@ -128,7 +128,7 @@ void CDlgOther::BuildGroups(bool output) {
 }
 void CDlgOther::BuildFields() {
     const auto& recipe = Recipe(); auto& draft = Draft(); std::vector<size_t> visible;
-    for (size_t i = 0; i < recipe.fields.size(); ++i) if (Visible(recipe.fields[i].when, draft, m_version)) visible.push_back(i);
+    for (size_t i = 0; i < recipe.fields.size(); ++i) if (Visible(recipe.fields[i].when, draft)) visible.push_back(i);
     const int pages = (std::max)(1, ((int)visible.size() + 9) / 10);
     m_fieldPage = (std::max)(0, (std::min)(m_fieldPage, pages - 1));
     if (pages > 1) {
@@ -216,7 +216,7 @@ BOOL CDlgOther::OnCommand(WPARAM wp, LPARAM lp) {
                 int64_t used = 0; for (const auto& e : entries) used += group.totalByCount ? (std::max)(1, e.count) : 1;
                 if (entries.size() >= (size_t)group.maximum || used >= group.maxTotal) { AfxMessageBox(UiLanguage::Text(L"此类型格子或物品总数量已达到该配方的上限。")); return TRUE; }
                 entries.emplace_back();
-                int visible = 0; for (const auto& g : Recipe().groups) if (g.side == group.side && Visible(g.when, Draft(), m_version)) ++visible;
+                int visible = 0; for (const auto& g : Recipe().groups) if (g.side == group.side && Visible(g.when, Draft())) ++visible;
                 const int columns = (std::max)(1, (std::min)(3, (448 / visible) / 79));
                 m_groupPages[group.id] = ((int)entries.size() - 1) / (columns * 3);
             } else if (entries.size() > (size_t)(std::max)(1, group.minimum)) entries.pop_back();

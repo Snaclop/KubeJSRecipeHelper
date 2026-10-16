@@ -32,7 +32,6 @@ DraftBank::DraftBank() {
     for (int i = 0; i < MethodCount; ++i) m_drafts[i].time = GetInfo(static_cast<Method>(i)).defaultTime;
 }
 Draft& DraftBank::Get(Method method) { return m_drafts.at(DraftIndex(method)); }
-const Draft& DraftBank::Get(Method method) const { return m_drafts.at(DraftIndex(method)); }
 int InputCountLimit(Method method, const Draft& draft, int index) {
     if (method != Method::Shapeless) return 1;
     int remaining = 9;

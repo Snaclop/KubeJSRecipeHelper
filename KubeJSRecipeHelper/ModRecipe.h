@@ -40,7 +40,7 @@ Mod Parse(const Json& definition); // Throws with a configuration location on in
 Catalog LoadDirectory(const std::wstring& directory);
 std::wstring Directory(); // addon beside the executable, independent of the working directory.
 Draft MakeDraft(const Recipe& recipe);
-bool Visible(const Json& condition, const Draft& draft, const std::string& version);
+bool Visible(const Json& condition, const Draft& draft);
 bool Build(const Recipe& recipe, const std::string& version, const Draft& draft,
     Json& body, std::wstring& error, const std::string& locale = "en");
 std::wstring Script(const Json& body);

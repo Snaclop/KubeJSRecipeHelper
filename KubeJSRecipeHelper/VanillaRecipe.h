@@ -20,7 +20,6 @@ class DraftBank {
 public:
     DraftBank();
     Draft& Get(Method method);
-    const Draft& Get(Method method) const;
 private:
     std::array<Draft, MethodCount> m_drafts;
 };

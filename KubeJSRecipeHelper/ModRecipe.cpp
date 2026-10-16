@@ -131,7 +131,7 @@ Json Render(const Json& node, const Recipe& r, const Draft& d, const std::string
         return result;
     }
     if (!node.is_object()) return node;
-    if (node.contains("$when") && !Visible(node["$when"], d, version)) return nullptr;
+    if (node.contains("$when") && !Visible(node["$when"], d)) return nullptr;
     Json result;
     if (node.contains("$ref")) {
         const auto ref = node["$ref"].get<std::string>();
@@ -157,7 +157,7 @@ Json Render(const Json& node, const Recipe& r, const Draft& d, const std::string
         const auto id = node[first ? "$first" : "$each"].get<std::string>();
         const auto& group = FindGroup(r, id);
         result = first ? Json(nullptr) : Json::array();
-        if (Visible(group.when, d, version)) for (const auto& e : d.groups.at(id)) {
+        if (Visible(group.when, d)) for (const auto& e : d.groups.at(id)) {
             if (e.id.empty()) continue;
             auto value = Render(node.at("$value"), r, d, version, &e, depth + 1);
             if (first) { result = value; break; }
@@ -328,7 +328,7 @@ Draft MakeDraft(const Recipe& r) {
     for (const auto& field : r.fields) d.fields[field.id] = field.initial;
     return d;
 }
-bool Visible(const Json& condition, const Draft& draft, const std::string&) {
+bool Visible(const Json& condition, const Draft& draft) {
     if (condition.is_null()) return true;
     const auto key = condition.at("field").get<std::string>();
     return draft.fields.contains(key) && draft.fields[key] == condition.at("equals");
@@ -337,14 +337,14 @@ bool Build(const Recipe& r, const std::string& version, const Draft& d, Json& bo
     body = nullptr; error.clear();
     try {
         Need(Has(r.versions, version), "Unsupported recipe version: " + version);
-        for (const auto& f : r.fields) if (Visible(f.when, d, version)) {
+        for (const auto& f : r.fields) if (Visible(f.when, d)) {
             if (!d.fields.contains(f.id) || !FieldValid(f, d.fields[f.id])) {
                 error = Label(f.label, locale) + L": " + Message(locale, L"Invalid value or outside the allowed range.", L"数值无效或超出允许范围。", L"數值無效或超出允許範圍。"); return false;
             }
         }
         std::map<std::string, int> counts;
         for (const auto& g : r.groups) {
-            counts[g.id] = 0; if (!Visible(g.when, d, version)) continue;
+            counts[g.id] = 0; if (!Visible(g.when, d)) continue;
             const auto& values = d.groups.at(g.id); int64_t total = 0;
             Need(values.size() <= (size_t)g.maximum, "Too many slots: " + g.id);
             for (const auto& e : values) {

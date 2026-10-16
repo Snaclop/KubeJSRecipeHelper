@@ -124,28 +124,13 @@ void CKubeJSRecipeHelperDlg::ShowRecipeScript(const CString& strScript)
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnvanilla()
 {
 	CDlgVanilla dlg(this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	if (dlg.DoModal() != IDOK)
-		return;
-
-	ShowRecipeScript(dlg.GetRecipeScript());
+	OpenRecipeDialog(dlg);
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtncreate()
 {
-	CKubeJSRecipeHelperApp* pApp = (CKubeJSRecipeHelperApp*)AfxGetApp();
-	const BOOL previous = pApp->m_bIsCreate;
-	pApp->m_bIsCreate = TRUE;
 	CDlgCreate dlg(this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	const INT_PTR result = dlg.DoModal();
-	pApp->m_bIsCreate = previous;
-	if (result == IDOK)
-		ShowRecipeScript(dlg.GetRecipeScript());
+	OpenRecipeDialog(dlg);
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnimport()
@@ -1053,29 +1038,19 @@ void CKubeJSRecipeHelperDlg::OnBnClickedBtndwnload()
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnother()
 {
 	CDlgOther dlg(this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	if (dlg.DoModal() == IDOK)
-		ShowRecipeScript(dlg.GetRecipeScript());
+	OpenRecipeDialog(dlg);
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnremove()
 {
 	CDlgRecipeChanges dlg(true,this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	if(dlg.DoModal()==IDOK) ShowRecipeScript(dlg.GetRecipeScript());
+	OpenRecipeDialog(dlg);
 }
 
 void CKubeJSRecipeHelperDlg::OnBnClickedBtnmodify()
 {
 	CDlgRecipeChanges dlg(false,this);
-	dlg.SetItemSource(&m_arrNames);
-	dlg.SetCatalog(&m_entryTypes);
-	dlg.SetTextureStore(&m_itemTextures);
-	if(dlg.DoModal()==IDOK) ShowRecipeScript(dlg.GetRecipeScript());
+	OpenRecipeDialog(dlg);
 }
 
 void CKubeJSRecipeHelperDlg::OnCbnSelchangeCombolanguage()

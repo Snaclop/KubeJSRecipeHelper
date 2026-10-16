@@ -63,4 +63,15 @@ public:
 	afx_msg void OnBnClickedBtnmodify();
 	CComboBox m_ComboLanguage;
 	afx_msg void OnCbnSelchangeCombolanguage();
+
+private:
+	template<class Dialog>
+	void OpenRecipeDialog(Dialog& dialog)
+	{
+		dialog.SetItemSource(&m_arrNames);
+		dialog.SetCatalog(&m_entryTypes);
+		dialog.SetTextureStore(&m_itemTextures);
+		if (dialog.DoModal() == IDOK)
+			ShowRecipeScript(dialog.GetRecipeScript());
+	}
 };
