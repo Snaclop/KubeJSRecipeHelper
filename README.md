@@ -1,36 +1,38 @@
+English | [简体中文](README-zh.md)
+
 # KubeJSRecipeHelper
 
-可视化 KubeJS 配方脚本生成器。程序可以从 Minecraft 或模组的 JAR 文件中读取可选的物品、方块和流体 ID，在配方对话框中选择原料与产物，并预览生成的 JavaScript。
+A visual KubeJS recipe script generator. The program reads available item, block and fluid IDs from Minecraft or mod JAR files, lets you select ingredients and outputs in recipe dialogs, and previews the generated JavaScript.
 
-## 功能
+## Features
 
-- 生成有序合成、无序合成、锻造、熔炉、高炉、烟熏炉和切石机配方。
-- 生成机械动力（Create）的处理配方，包括冲压、研磨、粉碎、切削、混合搅拌、塑形、注液、分液、动力合成和序列装配等方法。**！需要安装 KubeJS 扩展：KubeJS Create！**
-- 生成其他模组的自定义配方，目前已支持农夫乐事、机械动力：柴油动力、机械动力：龙+，后续会加入更多模组。无需安装 KubeJS 扩展。
-- 生成移除特定配方和修改配方的脚本。
-- 从 JAR 文件中的物品与方块模型、流体标签等资源收集 ID；存在对应贴图时，在配方格子中显示预览。
-- 在主窗口预览脚本，并将其追加写入 `output.js`。
+- Generate shaped crafting, shapeless crafting, smithing, smelting, blasting, smoking and stonecutting recipes.
+- Generate processing recipes for Create, including pressing, milling, crushing, cutting, mixing, compacting, filling, emptying, mechanical crafting, sequenced assembly and more. **Requires the KubeJS Create extension!**
+- Generate custom recipes for other mods. Currently supports Farmer's Delight, Create: Diesel Generators and Create: Dragons Plus, with more mods planned. No KubeJS extension is required.
+- Generate scripts to remove specific recipes and modify recipes.
+- Collect IDs from resources such as item and block models and fluid tags in JAR files; show previews in recipe slots when corresponding textures are available.
+- Preview scripts in the main window and append them to `output.js`.
 
-本程序只生成脚本文本，不会修改游戏实例或自动安装配方。生成的脚本应根据所使用的 KubeJS 与模组版本进行检查。
+This program only generates script text. It does not modify game instances or automatically install recipes. Check the generated scripts against the KubeJS and mod versions you use.
 
-## 使用方法
+## Usage
 
-1. 点击“导入 .jar 文件”，选择包含所需物品或流体资源的 JAR。可一次选择多个文件，程序会按列表顺序逐个解析并显示当前进度；某个文件解析失败时会继续处理其余文件，结束后统一提示失败文件。可以多次导入；识别出的 ID 会加入当前会话的可选列表。
-2. 选择配方类型：原版合成、机械动力、其他模组，根据提示操作即可。
-3. 点击配方对话框中的“确定”，在主窗口的输出框查看脚本。
-4. 复制输出框内容，或点击“一键输出”。后者会以追加方式写入程序**当前工作目录**中的 `output.js`；再次输出不会覆盖已有内容。
-5. 检查并整理生成的脚本，将其放入游戏实例的 `kubejs/server_scripts/` 目录。配方脚本的放置位置参见 [KubeJS 官方文档](https://kubejs.com/wiki/folder-structure/server-scripts)。
+1. Click "Import .jar files" and select JAR files containing the required item or fluid resources. You can select multiple files at once. The program parses them one by one in list order and displays the current progress. If a file fails to parse, it continues processing the remaining files and reports all failed files at the end. You can import files multiple times; recognized IDs are added to the list of available entries for the current session.
+2. Select a recipe type: vanilla recipes, Create or other mods, then follow the prompts.
+3. Click "OK" in the recipe dialog to view the script in the main window's output box.
+4. Copy the contents of the output box or click "One-click export". The latter appends the script to `output.js` in the program's **current working directory**; exporting again does not overwrite existing content.
+5. Check and organize the generated scripts, then place them in your game instance's `kubejs/server_scripts/` directory. See the [official KubeJS documentation](https://kubejs.com/wiki/folder-structure/server-scripts) for recipe script placement.
 
-JAR 解析依赖文件中的资源结构，未被识别的项目不会出现在选择列表中。输出前请确认物品 ID、数量、概率及生成的脚本符合目标游戏环境。
+JAR parsing depends on the resource structure inside each file. Unrecognized entries will not appear in the selection list. Before exporting, confirm that item IDs, quantities, probabilities and the generated scripts are suitable for the target game environment.
 
-## 构建与运行
+## Building and Running
 
-1. 在 Visual Studio 中打开仓库根目录的 `KubeJSRecipeHelper.slnx`。
-2. 选择 `Debug` 或 `Release` 配置，以及 `x64` 或 `Win32` 平台。
-3. 构建并运行 `KubeJSRecipeHelper` 项目。
+1. Open `KubeJSRecipeHelper.slnx` from the repository root in Visual Studio.
+2. Select the `Debug` or `Release` configuration and the `x64` or `Win32` platform.
+3. Build and run the `KubeJSRecipeHelper` project.
 
-项目包含 `miniz` 源码，用于读取 JAR 文件。运行程序不需要单独安装 `miniz`。
+The project includes the `miniz` source code for reading JAR files. You do not need to install `miniz` separately to run the program.
 
-## 参与贡献
+## Contributing
 
-欢迎通过 GitHub Issues 报告问题或提出建议。提交代码变更时，请说明复现步骤或使用场景，并尽可能附上相关测试结果。对配方生成逻辑的修改应同时检查生成脚本的内容。
+You are welcome to report problems or suggest improvements through GitHub Issues. When submitting code changes, describe the reproduction steps or use case and include relevant test results where possible. Changes to recipe generation logic should also include checks of the generated script content.
