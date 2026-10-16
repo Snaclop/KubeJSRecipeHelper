@@ -65,6 +65,7 @@
     </ClInclude>
     <ClInclude Include="ModRecipe.h"><Filter>头文件</Filter></ClInclude>
     <ClInclude Include="third_party\nlohmann\json.hpp"><Filter>头文件</Filter></ClInclude>
+    <ClInclude Include="third_party\miniz\miniz.h"><Filter>头文件</Filter></ClInclude>
     <ClInclude Include="Language.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -82,7 +83,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="miniz.c">
+    <ClCompile Include="third_party\miniz\miniz.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CDlgRecipeChanges.cpp">

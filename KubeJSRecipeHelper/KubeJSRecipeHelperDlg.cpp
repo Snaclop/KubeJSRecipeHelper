@@ -9,7 +9,7 @@
 #include "afxdialogex.h"
 #include "Language.h"
 #include "CDlgRecipeChanges.h"
-#include "miniz.h"
+#include "third_party/miniz/miniz.h"
 #include <atlbase.h>
 #include <fstream>
 #include <map>

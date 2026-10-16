@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "ItemTextureStore.h"
-#include "miniz.h"
+#include "third_party/miniz/miniz.h"
 
 #include <algorithm>
 #include <objidl.h>

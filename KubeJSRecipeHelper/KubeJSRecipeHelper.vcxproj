@@ -203,6 +203,7 @@
     <ClInclude Include="CDlgOther.h" />
     <ClInclude Include="ModRecipe.h" />
     <ClInclude Include="third_party\nlohmann\json.hpp" />
+    <ClInclude Include="third_party\miniz\miniz.h" />
     <ClInclude Include="Language.h" />
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
@@ -243,7 +244,7 @@
     <ClCompile Include="ItemTextureStore.cpp" />
     <ClCompile Include="KubeJSRecipeHelper.cpp" />
     <ClCompile Include="KubeJSRecipeHelperDlg.cpp" />
-    <ClCompile Include="miniz.c">
+    <ClCompile Include="third_party\miniz\miniz.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pch.cpp">
