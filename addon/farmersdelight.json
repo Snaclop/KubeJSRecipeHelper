@@ -1,0 +1,550 @@
+{
+  "schemaVersion": 1,
+  "id": "farmersdelight",
+  "name": "Farmer's Delight",
+  "recipes": [
+    {
+      "id": "cooking",
+      "label": {
+        "zh-CN": "厨锅烹饪",
+        "zh-TW": "廚鍋烹飪",
+        "en": "Cooking Pot"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 1,
+          "max": 6,
+          "initial": 6,
+          "maxCount": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 1,
+          "max": 1,
+          "initial": 1,
+          "chance": false
+        },
+        {
+          "id": "container",
+          "label": {
+            "zh-CN": "容器（可选）",
+            "zh-TW": "容器（可選）",
+            "en": "Container (optional)"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "side": "output"
+        }
+      ],
+      "fields": [
+        {
+          "id": "time",
+          "label": {
+            "zh-CN": "处理时间 (tick)",
+            "zh-TW": "處理時間 (tick)",
+            "en": "Time (tick)"
+          },
+          "type": "integer",
+          "default": 200,
+          "min": 1,
+          "max": 99999999
+        },
+        {
+          "id": "experience",
+          "label": {
+            "zh-CN": "经验",
+            "zh-TW": "經驗",
+            "en": "Experience"
+          },
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 1000000
+        },
+        {
+          "id": "tab",
+          "label": {
+            "zh-CN": "配方书",
+            "zh-TW": "配方書",
+            "en": "Book tab"
+          },
+          "type": "choice",
+          "default": "",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "默认",
+                "zh-TW": "預設",
+                "en": "Default"
+              },
+              "value": ""
+            },
+            {
+              "label": {
+                "zh-CN": "餐点",
+                "zh-TW": "餐點",
+                "en": "Meals"
+              },
+              "value": "meals"
+            },
+            {
+              "label": {
+                "zh-CN": "饮品",
+                "zh-TW": "飲品",
+                "en": "Drinks"
+              },
+              "value": "drinks"
+            },
+            {
+              "label": {
+                "zh-CN": "杂项",
+                "zh-TW": "雜項",
+                "en": "Miscellaneous"
+              },
+              "value": "misc"
+            }
+          ]
+        },
+        {
+          "id": "group",
+          "label": {
+            "zh-CN": "配方分组",
+            "zh-TW": "配方分組",
+            "en": "Recipe group"
+          },
+          "type": "text",
+          "default": "",
+          "required": false
+        }
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "farmersdelight:cooking",
+            "ingredients": {
+              "$each": "inputs",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                }
+              }
+            },
+            "group": {
+              "$ref": "params.group",
+              "$omitIf": ""
+            },
+            "result": {
+              "$first": "outputs",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                },
+                "count": {
+                  "$ref": "entry.count"
+                }
+              }
+            },
+            "container": {
+              "$first": "container",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                },
+                "count": {
+                  "$ref": "entry.count"
+                }
+              }
+            },
+            "cookingtime": {
+              "$ref": "params.time"
+            },
+            "experience": {
+              "$ref": "params.experience"
+            },
+            "recipe_book_tab": {
+              "$ref": "params.tab",
+              "$omitIf": ""
+            }
+          },
+          "1.21.1": {
+            "type": "farmersdelight:cooking",
+            "ingredients": {
+              "$each": "inputs",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                }
+              }
+            },
+            "group": {
+              "$ref": "params.group",
+              "$omitIf": ""
+            },
+            "result": {
+              "$first": "outputs",
+              "$value": {
+                "id": {
+                  "$ref": "entry.id"
+                },
+                "count": {
+                  "$ref": "entry.count"
+                }
+              }
+            },
+            "container": {
+              "$first": "container",
+              "$value": {
+                "id": {
+                  "$ref": "entry.id"
+                },
+                "count": {
+                  "$ref": "entry.count"
+                }
+              }
+            },
+            "cookingtime": {
+              "$ref": "params.time"
+            },
+            "experience": {
+              "$ref": "params.experience"
+            },
+            "recipe_book_tab": {
+              "$ref": "params.tab",
+              "$omitIf": ""
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "cutting",
+      "label": {
+        "zh-CN": "砧板切割",
+        "zh-TW": "砧板切割",
+        "en": "Cutting Board"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 1,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 1,
+          "max": 4,
+          "initial": 4,
+          "chance": true
+        },
+        {
+          "id": "tool_item",
+          "label": {
+            "zh-CN": "工具",
+            "zh-TW": "工具",
+            "en": "Tool"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 1,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "when": {
+            "field": "tool",
+            "equals": "item"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "id": "tool",
+          "label": {
+            "zh-CN": "工具类型",
+            "zh-TW": "工具類型",
+            "en": "Tool type"
+          },
+          "type": "choice",
+          "default": "knives",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "刀具（标签）",
+                "zh-TW": "刀具（標籤）",
+                "en": "Knives (tag)"
+              },
+              "value": "knives"
+            },
+            {
+              "label": {
+                "zh-CN": "斧（去皮工具／标签）",
+                "zh-TW": "斧（去皮工具／標籤）",
+                "en": "Axes (stripping tools / tag)"
+              },
+              "value": "axes"
+            },
+            {
+              "label": {
+                "zh-CN": "指定工具物品",
+                "zh-TW": "指定工具物品",
+                "en": "Specific tool item"
+              },
+              "value": "item"
+            },
+            {
+              "label": {
+                "zh-CN": "自定义工具标签",
+                "zh-TW": "自訂工具標籤",
+                "en": "Custom tool tag"
+              },
+              "value": "tag"
+            }
+          ]
+        },
+        {
+          "id": "tool_tag",
+          "label": {
+            "zh-CN": "标签 ID",
+            "zh-TW": "標籤 ID",
+            "en": "Tag ID"
+          },
+          "type": "tag",
+          "default": "",
+          "when": {
+            "field": "tool",
+            "equals": "tag"
+          }
+        },
+        {
+          "id": "sound",
+          "label": {
+            "zh-CN": "切割声音",
+            "zh-TW": "切割聲音",
+            "en": "Cutting sound"
+          },
+          "type": "choice",
+          "default": "",
+          "allowCustom": true,
+          "customType": "resource",
+          "required": false,
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "默认（由工具决定）",
+                "zh-TW": "預設（由工具決定）",
+                "en": "Default (based on tool)"
+              },
+              "value": ""
+            },
+            {
+              "label": {
+                "zh-CN": "斧去皮",
+                "zh-TW": "斧去皮",
+                "en": "Axe stripping"
+              },
+              "value": "minecraft:item.axe.strip"
+            },
+            {
+              "label": {
+                "zh-CN": "剪刀剪切",
+                "zh-TW": "剪刀剪切",
+                "en": "Shears cutting"
+              },
+              "value": "minecraft:entity.sheep.shear"
+            }
+          ]
+        },
+        {
+          "id": "group",
+          "label": {
+            "zh-CN": "配方分组",
+            "zh-TW": "配方分組",
+            "en": "Recipe group"
+          },
+          "type": "text",
+          "default": "",
+          "required": false
+        }
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "farmersdelight:cutting",
+            "ingredients": {
+              "$each": "inputs",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                }
+              }
+            },
+            "group": {
+              "$ref": "params.group",
+              "$omitIf": ""
+            },
+            "tool": {
+              "$switch": "tool",
+              "$cases": {
+                "knives": {
+                  "tag": "forge:tools/knives"
+                },
+                "axes": [
+                  {
+                    "type": "farmersdelight:tool_action",
+                    "action": "axe_strip"
+                  },
+                  {
+                    "tag": "minecraft:axes"
+                  }
+                ],
+                "item": {
+                  "$first": "tool_item",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  }
+                },
+                "tag": {
+                  "tag": {
+                    "$ref": "params.tool_tag"
+                  }
+                }
+              }
+            },
+            "result": {
+              "$each": "outputs",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                },
+                "count": {
+                  "$ref": "entry.count"
+                },
+                "chance": {
+                  "$ref": "entry.chance",
+                  "$scale": 0.01
+                }
+              }
+            },
+            "sound": {
+              "$ref": "params.sound",
+              "$omitIf": ""
+            }
+          },
+          "1.21.1": {
+            "type": "farmersdelight:cutting",
+            "ingredients": {
+              "$each": "inputs",
+              "$value": {
+                "item": {
+                  "$ref": "entry.id"
+                }
+              }
+            },
+            "group": {
+              "$ref": "params.group",
+              "$omitIf": ""
+            },
+            "tool": {
+              "$switch": "tool",
+              "$cases": {
+                "knives": {
+                  "tag": "c:tools/knife"
+                },
+                "axes": [
+                  {
+                    "type": "farmersdelight:item_ability",
+                    "action": "axe_strip"
+                  },
+                  {
+                    "tag": "minecraft:axes"
+                  }
+                ],
+                "item": {
+                  "$first": "tool_item",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  }
+                },
+                "tag": {
+                  "tag": {
+                    "$ref": "params.tool_tag"
+                  }
+                }
+              }
+            },
+            "result": {
+              "$each": "outputs",
+              "$value": {
+                "item": {
+                  "id": {
+                    "$ref": "entry.id"
+                  },
+                  "count": {
+                    "$ref": "entry.count"
+                  }
+                },
+                "chance": {
+                  "$ref": "entry.chance",
+                  "$scale": 0.01
+                }
+              }
+            },
+            "sound": {
+              "sound_id": {
+                "$ref": "params.sound",
+                "$omitIf": ""
+              },
+              "$omitEmpty": true
+            }
+          }
+        }
+      }
+    }
+  ]
+}

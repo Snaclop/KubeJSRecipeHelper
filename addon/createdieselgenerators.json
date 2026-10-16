@@ -1,0 +1,1585 @@
+{
+  "schemaVersion": 1,
+  "id": "createdieselgenerators",
+  "name": "Create: Diesel Generators",
+  "recipes": [
+    {
+      "id": "basin_fermenting",
+      "label": {
+        "zh-CN": "发酵",
+        "zh-TW": "發酵",
+        "en": "Basin Fermenting"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 64,
+          "initial": 1,
+          "maxCount": 64,
+          "totalByCount": true,
+          "maxTotal": 64
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 4,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        },
+        {
+          "id": "fluid_inputs",
+          "label": {
+            "zh-CN": "流体原料",
+            "zh-TW": "流體原料",
+            "en": "Fluid inputs"
+          },
+          "kind": "fluid",
+          "output": false,
+          "min": 0,
+          "max": 2,
+          "initial": 1
+        },
+        {
+          "id": "fluid_outputs",
+          "label": "流体产物",
+          "kind": "fluid",
+          "output": true,
+          "min": 0,
+          "max": 2,
+          "initial": 1
+        }
+      ],
+      "fields": [
+        {
+          "id": "custom_time",
+          "label": {
+            "zh-CN": "指定处理时间",
+            "zh-TW": "指定處理時間",
+            "en": "Set processing time"
+          },
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "id": "time",
+          "label": {
+            "zh-CN": "处理时间 (tick)",
+            "zh-TW": "處理時間 (tick)",
+            "en": "Time (tick)"
+          },
+          "type": "integer",
+          "default": 100,
+          "min": 1,
+          "max": 99999999,
+          "when": {
+            "field": "custom_time",
+            "equals": true
+          }
+        },
+        {
+          "id": "heat",
+          "label": {
+            "zh-CN": "热量条件",
+            "zh-TW": "熱量條件",
+            "en": "Heat"
+          },
+          "type": "choice",
+          "default": "",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "无需加热",
+                "zh-TW": "無需加熱",
+                "en": "None"
+              },
+              "value": ""
+            },
+            {
+              "label": {
+                "zh-CN": "加热",
+                "zh-TW": "加熱",
+                "en": "Heated"
+              },
+              "value": "heated"
+            },
+            {
+              "label": {
+                "zh-CN": "超级加热",
+                "zh-TW": "超級加熱",
+                "en": "Superheated"
+              },
+              "value": "superheated"
+            }
+          ]
+        }
+      ],
+      "requireAny": [
+        [
+          "inputs",
+          "fluid_inputs"
+        ],
+        [
+          "outputs",
+          "fluid_outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:basin_fermenting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                },
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                },
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processingTime": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heatRequirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:basin_fermenting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                },
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "type": "fluid_stack",
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                },
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processing_time": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heat_requirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bulk_fermenting",
+      "label": {
+        "zh-CN": "批量发酵",
+        "zh-TW": "批量發酵",
+        "en": "Bulk Fermenting"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 9,
+          "initial": 1,
+          "maxCount": 9,
+          "totalByCount": true,
+          "maxTotal": 9
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 4,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        },
+        {
+          "id": "fluid_inputs",
+          "label": {
+            "zh-CN": "流体原料",
+            "zh-TW": "流體原料",
+            "en": "Fluid inputs"
+          },
+          "kind": "fluid",
+          "output": false,
+          "min": 0,
+          "max": 2,
+          "initial": 1
+        },
+        {
+          "id": "fluid_outputs",
+          "label": "流体产物",
+          "kind": "fluid",
+          "output": true,
+          "min": 0,
+          "max": 2,
+          "initial": 1
+        }
+      ],
+      "fields": [
+        {
+          "id": "custom_time",
+          "label": {
+            "zh-CN": "指定处理时间",
+            "zh-TW": "指定處理時間",
+            "en": "Set processing time"
+          },
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "id": "time",
+          "label": {
+            "zh-CN": "处理时间 (tick)",
+            "zh-TW": "處理時間 (tick)",
+            "en": "Time (tick)"
+          },
+          "type": "integer",
+          "default": 100,
+          "min": 1,
+          "max": 99999999,
+          "when": {
+            "field": "custom_time",
+            "equals": true
+          }
+        },
+        {
+          "id": "heat",
+          "label": {
+            "zh-CN": "热量条件",
+            "zh-TW": "熱量條件",
+            "en": "Heat"
+          },
+          "type": "choice",
+          "default": "",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "无需加热",
+                "zh-TW": "無需加熱",
+                "en": "None"
+              },
+              "value": ""
+            },
+            {
+              "label": {
+                "zh-CN": "加热",
+                "zh-TW": "加熱",
+                "en": "Heated"
+              },
+              "value": "heated"
+            },
+            {
+              "label": {
+                "zh-CN": "超级加热",
+                "zh-TW": "超級加熱",
+                "en": "Superheated"
+              },
+              "value": "superheated"
+            }
+          ]
+        }
+      ],
+      "requireAny": [
+        [
+          "inputs",
+          "fluid_inputs"
+        ],
+        [
+          "outputs",
+          "fluid_outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:bulk_fermenting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                },
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                },
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processingTime": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heatRequirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:bulk_fermenting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                },
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "type": "fluid_stack",
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                },
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processing_time": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heat_requirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "distillation",
+      "label": {
+        "zh-CN": "分馏",
+        "zh-TW": "分餾",
+        "en": "Distillation"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "fluid_inputs",
+          "label": {
+            "zh-CN": "流体原料",
+            "zh-TW": "流體原料",
+            "en": "Fluid inputs"
+          },
+          "kind": "fluid",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1
+        },
+        {
+          "id": "fluid_outputs",
+          "label": "流体产物",
+          "kind": "fluid",
+          "output": true,
+          "min": 0,
+          "max": 6,
+          "initial": 1
+        }
+      ],
+      "fields": [
+        {
+          "id": "custom_time",
+          "label": {
+            "zh-CN": "指定处理时间",
+            "zh-TW": "指定處理時間",
+            "en": "Set processing time"
+          },
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "id": "time",
+          "label": {
+            "zh-CN": "处理时间 (tick)",
+            "zh-TW": "處理時間 (tick)",
+            "en": "Time (tick)"
+          },
+          "type": "integer",
+          "default": 100,
+          "min": 1,
+          "max": 99999999,
+          "when": {
+            "field": "custom_time",
+            "equals": true
+          }
+        },
+        {
+          "id": "heat",
+          "label": {
+            "zh-CN": "热量条件",
+            "zh-TW": "熱量條件",
+            "en": "Heat"
+          },
+          "type": "choice",
+          "default": "",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "无需加热",
+                "zh-TW": "無需加熱",
+                "en": "None"
+              },
+              "value": ""
+            },
+            {
+              "label": {
+                "zh-CN": "加热",
+                "zh-TW": "加熱",
+                "en": "Heated"
+              },
+              "value": "heated"
+            },
+            {
+              "label": {
+                "zh-CN": "超级加热",
+                "zh-TW": "超級加熱",
+                "en": "Superheated"
+              },
+              "value": "superheated"
+            }
+          ]
+        }
+      ],
+      "requireAny": [
+        [
+          "fluid_inputs"
+        ],
+        [
+          "fluid_outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:distillation",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processingTime": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heatRequirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:distillation",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "type": "fluid_stack",
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processing_time": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heat_requirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "compression_molding",
+      "label": {
+        "zh-CN": "铸模冲压",
+        "zh-TW": "鑄模沖壓",
+        "en": "Compression Molding"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 64,
+          "initial": 1,
+          "maxCount": 64,
+          "totalByCount": true,
+          "maxTotal": 64
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 4,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        },
+        {
+          "id": "fluid_inputs",
+          "label": {
+            "zh-CN": "流体原料",
+            "zh-TW": "流體原料",
+            "en": "Fluid inputs"
+          },
+          "kind": "fluid",
+          "output": false,
+          "min": 0,
+          "max": 2,
+          "initial": 1
+        },
+        {
+          "id": "fluid_outputs",
+          "label": "流体产物",
+          "kind": "fluid",
+          "output": true,
+          "min": 0,
+          "max": 2,
+          "initial": 1
+        }
+      ],
+      "fields": [
+        {
+          "id": "custom_time",
+          "label": {
+            "zh-CN": "指定处理时间",
+            "zh-TW": "指定處理時間",
+            "en": "Set processing time"
+          },
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "id": "time",
+          "label": {
+            "zh-CN": "处理时间 (tick)",
+            "zh-TW": "處理時間 (tick)",
+            "en": "Time (tick)"
+          },
+          "type": "integer",
+          "default": 100,
+          "min": 1,
+          "max": 99999999,
+          "when": {
+            "field": "custom_time",
+            "equals": true
+          }
+        },
+        {
+          "id": "heat",
+          "label": {
+            "zh-CN": "热量条件",
+            "zh-TW": "熱量條件",
+            "en": "Heat"
+          },
+          "type": "choice",
+          "default": "",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "无需加热",
+                "zh-TW": "無需加熱",
+                "en": "None"
+              },
+              "value": ""
+            },
+            {
+              "label": {
+                "zh-CN": "加热",
+                "zh-TW": "加熱",
+                "en": "Heated"
+              },
+              "value": "heated"
+            },
+            {
+              "label": {
+                "zh-CN": "超级加热",
+                "zh-TW": "超級加熱",
+                "en": "Superheated"
+              },
+              "value": "superheated"
+            }
+          ]
+        },
+        {
+          "id": "mold",
+          "label": {
+            "zh-CN": "模具",
+            "zh-TW": "模具",
+            "en": "Mold"
+          },
+          "type": "choice",
+          "default": "createdieselgenerators:bar",
+          "allowCustom": true,
+          "customType": "resource",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "棒状铸模",
+                "zh-TW": "棒狀鑄模",
+                "en": "Bar Mold"
+              },
+              "value": "createdieselgenerators:bar"
+            },
+            {
+              "label": {
+                "zh-CN": "碗铸模",
+                "zh-TW": "碗鑄模",
+                "en": "Bowl Mold"
+              },
+              "value": "createdieselgenerators:bowl"
+            },
+            {
+              "label": {
+                "zh-CN": "锁链铸模",
+                "zh-TW": "鎖鏈鑄模",
+                "en": "Chain Mold"
+              },
+              "value": "createdieselgenerators:chain"
+            },
+            {
+              "label": {
+                "zh-CN": "波纹铸模",
+                "zh-TW": "波紋鑄模",
+                "en": "Lines Mold"
+              },
+              "value": "createdieselgenerators:lines"
+            }
+          ]
+        }
+      ],
+      "requireAny": [
+        [
+          "inputs",
+          "fluid_inputs"
+        ],
+        [
+          "outputs",
+          "fluid_outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:compression_molding",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                },
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                },
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processingTime": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heatRequirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            },
+            "mold": {
+              "$ref": "params.mold"
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:compression_molding",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                },
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "type": "fluid_stack",
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                },
+                {
+                  "$each": "fluid_outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "processing_time": {
+              "$when": {
+                "field": "custom_time",
+                "equals": true
+              },
+              "$value": {
+                "$ref": "params.time"
+              }
+            },
+            "heat_requirement": {
+              "$ref": "params.heat",
+              "$omitIf": ""
+            },
+            "mold": {
+              "$ref": "params.mold"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "casting",
+      "label": {
+        "zh-CN": "铸造",
+        "zh-TW": "鑄造",
+        "en": "Casting"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        },
+        {
+          "id": "fluid_inputs",
+          "label": {
+            "zh-CN": "流体原料",
+            "zh-TW": "流體原料",
+            "en": "Fluid inputs"
+          },
+          "kind": "fluid",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1
+        }
+      ],
+      "fields": [
+        {
+          "id": "mold",
+          "label": {
+            "zh-CN": "模具",
+            "zh-TW": "模具",
+            "en": "Mold"
+          },
+          "type": "choice",
+          "default": "createdieselgenerators:bar",
+          "allowCustom": true,
+          "customType": "resource",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "棒状铸模",
+                "zh-TW": "棒狀鑄模",
+                "en": "Bar Mold"
+              },
+              "value": "createdieselgenerators:bar"
+            },
+            {
+              "label": {
+                "zh-CN": "碗铸模",
+                "zh-TW": "碗鑄模",
+                "en": "Bowl Mold"
+              },
+              "value": "createdieselgenerators:bowl"
+            },
+            {
+              "label": {
+                "zh-CN": "锁链铸模",
+                "zh-TW": "鎖鏈鑄模",
+                "en": "Chain Mold"
+              },
+              "value": "createdieselgenerators:chain"
+            },
+            {
+              "label": {
+                "zh-CN": "波纹铸模",
+                "zh-TW": "波紋鑄模",
+                "en": "Lines Mold"
+              },
+              "value": "createdieselgenerators:lines"
+            }
+          ]
+        }
+      ],
+      "requireAny": [
+        [
+          "fluid_inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:casting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "mold": {
+              "$ref": "params.mold"
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:casting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "fluid_inputs",
+                  "$value": {
+                    "type": "fluid_stack",
+                    "fluid": {
+                      "$ref": "entry.id"
+                    },
+                    "amount": {
+                      "$ref": "entry.count"
+                    }
+                  }
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "mold": {
+              "$ref": "params.mold"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "hammering",
+      "label": {
+        "zh-CN": "锤击",
+        "zh-TW": "錘擊",
+        "en": "Hammering"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "totalByCount": true,
+          "maxTotal": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        }
+      ],
+      "fields": [],
+      "requireAny": [
+        [
+          "inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:hammering",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:hammering",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "wire_cutting",
+      "label": {
+        "zh-CN": "剪线",
+        "zh-TW": "剪線",
+        "en": "Wire Cutting"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "totalByCount": true,
+          "maxTotal": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        }
+      ],
+      "fields": [],
+      "requireAny": [
+        [
+          "inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "createdieselgenerators:wire_cutting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "1.21.1": {
+            "type": "createdieselgenerators:wire_cutting",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

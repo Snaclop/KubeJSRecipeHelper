@@ -17,8 +17,10 @@ void CDlgSelect::DoDataExchange(CDataExchange* dx) {
 }
 void CDlgSelect::SetItemList(const CStringArray* list) { m_pItemList = list; }
 void CDlgSelect::SetInitialSelection(const CString& id, int count) { m_strInitialItem = id; m_nInitialCount = count; }
-void CDlgSelect::SetCountLimit(int count) { m_nMaxCount = max(1, min(COUNT_MAX, count)); }
-int CDlgSelect::CurrentLimit() const { return m_kind == RecipeFluid ? COUNT_MAX : m_nMaxCount; }
+void CDlgSelect::SetCountLimit(int count, bool forFluids) {
+    (forFluids ? m_nMaxFluidCount : m_nMaxCount) = max(1, min(COUNT_MAX, count));
+}
+int CDlgSelect::CurrentLimit() const { return m_kind == RecipeFluid ? m_nMaxFluidCount : m_nMaxCount; }
 BOOL CDlgSelect::OnInitDialog() {
     CDialogEx::OnInitDialog();
     UiLanguage::ApplyDialog(*this);

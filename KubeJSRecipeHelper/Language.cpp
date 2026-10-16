@@ -17,6 +17,9 @@ struct Translation {
 };
 // Keep complete sentences and their format placeholders together.
 const Translation translations[] = {
+    { L"以下模组配置无法读取，其他有效配置仍可使用：\r\n", L"以下模組設定無法讀取，其他有效設定仍可使用：\r\n", L"These mod definitions could not be loaded; other valid definitions remain available:\r\n", false },
+    { L"没有可用的模组配置。请将模组 JSON 放入程序目录下的 addon 文件夹。", L"沒有可用的模組設定。請將模組 JSON 放入程式目錄下的 addon 資料夾。", L"No mod definitions available. Place mod JSON files in the addon folder beside the executable.", false },
+    { L"请先在主界面导入包含所需物品或流体的 jar 文件。", L"請先在主介面匯入包含所需物品或流體的 jar 檔案。", L"Import a JAR containing the required items or fluids from the main window first.", false },
     { L"：左键选择，右键清空", L"：左鍵選擇，右鍵清空", L": left-click to select, right-click to clear", false },
     { L"\n数量：%d", L"\n數量：%d", L"\nCount: %d", false },
     { L"\n权重：%.12g", L"\n權重：%.12g", L"\nWeight: %.12g", false },

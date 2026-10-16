@@ -28,7 +28,7 @@ public:
 	// 打开时预选的物品与数量，用于修改已经选过的格子
 	void SetInitialSelection(const CString& strItem, int nCount);
 	// 某些配方只允许单个原料，或限制产物堆叠数量。
-	void SetCountLimit(int nMaxCount);
+	void SetCountLimit(int nMaxCount, bool forFluids = false);
 	void SetCatalog(const RecipeTypeMap* catalog, unsigned allowedKinds) { m_catalog = catalog; m_allowedKinds = allowedKinds; }
 	void SetChanceMode(bool enabled, bool weights = false) { m_allowChance = enabled; m_weights = weights; m_hasChanceMode = true; }
 	void SetInitialDetails(RecipeEntryKind kind, double chance) { m_kind = kind; m_chance = chance; }
@@ -59,7 +59,8 @@ protected:
 
 	CString m_strSelectedItem;			// 结果：选中的物品 id
 	int     m_nSelectedCount;			// 结果：选中的数量
-	int     m_nMaxCount;				// 当前选择器允许的最大数量
+	int     m_nMaxCount;
+	int     m_nMaxFluidCount = COUNT_MAX;				// 当前选择器允许的最大数量
 
 	CListBox m_List;					// 物品列表
 	CEdit    m_EditSearch;				// 搜索框

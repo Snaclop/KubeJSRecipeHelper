@@ -57,18 +57,14 @@
     <ClInclude Include="CreateRecipeModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CreateAddonRecipe.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FarmersDelightRecipe.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CDlgSelect.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ItemTextureStore.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ModRecipe.h"><Filter>头文件</Filter></ClInclude>
+    <ClInclude Include="third_party\nlohmann\json.hpp"><Filter>头文件</Filter></ClInclude>
     <ClInclude Include="Language.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -107,18 +103,13 @@
     <ClCompile Include="CreateRecipeModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CreateAddonRecipe.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FarmersDelightRecipe.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CDlgSelect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ItemTextureStore.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ModRecipe.cpp"><Filter>源文件</Filter></ClCompile>
     <ClCompile Include="Language.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

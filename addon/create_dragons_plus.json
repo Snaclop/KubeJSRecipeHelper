@@ -1,0 +1,704 @@
+{
+  "schemaVersion": 1,
+  "id": "create_dragons_plus",
+  "name": "Create: Dragons Plus",
+  "recipes": [
+    {
+      "id": "coloring",
+      "label": {
+        "zh-CN": "批量染色",
+        "zh-TW": "批量染色",
+        "en": "Bulk Coloring"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "totalByCount": true,
+          "maxTotal": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 12,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "color",
+          "label": {
+            "zh-CN": "染料颜色",
+            "zh-TW": "染料顏色",
+            "en": "Dye color"
+          },
+          "type": "choice",
+          "default": "minecraft:red",
+          "allowCustom": true,
+          "customType": "resource",
+          "choices": [
+            {
+              "label": {
+                "zh-CN": "白色",
+                "zh-TW": "白色",
+                "en": "White"
+              },
+              "value": "minecraft:white"
+            },
+            {
+              "label": {
+                "zh-CN": "橙色",
+                "zh-TW": "橙色",
+                "en": "Orange"
+              },
+              "value": "minecraft:orange"
+            },
+            {
+              "label": {
+                "zh-CN": "品红色",
+                "zh-TW": "品紅色",
+                "en": "Magenta"
+              },
+              "value": "minecraft:magenta"
+            },
+            {
+              "label": {
+                "zh-CN": "淡蓝色",
+                "zh-TW": "淡藍色",
+                "en": "Light blue"
+              },
+              "value": "minecraft:light_blue"
+            },
+            {
+              "label": {
+                "zh-CN": "黄色",
+                "zh-TW": "黃色",
+                "en": "Yellow"
+              },
+              "value": "minecraft:yellow"
+            },
+            {
+              "label": {
+                "zh-CN": "黄绿色",
+                "zh-TW": "黃綠色",
+                "en": "Lime"
+              },
+              "value": "minecraft:lime"
+            },
+            {
+              "label": {
+                "zh-CN": "粉红色",
+                "zh-TW": "粉紅色",
+                "en": "Pink"
+              },
+              "value": "minecraft:pink"
+            },
+            {
+              "label": {
+                "zh-CN": "灰色",
+                "zh-TW": "灰色",
+                "en": "Gray"
+              },
+              "value": "minecraft:gray"
+            },
+            {
+              "label": {
+                "zh-CN": "淡灰色",
+                "zh-TW": "淡灰色",
+                "en": "Light gray"
+              },
+              "value": "minecraft:light_gray"
+            },
+            {
+              "label": {
+                "zh-CN": "青色",
+                "zh-TW": "青色",
+                "en": "Cyan"
+              },
+              "value": "minecraft:cyan"
+            },
+            {
+              "label": {
+                "zh-CN": "紫色",
+                "zh-TW": "紫色",
+                "en": "Purple"
+              },
+              "value": "minecraft:purple"
+            },
+            {
+              "label": {
+                "zh-CN": "蓝色",
+                "zh-TW": "藍色",
+                "en": "Blue"
+              },
+              "value": "minecraft:blue"
+            },
+            {
+              "label": {
+                "zh-CN": "棕色",
+                "zh-TW": "棕色",
+                "en": "Brown"
+              },
+              "value": "minecraft:brown"
+            },
+            {
+              "label": {
+                "zh-CN": "绿色",
+                "zh-TW": "綠色",
+                "en": "Green"
+              },
+              "value": "minecraft:green"
+            },
+            {
+              "label": {
+                "zh-CN": "红色",
+                "zh-TW": "紅色",
+                "en": "Red"
+              },
+              "value": "minecraft:red"
+            },
+            {
+              "label": {
+                "zh-CN": "黑色",
+                "zh-TW": "黑色",
+                "en": "Black"
+              },
+              "value": "minecraft:black"
+            }
+          ]
+        },
+        {
+          "id": "dye_amount",
+          "label": {
+            "zh-CN": "染料用量 (mB)",
+            "zh-TW": "染料用量 (mB)",
+            "en": "Dye amount (mB)"
+          },
+          "type": "integer",
+          "default": 32,
+          "min": 1,
+          "max": 1000
+        }
+      ],
+      "requireAny": [
+        [
+          "inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "create_dragons_plus:coloring",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "color": {
+              "$ref": "params.color"
+            },
+            "dye_fluid_amount": {
+              "$ref": "params.dye_amount",
+              "$omitIf": 32
+            }
+          },
+          "1.21.1": {
+            "type": "create_dragons_plus:coloring",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "color": {
+              "$ref": "params.color"
+            },
+            "dye_fluid_amount": {
+              "$ref": "params.dye_amount",
+              "$omitIf": 32
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "freezing",
+      "label": {
+        "zh-CN": "批量冷冻",
+        "zh-TW": "批量冷凍",
+        "en": "Bulk Freezing"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "totalByCount": true,
+          "maxTotal": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 12,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        }
+      ],
+      "fields": [],
+      "requireAny": [
+        [
+          "inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "create_dragons_plus:freezing",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "1.21.1": {
+            "type": "create_dragons_plus:freezing",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ending",
+      "label": {
+        "zh-CN": "批量终结",
+        "zh-TW": "批量終結",
+        "en": "Bulk Ending"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "totalByCount": true,
+          "maxTotal": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 12,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        }
+      ],
+      "fields": [],
+      "requireAny": [
+        [
+          "inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "create_dragons_plus:ending",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "1.21.1": {
+            "type": "create_dragons_plus:ending",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "sanding",
+      "label": {
+        "zh-CN": "批量喷砂",
+        "zh-TW": "批量噴砂",
+        "en": "Bulk Sanding"
+      },
+      "versions": [
+        "1.20.1",
+        "1.21.1"
+      ],
+      "groups": [
+        {
+          "id": "inputs",
+          "label": {
+            "zh-CN": "原料",
+            "zh-TW": "原料",
+            "en": "Input"
+          },
+          "kind": "item",
+          "output": false,
+          "min": 0,
+          "max": 1,
+          "initial": 1,
+          "maxCount": 1,
+          "totalByCount": true,
+          "maxTotal": 1
+        },
+        {
+          "id": "outputs",
+          "label": {
+            "zh-CN": "产物",
+            "zh-TW": "產物",
+            "en": "Output"
+          },
+          "kind": "item",
+          "output": true,
+          "min": 0,
+          "max": 12,
+          "initial": 1,
+          "chance": true,
+          "positiveChanceVersions": [
+            "1.21.1"
+          ]
+        }
+      ],
+      "fields": [],
+      "requireAny": [
+        [
+          "inputs"
+        ],
+        [
+          "outputs"
+        ]
+      ],
+      "output": {
+        "$version": {
+          "1.20.1": {
+            "type": "create_dragons_plus:sanding",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "1.21.1": {
+            "type": "create_dragons_plus:sanding",
+            "ingredients": {
+              "$concat": [
+                {
+                  "$each": "inputs",
+                  "$value": {
+                    "item": {
+                      "$ref": "entry.id"
+                    }
+                  },
+                  "$repeatCount": true
+                }
+              ]
+            },
+            "results": {
+              "$concat": [
+                {
+                  "$each": "outputs",
+                  "$value": {
+                    "id": {
+                      "$ref": "entry.id"
+                    },
+                    "count": {
+                      "$ref": "entry.count"
+                    },
+                    "chance": {
+                      "$ref": "entry.chance",
+                      "$scale": 0.01,
+                      "$omitIf": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

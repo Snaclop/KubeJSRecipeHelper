@@ -201,12 +201,12 @@
     <ClInclude Include="VanillaRecipe.h" />
     <ClInclude Include="CDlgCreate.h" />
     <ClInclude Include="CDlgOther.h" />
+    <ClInclude Include="ModRecipe.h" />
+    <ClInclude Include="third_party\nlohmann\json.hpp" />
     <ClInclude Include="Language.h" />
     <ClInclude Include="RecipeCatalog.h" />
     <ClInclude Include="RecipeDialogUI.h" />
     <ClInclude Include="CreateRecipeModel.h" />
-    <ClInclude Include="CreateAddonRecipe.h" />
-    <ClInclude Include="FarmersDelightRecipe.h" />
     <ClInclude Include="CDlgSelect.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ItemTextureStore.h" />
@@ -229,13 +229,11 @@
     </ClCompile>
     <ClCompile Include="CDlgCreate.cpp" />
     <ClCompile Include="CDlgOther.cpp" />
+    <ClCompile Include="ModRecipe.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="Language.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="CreateAddonRecipe.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="FarmersDelightRecipe.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CreateRecipeModel.cpp">
@@ -265,7 +263,14 @@
     <Image Include="res\Language.ico" />
     <Image Include="res\RecipeWorkbench.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <AddonFile Include="..\addon\*.json;..\addon\README.md;third_party\nlohmann\LICENSE.MIT" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyAddonFiles" AfterTargets="Build" Inputs="@(AddonFile)" Outputs="@(AddonFile->'$(OutDir)addon\%(Filename)%(Extension)')">
+    <MakeDir Directories="$(OutDir)addon" />
+    <Copy SourceFiles="@(AddonFile)" DestinationFolder="$(OutDir)addon" SkipUnchangedFiles="true" />
+  </Target>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
