@@ -1,10 +1,10 @@
 # Addon definitions / 模组配置
 
-Place UTF-8 JSON files in `addon` beside `KubeJSRecipeHelper.exe`. Reopen **Other recipes** to reload them. The build copies the three shipped definitions to the output directory; include the `addon` folder when distributing the program. Invalid files are reported by filename and skipped. A duplicate mod ID is rejected; the first file in filename order is kept.
+Place UTF-8 JSON files in `addon` beside `KubeJSRecipeHelper.exe`. Reopen **Other recipes** to reload them. Invalid files are reported by filename and skipped. A duplicate mod ID is rejected; the first file in filename order is kept.
 
 Each file declares a mod's official name, recipe controls, validation limits and JSON output templates. New definitions can use existing control and template types without recompiling the program. The recipe format must match the actual mod and game version. Definitions do not install mods or run JavaScript inside the helper.
 
-将 UTF-8 编码的 JSON 放到 `KubeJSRecipeHelper.exe` 旁的 `addon` 文件夹，重新打开“其它配方”即可读取。构建时会自动复制现有三个模组的配置；分发程序时需带上 `addon` 文件夹。文件出错会提示文件名并跳过，不影响其他有效文件。模组 ID 重复时，保留文件名排序靠前的文件。
+将 UTF-8 编码的 JSON 放到 `KubeJSRecipeHelper.exe` 旁的 `addon` 文件夹，重新打开“其它配方”即可读取。文件出错会提示文件名并跳过，不影响其他有效文件。模组 ID 重复时，保留文件名排序靠前的文件。
 
 配置包含官方模组名称、配方控件、校验限制和输出模板。使用已有控件及模板规则添加模组时，无需重新编译程序。配方格式须符合实际模组和游戏版本；配置不会安装模组，也不会在助手内运行 JavaScript。
 

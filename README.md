@@ -25,7 +25,7 @@ This program only generates script text. It does not modify game instances or au
 
 JAR parsing depends on the resource structure inside each file. Unrecognized entries will not appear in the selection list. Before exporting, confirm that item IDs, quantities, probabilities and the generated scripts are suitable for the target game environment.
 
-Other recipes are loaded from the `addon` folder beside the executable. The three existing mod definitions are included; you can add JSON definitions and reopen the dialog to load them. Include this folder when distributing the program. See [addon definitions](addon/README.md) for the format.
+Other recipes are loaded from the `addon` folder beside the executable. The three existing mod definitions are included; you can add JSON definitions and reopen the dialog to load them. You can also add JSON files to customize other recipes. See [addon definitions](addon/README.md) for the format.
 
 ## Building and Running
 
