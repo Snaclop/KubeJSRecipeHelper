@@ -235,7 +235,7 @@ void CDlgOther::Select(const Slot& slot) {
     bool available = false;
     if (m_source) for (INT_PTR i = 0; i < m_source->GetSize(); ++i)
         if (RecipeKinds(m_catalog, std::wstring(m_source->GetAt(i).GetString())) & kind) { available = true; break; }
-    if (!available) { AfxMessageBox(UiLanguage::Text(L"请先在主界面导入包含所需物品或流体的 jar 文件。"), MB_ICONINFORMATION); return; }
+    if (!available && !group.allowTags) { AfxMessageBox(UiLanguage::Text(L"请先在主界面导入包含所需物品或流体的 jar 文件。"), MB_ICONINFORMATION); return; }
     SaveControls(); auto& e = EntryAt(slot); int limit = group.maxCount;
     if (group.totalByCount) {
         int64_t used = 0; for (const auto& other : Draft().groups[group.id]) if (&other != &e && !other.id.empty()) used += other.count;
@@ -244,6 +244,7 @@ void CDlgOther::Select(const Slot& slot) {
     }
     if (limit < 1) { AfxMessageBox(UiLanguage::Text(L"此类型格子或物品总数量已达到该配方的上限。")); return; }
     CDlgSelect select(this); select.SetItemList(m_source); select.SetCatalog(m_catalog, kind);
+    select.SetAllowTags(group.allowTags);
     select.SetCountLimit(limit, group.fluid); select.SetChanceMode(group.chance);
     select.SetInitialSelection(e.id.c_str(), e.count); select.SetInitialDetails(kind, e.chance);
     if (select.DoModal() == IDOK) {

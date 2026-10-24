@@ -28,7 +28,7 @@ bool Build(Method method,const Draft& d,std::wstring& script,std::wstring& error
         if(!Id(d.recipeId)) { error=L"请填写有效的配方 ID，例如 minecraft:iron_ingot_from_smelting_raw_iron。"; return false; }
         filter=L"{ id: "+Q(d.recipeId)+L" }";
     } else {
-        if(!Id(d.item)) { error=L"请选择要匹配的物品。"; return false; }
+        if(!RecipeValidId(d.item,true)) { error=L"请选择要匹配的物品。"; return false; }
         filter=L"{ "+std::wstring(input ? L"input" : L"output")+L": "+Q(d.item);
         if(replace && !d.recipeId.empty()) {
             if(!Id(d.recipeId)) { error=L"限定配方 ID 须为有效的命名空间:名称，或留空。"; return false; }
@@ -37,7 +37,7 @@ bool Build(Method method,const Draft& d,std::wstring& script,std::wstring& error
         filter+=L" }";
     }
     if(replace) {
-        if(!Id(d.replacement)) { error=L"请选择替换后的物品。"; return false; }
+        if(!RecipeValidId(d.replacement,input)) { error=L"请选择替换后的物品。"; return false; }
         if(d.item==d.replacement) { error=L"替换前后的物品相同，请选择不同的物品。"; return false; }
         call=std::wstring(input ? L"replaceInput" : L"replaceOutput")+L"("+filter+L", "+Q(d.item)+L", ";
         call+=input ? L"Ingredient.of("+Q(d.replacement)+L")" : Q(d.replacement);

@@ -17,6 +17,13 @@ struct Translation {
 };
 // Keep complete sentences and their format placeholders together.
 const Translation translations[] = {
+    { L"标签", L"標籤", L"Tag", false },
+    { L"物品 / 流体", L"物品 / 流體", L"Item / Fluid", false },
+    { L"搜索或填写标签 ID", L"搜尋或填寫標籤 ID", L"Search or enter a tag ID", false },
+    { L"搜索物品 ID", L"搜尋物品 ID", L"Search item ID", false },
+    { L"（可直接填写完整标签 ID，例如 #minecraft:saplings）", L"（可直接填寫完整標籤 ID，例如 #minecraft:saplings）", L"Enter a full tag ID, e.g. #minecraft:saplings", false },
+    { L"产物和过渡物品必须是具体 ID，不能使用标签。", L"產物和過渡物品必須是具體 ID，不能使用標籤。", L"Outputs and transitional items need concrete IDs, not tags.", false },
+    { L"物品或流体 ID 无效。", L"物品或流體 ID 無效。", L"Invalid item or fluid ID.", false },
     { L"以下模组配置无法读取，其他有效配置仍可使用：\r\n", L"以下模組設定無法讀取，其他有效設定仍可使用：\r\n", L"These mod definitions could not be loaded; other valid definitions remain available:\r\n", false },
     { L"没有可用的模组配置。请将模组 JSON 放入程序目录下的 addon 文件夹。", L"沒有可用的模組設定。請將模組 JSON 放入程式目錄下的 addon 資料夾。", L"No mod definitions available. Place mod JSON files in the addon folder beside the executable.", false },
     { L"请先在主界面导入包含所需物品或流体的 jar 文件。", L"請先在主介面匯入包含所需物品或流體的 jar 檔案。", L"Import a JAR containing the required items or fluids from the main window first.", false },

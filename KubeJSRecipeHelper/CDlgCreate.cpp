@@ -249,12 +249,14 @@ BOOL CDlgCreate::OnCommand(WPARAM wp,LPARAM lp) {
 }
 int CDlgCreate::Hit(CPoint point) const { for(size_t i=0;i<m_slots.size();++i) if(m_slots[i].rect.PtInRect(point)) return (int)i; return -1; }
 void CDlgCreate::Select(const Slot& slot) {
-    if (m_source == nullptr || m_source->GetSize() == 0) {
+    const bool allowTags = slot.group != Output && slot.group != Transition;
+    if (!allowTags && (m_source == nullptr || m_source->GetSize() == 0)) {
         AfxMessageBox(UiLanguage::Text(L"还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION);
         return;
     }
     SaveControls(); Entry& e=EntryAt(slot);
     CDlgSelect select(this); select.SetItemList(m_source); select.SetCatalog(m_catalog,e.kind);
+    select.SetAllowTags(allowTags);
     bool output=slot.group==Output;
     int count=output ? 64 : 1;
     if(slot.group==Input && (m_method==Mixing || m_method==Compacting)) {
@@ -271,7 +273,8 @@ void CDlgCreate::OnPaint() {
         const auto& slot=m_slots[i]; auto& e=EntryAt(slot); CRect r=slot.rect;
         dc.FillSolidRect(r,(int)i==m_hover ? RGB(176,176,176) : RGB(139,139,139)); dc.Draw3dRect(r,RGB(55,55,55),RGB(255,255,255));
         if(!e.id.empty()) {
-            if(!m_textures || !m_textures->Draw(&dc,r,CString(e.id.c_str()))) { CRect t=r; t.DeflateRect(3,3); dc.SetTextColor(RGB(30,30,30)); dc.DrawText(CString(e.id.c_str()),t,DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_END_ELLIPSIS); }
+            if(RecipeIsTag(e.id)) { dc.SetTextColor(RGB(255,255,255)); dc.DrawText(L"#",r,DT_CENTER | DT_VCENTER | DT_SINGLELINE); }
+            else if(!m_textures || !m_textures->Draw(&dc,r,CString(e.id.c_str()))) { CRect t=r; t.DeflateRect(3,3); dc.SetTextColor(RGB(30,30,30)); dc.DrawText(CString(e.id.c_str()),t,DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_END_ELLIPSIS); }
             CString value;
             if(e.kind==RecipeFluid) value.Format(_T("%d mB"),e.count); else if(e.count>1) value.Format(_T("%d"),e.count);
             CRect t=r; t.top=t.bottom-(int)(22*m_scale); t.DeflateRect(2,0); dc.SetTextColor(RGB(255,255,255)); dc.DrawText(value,t,DT_RIGHT | DT_SINGLELINE);

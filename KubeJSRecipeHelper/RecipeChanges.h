@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include "RecipeCatalog.h"
 
 namespace RecipeChanges {
 enum class Method { RemoveInput, RemoveOutput, RemoveMod, RemoveId, ReplaceInput, ReplaceOutput };

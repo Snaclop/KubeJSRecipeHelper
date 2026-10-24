@@ -103,12 +103,14 @@ BOOL CDlgRecipeChanges::OnCommand(WPARAM wp,LPARAM lp) {
 }
 int CDlgRecipeChanges::Hit(CPoint point) const { for(size_t i=0;i<m_slots.size();++i) if(m_slots[i].rect.PtInRect(point)) return (int)i; return -1; }
 void CDlgRecipeChanges::Select(const Slot& slot) {
+    const bool allowTags = !slot.replacement || m_method == Method::ReplaceInput;
     bool available=false;
     if(m_source) for(INT_PTR i=0;i<m_source->GetSize();++i)
         if(RecipeKinds(m_catalog,std::wstring(m_source->GetAt(i).GetString())) & RecipeItem) { available=true; break; }
-    if(!available) { AfxMessageBox(UiLanguage::Text(L"请先在主界面导入包含物品的 jar 文件。"),MB_ICONINFORMATION); return; }
+    if(!available && !allowTags) { AfxMessageBox(UiLanguage::Text(L"请先在主界面导入包含物品的 jar 文件。"),MB_ICONINFORMATION); return; }
     SaveControls(); auto& item=EntryAt(slot);
     CDlgSelect select(this); select.SetItemList(m_source); select.SetCatalog(m_catalog,RecipeItem);
+    select.SetAllowTags(allowTags);
     select.SetCountLimit(1); select.SetChanceMode(false); select.SetInitialSelection(CString(item.c_str()),1);
     if(select.DoModal()==IDOK) { item=select.GetSelectedItem().GetString(); UpdateTips(); InvalidateRect(slot.rect,FALSE); }
 }

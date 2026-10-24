@@ -145,7 +145,7 @@ void CDlgVanilla::Select(const Slot& slot) {
     bool available = false;
     if (m_source) for (INT_PTR i = 0; i < m_source->GetSize(); ++i)
         if (RecipeKinds(m_catalog, std::wstring(m_source->GetAt(i).GetString())) & RecipeItem) { available = true; break; }
-    if (!available) {
+    if (!available && slot.output) {
         AfxMessageBox(UiLanguage::Text(L"还没有可选的物品，请先在主界面点击“导入 jar 文件”。"), MB_ICONINFORMATION); return;
     }
     const int limit = slot.output ? 64 : InputCountLimit(m_method, Draft(), slot.index);
@@ -154,6 +154,7 @@ void CDlgVanilla::Select(const Slot& slot) {
     CDlgSelect select(this);
     select.SetItemList(m_source); select.SetCatalog(m_catalog, RecipeItem);
     select.SetCountLimit(limit); select.SetChanceMode(false);
+    select.SetAllowTags(!slot.output);
     select.SetInitialSelection(CString(entry.id.c_str()), entry.count);
     if (select.DoModal() == IDOK) {
         entry.id = select.GetSelectedItem().GetString(); entry.count = select.GetSelectedCount();

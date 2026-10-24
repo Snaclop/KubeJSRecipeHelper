@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <array>
 #include <string>
+#include "RecipeCatalog.h"
 
 namespace VanillaRecipe {
 enum class Method { Shaped, Shapeless, Smithing, Smelting, Blasting, Smoking, Stonecutting, Count };

@@ -31,6 +31,7 @@ public:
 	void SetCountLimit(int nMaxCount, bool forFluids = false);
 	void SetCatalog(const RecipeTypeMap* catalog, unsigned allowedKinds) { m_catalog = catalog; m_allowedKinds = allowedKinds; }
 	void SetChanceMode(bool enabled, bool weights = false) { m_allowChance = enabled; m_weights = weights; }
+	void SetAllowTags(bool enabled) { m_allowTags = enabled; }
 	void SetInitialDetails(RecipeEntryKind kind, double chance) { m_kind = kind; m_chance = chance; }
 	RecipeEntryKind GetSelectedKind() const { return m_kind; }
 	double GetSelectedChance() const { return m_chance; }
@@ -63,6 +64,7 @@ protected:
 	int     m_nMaxFluidCount = COUNT_MAX;				// 当前选择器允许的最大数量
 
 	CListBox m_List;					// 物品列表
+	CComboBox m_ItemTag;
 	CEdit    m_EditSearch;				// 搜索框
 	CEdit    m_EditNumber;				// 数量
 	CSpinButtonCtrl m_SpinNumber;		// 数量微调按钮
@@ -70,12 +72,15 @@ protected:
 	afx_msg void OnEnChangeEditSearch();
 	afx_msg void OnLbnDblclkList();
 	afx_msg void OnSelectionChanged();
+	afx_msg void OnItemTagChanged();
 	afx_msg void OnChanceSpin(NMHDR* header, LRESULT* result);
 	const RecipeTypeMap* m_catalog = nullptr;
 	unsigned m_allowedKinds = RecipeItem;
 	RecipeEntryKind m_kind = RecipeItem;
 	double m_chance = 100;
 	bool m_allowChance = false, m_weights = false;
+	bool m_allowTags = false, m_tagMode = false;
+	CString m_preferred[2];
 	struct Choice { CString id; RecipeEntryKind kind; };
 	std::vector<Choice> m_choices;
 	int CurrentLimit() const;

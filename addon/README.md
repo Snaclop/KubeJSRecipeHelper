@@ -53,6 +53,7 @@ This illustrates the definition format; `example:processing` is a placeholder re
 | `id`, `label` | Stable ID and display label / 标识与显示名称 |
 | `kind` | `item` (default) or `fluid` / 物品或流体 |
 | `output` | Output group, default `false` / 是否为产物组 |
+| `allowTags` | Allow item/fluid tags in ingredient slots, default `false`; outputs must remain `false` / 原料格是否支持标签，默认关闭；产物必须关闭 |
 | `side` | `input` or `output`; defaults to the group direction / 显示位置，可让容器等辅助格显示在右侧 |
 | `min`, `max` | Minimum filled slots and maximum slots; defaults `0`, `1` / 最少已选格数、最多格数 |
 | `initial` | Initially visible slots, default `1` / 初始格数 |
@@ -102,5 +103,9 @@ Ordinary JSON values are copied to the recipe body. Operator objects below subst
 | `"$omitEmpty": true` | Omit an empty generated object or array / 省略生成的空对象或数组 |
 
 A null result is omitted from its containing object or array. `$each`/`$first` are the only places where `entry.*` references are available. Literal recipe keys beginning with `$` are reserved for operators. Check the three shipped files for complete version-specific examples, including tool alternatives, fluid formats and nested chance results.
+
+With `allowTags: true`, selected references retain the leading `#`. Within `$each`/`$first`, a tagged `entry.id` in an ingredient object's `item` becomes `tag` without `#`. A `fluid` reference becomes `fluidTag`, or `type: "fluid_tag"` plus `fluid_tag` when the original template uses `type: "fluid_stack"`. Other fields, including the fluid amount, are preserved. Do not enable this for item stacks such as containers or outputs. Tags are resolved by Minecraft, not expanded into concrete members by the helper.
+
+设置 `allowTags: true` 后，格子保存带 `#` 的标签引用。在 `$each`/`$first` 输出的原料对象中，引用标签的 `item` 自动改为不带 `#` 的 `tag`；`fluid` 自动改为 `fluidTag`，若原模板使用 `type: "fluid_stack"` 则改为 `type: "fluid_tag"` 和 `fluid_tag`。流体用量等其他字段保留。容器、产物等具体物品堆叠不能启用此项；标签成员由游戏解析，助手不将其展开成某个具体物品。
 
 结果为 `null` 的字段或数组元素会被省略。`entry.*` 只能在 `$each`、`$first` 内使用；以 `$` 开头的键保留为模板操作。三个现有文件包含完整版本示例，可参考工具分支、流体字段和嵌套概率产物的写法。

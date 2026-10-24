@@ -46,6 +46,11 @@ static std::wstring Item(const Entry& e) {
     return L"Item.of(" + Quote(e.id) + L", " + std::to_wstring(e.count) + L")";
 }
 static std::wstring Value(const Entry& e, bool output, Version version, double weightScale = 0) {
+    if (e.kind == RecipeFluid && RecipeIsTag(e.id)) {
+        if (version == Version::Minecraft1211)
+            return L"Fluid.sizedIngredientOf(Fluid.ingredientOf(" + Quote(e.id) + L"), " + std::to_wstring(e.count) + L")";
+        return L"{ fluidTag: " + Quote(e.id.substr(1)) + L", amount: " + std::to_wstring(e.count) + L" }";
+    }
     if (e.kind == RecipeFluid)
         return L"Fluid.of(" + Quote(e.id) + L", " + std::to_wstring(e.count) + L")";
     if (!output) return L"Ingredient.of(" + Quote(e.id) + L")";
@@ -70,6 +75,8 @@ static std::wstring Array(const std::vector<Entry>& entries, bool output, Versio
 }
 static bool Check(const Entry& e, bool output, bool weights, std::wstring& error) {
     if (e.id.empty()) return true;
+    if (output && RecipeIsTag(e.id)) { error = L"产物和过渡物品必须是具体 ID，不能使用标签。"; return false; }
+    if (!RecipeValidId(e.id, !output)) { error = L"物品或流体 ID 无效。"; return false; }
     if (e.count < 1 || e.count > (e.kind == RecipeFluid ? 99999999 : 64)) {
         error = L"物品数量须为 1–64，流体量须为 1–99999999 mB。"; return false;
     }
@@ -115,6 +122,7 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
             for (int col = 0; col < d.columns; ++col) {
                 const auto& e = d.grid[row * 9 + col];
                 if (e.id.empty()) { line += L' '; continue; }
+                if (!Check(e, false, false, error)) return false;
                 if (e.kind != RecipeItem || e.count != 1) { error = L"合成网格每格只能放一个物品。"; return false; }
                 auto it = keys.find(e.id);
                 if (it == keys.end()) {
@@ -135,6 +143,8 @@ bool Build(Method method, const Draft& d, std::wstring& script, std::wstring& er
         else
             call += d.mirrored ? L".acceptMirrored(true)" : L".acceptMirrored(false)";
     } else if (method == SequencedAssembly) {
+        if (RecipeIsTag(d.transition.id)) { error = L"产物和过渡物品必须是具体 ID，不能使用标签。"; return false; }
+        if (!d.transition.id.empty() && !Check(d.transition, true, false, error)) return false;
         if (ii != 1 || fi || fo || d.transition.id.empty() || d.transition.kind != RecipeItem || d.transition.count != 1 ||
             d.steps.empty() || d.loops < 1 || d.loops > 99999999) {
             error = L"序列装配需要一个原料、过渡物品、至少一个步骤和大于 0 的循环次数；产物只能是物品。"; return false;

@@ -98,7 +98,12 @@ public:
         dc->Draw3dRect(rect, RGB(55, 55, 55), RGB(255, 255, 255));
         if (!item.IsEmpty())
         {
-            if (!textures || !textures->Draw(dc, rect, item))
+            if (item[0] == L'#')
+            {
+                dc->SetTextColor(RGB(255,255,255));
+                dc->DrawText(L"#", rect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+            }
+            else if (!textures || !textures->Draw(dc, rect, item))
             {
                 CRect text = rect;
                 text.DeflateRect(3, 3);

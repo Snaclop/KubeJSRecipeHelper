@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "third_party/nlohmann/json.hpp"
 #include <map>
+#include "RecipeCatalog.h"
 #include <string>
 #include <vector>
 
@@ -10,7 +11,7 @@ struct Entry { std::wstring id; int count = 1; double chance = 100; };
 struct Group {
     std::string id;
     Json label, when;
-    bool fluid = false, output = false, chance = false, totalByCount = false;
+    bool fluid = false, output = false, chance = false, totalByCount = false, allowTags = false;
     std::string side;
     int minimum = 0, maximum = 1, initial = 1, maxCount = 64, maxTotal = 1;
     std::vector<std::string> positiveChanceVersions;

@@ -753,6 +753,7 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 	std::map<std::string, std::string> mapTexturePaths;	// 贴图键 -> JAR 内的 PNG 路径
 	std::vector<FluidPath> arrFluids;		// 候选流体（来自 textures/fluid 贴图）
 	std::vector<int> arrFluidTags;			// 流体标签文件在 zip 里的序号
+	std::map<std::string, unsigned> tagKinds;
 	LangCache lang;
 	lang.pZip = &zip;
 
@@ -792,6 +793,9 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 			}
 			continue;
 		}
+
+		std::string tagId; unsigned tagKind = 0;
+		if (RecipeTagFile(st.m_filename, tagId, tagKind)) tagKinds[tagId] |= tagKind;
 
 		// 流体标签的成员（minecraft:water 这种）写在文件内容里，先记下位置
 		if (IsFluidTagPath(st.m_filename))
@@ -986,6 +990,10 @@ int CKubeJSRecipeHelperDlg::ParseJarModels(LPCTSTR lpszJarPath, CString*& pNames
 
 	mz_zip_reader_end(&zip);
 
+	for (const auto& tag : tagKinds) {
+		const CString id(CA2T(tag.first.c_str(), CP_UTF8));
+		m_entryTypes[std::wstring(id.GetString())] |= tag.second;
+	}
 	const int nCount = (int)arrNames.size();
 	if (nCount == 0)
 		return 0;

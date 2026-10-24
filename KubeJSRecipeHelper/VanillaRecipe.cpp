@@ -1,4 +1,4 @@
-#include "VanillaRecipe.h"
+﻿#include "VanillaRecipe.h"
 #include <algorithm>
 #include <vector>
 
@@ -43,6 +43,7 @@ bool Validate(Method method, const Draft& draft, std::wstring& error) {
     error.clear();
     if (!ValidMethod(method)) { error = L"请选择合成方式。"; return false; }
     if (draft.output.id.empty()) { error = L"请先选择产物。"; return false; }
+    if (!RecipeValidId(draft.output.id)) { error = L"产物和过渡物品必须是具体 ID，不能使用标签。"; return false; }
     if (draft.output.count < 1 || draft.output.count > 64) { error = L"产物数量须为 1–64。"; return false; }
     int total = 0;
     for (int i = 0; i < GetInfo(method).inputs; ++i) {
@@ -52,6 +53,7 @@ bool Validate(Method method, const Draft& draft, std::wstring& error) {
             continue;
         }
         // 有序配方每格代表一个原料，保留共享草稿中无序模式的数量。
+        if (!RecipeValidId(entry.id, true)) { error = L"物品或流体 ID 无效。"; return false; }
         if (method == Method::Shapeless) {
             if (entry.count < 1 || entry.count > 9) { error = L"无序合成的原料总数不能超过 9 个。"; return false; }
             total += entry.count;

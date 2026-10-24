@@ -123,6 +123,21 @@ void CheckTemplate(const Json& node, const Recipe& r, const std::string& version
             if (it.key().empty() || it.key()[0] != '$') CheckTemplate(it.value(), r, version, entry, depth + 1);
     }
 }
+bool TagIngredient(Json& value, const std::string& id, bool fluid) {
+    bool converted = false;
+    if (value.is_array()) for (auto& child : value) converted = TagIngredient(child, id, fluid) || converted;
+    if (!value.is_object()) return converted;
+    for (auto& child : value) converted = TagIngredient(child, id, fluid) || converted;
+    const std::string key = fluid ? "fluid" : "item";
+    if (value.contains(key) && value[key] == id) {
+        const bool modernFluid = fluid && value.value("type", std::string()) == "fluid_stack";
+        value.erase(key);
+        value[fluid ? (modernFluid ? "fluid_tag" : "fluidTag") : "tag"] = id.substr(1);
+        if (modernFluid) value["type"] = "fluid_tag";
+        converted = true;
+    } else if (!fluid && value.contains("tag") && value["tag"] == id) { value["tag"] = id.substr(1); converted = true; }
+    return converted;
+}
 Json Render(const Json& node, const Recipe& r, const Draft& d, const std::string& version, const Entry* entry = nullptr, int depth = 0) {
     Need(depth < 64, "Output template is too deeply nested");
     if (node.is_array()) {
@@ -160,6 +175,8 @@ Json Render(const Json& node, const Recipe& r, const Draft& d, const std::string
         if (Visible(group.when, d)) for (const auto& e : d.groups.at(id)) {
             if (e.id.empty()) continue;
             auto value = Render(node.at("$value"), r, d, version, &e, depth + 1);
+            if (RecipeIsTag(e.id) && !value.is_null()) Need(group.allowTags && TagIngredient(value, Utf8(e.id), group.fluid),
+                "Tag-enabled groups need an item/fluid ingredient object: " + group.id);
             if (first) { result = value; break; }
             const int repeat = node.value("$repeatCount", false) ? e.count : 1;
             Need(result.size() + repeat <= 16384, "Too many expanded ingredients");
@@ -239,6 +256,8 @@ Mod Parse(const Json& definition) {
             Need(Identifier(group.id) && groupIds.insert(group.id).second, "Invalid or duplicate group: " + group.id);
             const auto kind = g.value("kind", std::string("item")); Need(kind == "item" || kind == "fluid", "Unknown group kind: " + kind);
             group.fluid = kind == "fluid"; group.output = g.value("output", false); group.side = g.value("side", std::string(group.output ? "output" : "input"));
+            group.allowTags = g.value("allowTags", false);
+            Need(!group.allowTags || !group.output, "Output groups cannot allow tags: " + group.id);
             Need(group.side == "input" || group.side == "output", "Unknown group side");
             group.side == "input" ? ++left : ++right;
             group.minimum = g.value("min", 0); group.maximum = g.value("max", 1); group.initial = g.value("initial", 1);
@@ -349,7 +368,8 @@ bool Build(const Recipe& r, const std::string& version, const Draft& d, Json& bo
             Need(values.size() <= (size_t)g.maximum, "Too many slots: " + g.id);
             for (const auto& e : values) {
                 if (e.id.empty()) continue;
-                if (!Resource(Utf8(e.id)) || e.count < 1 || e.count > g.maxCount || !std::isfinite(e.chance) ||
+                const bool tag = RecipeIsTag(e.id);
+                if ((tag && !g.allowTags) || !Resource(Utf8(tag ? e.id.substr(1) : e.id)) || e.count < 1 || e.count > g.maxCount || !std::isfinite(e.chance) ||
                     e.chance < 0 || e.chance > 100 || (!g.chance && e.chance != 100) || (Has(g.positiveChanceVersions, version) && e.chance == 0)) {
                     error = Label(g.label, locale) + L": " + Message(locale, L"Check the ID, count and chance.", L"请检查 ID、数量和概率。", L"請檢查 ID、數量和機率。"); return false;
                 }
