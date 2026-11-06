@@ -8,44 +8,44 @@
 class CDlgRecipeChanges : public CDialogEx {
     DECLARE_DYNAMIC(CDlgRecipeChanges)
 public:
-    CDlgRecipeChanges(bool remove,CWnd* parent=nullptr);
-    void SetItemSource(const CStringArray* source) { m_source=source; }
-    void SetCatalog(const RecipeTypeMap* catalog) { m_catalog=catalog; }
-    void SetTextureStore(CItemTextureStore* textures) { m_textures=textures; }
-    CString GetRecipeScript() const { return m_script; }
+    CDlgRecipeChanges(bool bRemove,CWnd* pParent=nullptr);
+    void SetItemSource(const CStringArray* pItemSource) { m_pItemSource=pItemSource; }
+    void SetCatalog(const RecipeTypeMap* pCatalog) { m_pCatalog=pCatalog; }
+    void SetTextureStore(CItemTextureStore* pTextures) { m_pTextures=pTextures; }
+    CString GetRecipeScript() const { return m_strScript; }
 protected:
     BOOL OnInitDialog() override;
-    BOOL OnCommand(WPARAM wp,LPARAM lp) override;
-    BOOL PreTranslateMessage(MSG* message) override;
+    BOOL OnCommand(WPARAM wParam,LPARAM lParam) override;
+    BOOL PreTranslateMessage(MSG* pMessage) override;
     void OnOK() override;
     afx_msg void OnPaint();
-    afx_msg void OnLButtonDown(UINT flags,CPoint point);
-    afx_msg void OnRButtonDown(UINT flags,CPoint point);
-    afx_msg void OnMouseMove(UINT flags,CPoint point);
+    afx_msg void OnLButtonDown(UINT uFlags,CPoint ptPoint);
+    afx_msg void OnRButtonDown(UINT uFlags,CPoint ptPoint);
+    afx_msg void OnMouseMove(UINT uFlags,CPoint ptPoint);
     afx_msg void OnMouseLeave();
     DECLARE_MESSAGE_MAP()
 private:
-    struct Slot { bool replacement; CRect rect; CString label; };
-    bool m_remove, m_rebuilding=false, m_tracking=false;
-    int m_hover=-1;
-    RecipeChanges::Method m_method;
-    RecipeChanges::Draft m_drafts[6];
-    const CStringArray* m_source=nullptr;
-    const RecipeTypeMap* m_catalog=nullptr;
-    CItemTextureStore* m_textures=nullptr;
+    struct Slot { bool bReplacement; CRect rcRect; CString strLabel; };
+    bool m_bRemove, m_bRebuilding=false, m_bTracking=false;
+    int m_nHoverIndex=-1;
+    RecipeChanges::Method m_eMethod;
+    RecipeChanges::Draft m_arrDrafts[6];
+    const CStringArray* m_pItemSource=nullptr;
+    const RecipeTypeMap* m_pCatalog=nullptr;
+    CItemTextureStore* m_pTextures=nullptr;
     CRecipeDialogUI m_ui;
-    std::vector<std::unique_ptr<CWnd>> m_controls;
-    std::vector<Slot> m_slots;
-    std::vector<UINT> m_radios;
-    CString m_script;
-    RecipeChanges::Draft& Draft() { return m_drafts[(int)m_method]; }
-    std::wstring& EntryAt(const Slot& slot) { return slot.replacement ? Draft().replacement : Draft().item; }
-    CWnd* Control(LPCTSTR cls,const CString& text,UINT id,int x,int y,int w,int h,DWORD style=0);
-    void Label(const CString& text,int x,int y,int w);
+    std::vector<std::unique_ptr<CWnd>> m_arrControls;
+    std::vector<Slot> m_arrSlots;
+    std::vector<UINT> m_arrRadioIds;
+    CString m_strScript;
+    RecipeChanges::Draft& Draft() { return m_arrDrafts[(int)m_eMethod]; }
+    std::wstring& EntryAt(const Slot& slot) { return slot.bReplacement ? Draft().strReplacement : Draft().strItem; }
+    CWnd* Control(LPCTSTR pszClass,const CString& strText,UINT uId,int nX,int nY,int nWidth,int nHeight,DWORD dwStyle=0);
+    void Label(const CString& strText,int nX,int nY,int nWidth);
     void SaveControls();
     void Rebuild();
     void UpdateTips();
-    void AddSlot(bool replacement,int x,int y,const CString& label);
-    int Hit(CPoint point) const;
+    void AddSlot(bool bReplacement,int nX,int nY,const CString& strLabel);
+    int Hit(CPoint ptPoint) const;
     void Select(const Slot& slot);
 };

@@ -8,46 +8,46 @@
 #pragma comment(lib, "gdiplus.lib")
 
 CItemTextureStore::CItemTextureStore()
-	: m_gdiplusToken(0)
+	: m_uGdiplusToken(0)
 {
 	Gdiplus::GdiplusStartupInput input;
-	Gdiplus::GdiplusStartup(&m_gdiplusToken, &input, nullptr);
+	Gdiplus::GdiplusStartup(&m_uGdiplusToken, &input, nullptr);
 }
 
 CItemTextureStore::~CItemTextureStore()
 {
-	m_bitmaps.clear();
-	if (m_gdiplusToken != 0)
-		Gdiplus::GdiplusShutdown(m_gdiplusToken);
+	m_mapBitmaps.clear();
+	if (m_uGdiplusToken != 0)
+		Gdiplus::GdiplusShutdown(m_uGdiplusToken);
 }
 
 void CItemTextureStore::Register(const CString& strItem, const CString& strJarPath,
 	const std::string& strZipPath)
 {
 	const std::wstring strKey(strItem.GetString());
-	m_sources[strKey] = { strJarPath, strZipPath };
-	m_bitmaps.erase(strKey);
-	m_failed.erase(strKey);
+	m_mapSources[strKey] = { strJarPath, strZipPath };
+	m_mapBitmaps.erase(strKey);
+	m_setFailed.erase(strKey);
 }
 
 Gdiplus::Bitmap* CItemTextureStore::GetBitmap(const std::wstring& strItem)
 {
-	if (m_gdiplusToken == 0 || m_failed.count(strItem) != 0)
+	if (m_uGdiplusToken == 0 || m_setFailed.count(strItem) != 0)
 		return nullptr;
 
-	auto itBitmap = m_bitmaps.find(strItem);
-	if (itBitmap != m_bitmaps.end())
+	auto itBitmap = m_mapBitmaps.find(strItem);
+	if (itBitmap != m_mapBitmaps.end())
 		return itBitmap->second.get();
 
-	auto itSource = m_sources.find(strItem);
-	if (itSource == m_sources.end())
+	auto itSource = m_mapSources.find(strItem);
+	if (itSource == m_mapSources.end())
 		return nullptr;
 
 	const TextureSource& source = itSource->second;
 	mz_zip_archive zip = {};
 	if (!mz_zip_reader_init_file(&zip, CT2A(source.strJarPath, CP_UTF8), 0))
 	{
-		m_failed.insert(strItem);
+		m_setFailed.insert(strItem);
 		return nullptr;
 	}
 
@@ -61,7 +61,7 @@ Gdiplus::Bitmap* CItemTextureStore::GetBitmap(const std::wstring& strItem)
 	{
 		if (pData != nullptr)
 			mz_free(pData);
-		m_failed.insert(strItem);
+		m_setFailed.insert(strItem);
 		return nullptr;
 	}
 
@@ -69,62 +69,62 @@ Gdiplus::Bitmap* CItemTextureStore::GetBitmap(const std::wstring& strItem)
 	if (FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &pStream)))
 	{
 		mz_free(pData);
-		m_failed.insert(strItem);
+		m_setFailed.insert(strItem);
 		return nullptr;
 	}
 
-	ULONG nWritten = 0;
-	const HRESULT hrWrite = pStream->Write(pData, static_cast<ULONG>(nSize), &nWritten);
+	ULONG uWritten = 0;
+	const HRESULT hrWrite = pStream->Write(pData, static_cast<ULONG>(nSize), &uWritten);
 	mz_free(pData);
-	LARGE_INTEGER pos = {};
-	const HRESULT hrSeek = pStream->Seek(pos, STREAM_SEEK_SET, nullptr);
+	LARGE_INTEGER position = {};
+	const HRESULT hrSeek = pStream->Seek(position, STREAM_SEEK_SET, nullptr);
 
-	std::unique_ptr<Gdiplus::Bitmap> bitmap;
-	if (SUCCEEDED(hrWrite) && nWritten == nSize && SUCCEEDED(hrSeek))
+	std::unique_ptr<Gdiplus::Bitmap> pBitmap;
+	if (SUCCEEDED(hrWrite) && uWritten == nSize && SUCCEEDED(hrSeek))
 	{
-		std::unique_ptr<Gdiplus::Bitmap> decoded(Gdiplus::Bitmap::FromStream(pStream));
-		if (decoded && decoded->GetLastStatus() == Gdiplus::Ok &&
-			decoded->GetWidth() > 0 && decoded->GetHeight() > 0 &&
-			decoded->GetWidth() <= 4096 && decoded->GetHeight() <= 4096)
+		std::unique_ptr<Gdiplus::Bitmap> pDecoded(Gdiplus::Bitmap::FromStream(pStream));
+		if (pDecoded && pDecoded->GetLastStatus() == Gdiplus::Ok &&
+			pDecoded->GetWidth() > 0 && pDecoded->GetHeight() > 0 &&
+			pDecoded->GetWidth() <= 4096 && pDecoded->GetHeight() <= 4096)
 		{
-			bitmap.reset(decoded->Clone(0, 0, decoded->GetWidth(), decoded->GetHeight(),
+			pBitmap.reset(pDecoded->Clone(0, 0, pDecoded->GetWidth(), pDecoded->GetHeight(),
 				PixelFormat32bppARGB));
-			if (bitmap && bitmap->GetLastStatus() != Gdiplus::Ok)
-				bitmap.reset();
+			if (pBitmap && pBitmap->GetLastStatus() != Gdiplus::Ok)
+				pBitmap.reset();
 		}
 	}
 	pStream->Release();
 
-	if (!bitmap)
+	if (!pBitmap)
 	{
-		m_failed.insert(strItem);
+		m_setFailed.insert(strItem);
 		return nullptr;
 	}
 
-	return m_bitmaps.emplace(strItem, std::move(bitmap)).first->second.get();
+	return m_mapBitmaps.emplace(strItem, std::move(pBitmap)).first->second.get();
 }
 
-BOOL CItemTextureStore::Draw(CDC* pDC, const CRect& rect, const CString& strItem)
+BOOL CItemTextureStore::Draw(CDC* pDC, const CRect& rcRect, const CString& strItem)
 {
 	Gdiplus::Bitmap* pBitmap = GetBitmap(std::wstring(strItem.GetString()));
 	if (pBitmap == nullptr)
 		return FALSE;
 
-	const UINT nSourceWidth = pBitmap->GetWidth();
-	UINT nSourceHeight = pBitmap->GetHeight();
+	const UINT uSourceWidth = pBitmap->GetWidth();
+	UINT uSourceHeight = pBitmap->GetHeight();
 	// 动画贴图纵向拼接多帧，只显示第一帧。
-	if (nSourceHeight >= nSourceWidth * 2 && nSourceHeight % nSourceWidth == 0)
-		nSourceHeight = nSourceWidth;
+	if (uSourceHeight >= uSourceWidth * 2 && uSourceHeight % uSourceWidth == 0)
+		uSourceHeight = uSourceWidth;
 
-	CRect rcImage(rect);
+	CRect rcImage(rcRect);
 	rcImage.DeflateRect(3, 3);
 	if (rcImage.IsRectEmpty())
 		return FALSE;
 
-	const double scale = (std::min)(static_cast<double>(rcImage.Width()) / nSourceWidth,
-		static_cast<double>(rcImage.Height()) / nSourceHeight);
-	const int nWidth = (std::max)(1, static_cast<int>(nSourceWidth * scale));
-	const int nHeight = (std::max)(1, static_cast<int>(nSourceHeight * scale));
+	const double dScale = (std::min)(static_cast<double>(rcImage.Width()) / uSourceWidth,
+		static_cast<double>(rcImage.Height()) / uSourceHeight);
+	const int nWidth = (std::max)(1, static_cast<int>(uSourceWidth * dScale));
+	const int nHeight = (std::max)(1, static_cast<int>(uSourceHeight * dScale));
 	const int nLeft = rcImage.left + (rcImage.Width() - nWidth) / 2;
 	const int nTop = rcImage.top + (rcImage.Height() - nHeight) / 2;
 
@@ -132,5 +132,5 @@ BOOL CItemTextureStore::Draw(CDC* pDC, const CRect& rect, const CString& strItem
 	graphics.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
 	graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 	return graphics.DrawImage(pBitmap, Gdiplus::Rect(nLeft, nTop, nWidth, nHeight),
-		0, 0, nSourceWidth, nSourceHeight, Gdiplus::UnitPixel) == Gdiplus::Ok;
+		0, 0, uSourceWidth, uSourceHeight, Gdiplus::UnitPixel) == Gdiplus::Ok;
 }

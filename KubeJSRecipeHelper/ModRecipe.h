@@ -7,42 +7,42 @@
 
 namespace ModRecipe {
 using Json = nlohmann::ordered_json;
-struct Entry { std::wstring id; int count = 1; double chance = 100; };
+struct Entry { std::wstring strId; int nCount = 1; double dChance = 100; };
 struct Group {
-    std::string id;
-    Json label, when;
-    bool fluid = false, output = false, chance = false, totalByCount = false, allowTags = false;
-    std::string side;
-    int minimum = 0, maximum = 1, initial = 1, maxCount = 64, maxTotal = 1;
-    std::vector<std::string> positiveChanceVersions;
+    std::string strId;
+    Json jsonLabel, jsonWhen;
+    bool bFluid = false, bOutput = false, bAllowChance = false, bTotalByCount = false, bAllowTags = false;
+    std::string strSide;
+    int nMinimum = 0, nMaximum = 1, nInitial = 1, nMaxCount = 64, nMaxTotal = 1;
+    std::vector<std::string> arrPositiveChanceVersions;
 };
 struct Field {
-    std::string id, type;
-    Json label, initial, choices, when;
-    bool required = true, allowCustom = false;
-    std::string customType;
-    double minimum = 0, maximum = 99999999;
+    std::string strId, strType;
+    Json jsonLabel, jsonInitial, jsonChoices, jsonWhen;
+    bool bRequired = true, bAllowCustom = false;
+    std::string strCustomType;
+    double dMinimum = 0, dMaximum = 99999999;
 };
 struct Recipe {
-    std::string id;
-    Json label, output, requireAny;
-    std::vector<std::string> versions;
-    std::vector<Group> groups;
-    std::vector<Field> fields;
+    std::string strId;
+    Json jsonLabel, jsonOutput, jsonRequireAny;
+    std::vector<std::string> arrVersions;
+    std::vector<Group> arrGroups;
+    std::vector<Field> arrFields;
 };
-struct Mod { std::string id, name; std::vector<Recipe> recipes; };
-struct Draft { std::map<std::string, std::vector<Entry>> groups; Json fields = Json::object(); };
-struct Catalog { std::vector<Mod> mods; std::vector<std::wstring> errors; };
+struct Mod { std::string strId, strName; std::vector<Recipe> arrRecipes; };
+struct Draft { std::map<std::string, std::vector<Entry>> mapGroups; Json jsonFields = Json::object(); };
+struct Catalog { std::vector<Mod> arrMods; std::vector<std::wstring> arrErrors; };
 
-std::wstring Wide(const std::string& text);
-std::string Utf8(const std::wstring& text);
-std::wstring Label(const Json& label, const std::string& locale);
-Mod Parse(const Json& definition); // Throws with a configuration location on invalid definitions.
-Catalog LoadDirectory(const std::wstring& directory);
+std::wstring Wide(const std::string& strText);
+std::string Utf8(const std::wstring& strText);
+std::wstring Label(const Json& jsonLabel, const std::string& strLocale);
+Mod Parse(const Json& jsonDefinition); // Throws with a configuration location on invalid definitions.
+Catalog LoadDirectory(const std::wstring& strDirectory);
 std::wstring Directory(); // addon beside the executable, independent of the working directory.
 Draft MakeDraft(const Recipe& recipe);
-bool Visible(const Json& condition, const Draft& draft);
-bool Build(const Recipe& recipe, const std::string& version, const Draft& draft,
-    Json& body, std::wstring& error, const std::string& locale = "en");
-std::wstring Script(const Json& body);
+bool Visible(const Json& jsonCondition, const Draft& draft);
+bool Build(const Recipe& recipe, const std::string& strVersion, const Draft& draft,
+    Json& jsonBody, std::wstring& strError, const std::string& strLocale = "en");
+std::wstring Script(const Json& jsonBody);
 }

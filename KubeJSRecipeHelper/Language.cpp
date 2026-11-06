@@ -8,15 +8,17 @@
 
 namespace UiLanguage {
 namespace {
-Language current = Language::SimplifiedChinese;
+Language eCurrentLanguage = Language::SimplifiedChinese;
 struct Translation {
-    const wchar_t* source;
-    const wchar_t* traditional;
-    const wchar_t* english;
-    bool officialName;
+    const wchar_t* pszSource;
+    const wchar_t* pszTraditional;
+    const wchar_t* pszEnglish;
+    bool bOfficialName;
 };
 // Keep complete sentences and their format placeholders together.
-const Translation translations[] = {
+const Translation arrTranslations[] = {
+    { L"无法写入文件：\r\n%s", L"無法寫入檔案：\r\n%s", L"Could not write the file:\r\n%s", false },
+    { L"脚本已追加至：\r\n%s", L"指令碼已附加至：\r\n%s", L"Script appended to:\r\n%s", false },
     { L"标签", L"標籤", L"Tag", false },
     { L"物品 / 流体", L"物品 / 流體", L"Item / Fluid", false },
     { L"搜索或填写标签 ID", L"搜尋或填寫標籤 ID", L"Search or enter a tag ID", false },
@@ -230,7 +232,6 @@ const Translation translations[] = {
     { L"导入完成：成功 %d 个 JAR，失败 %d 个。\r\n\r\n", L"匯入完成：成功 %d 個 JAR，失敗 %d 個。\r\n\r\n", L"Import complete: %d JARs succeeded, %d failed.\r\n\r\n", false },
     { L"以下文件解析失败，已继续处理其他文件：\r\n", L"以下檔案解析失敗，已繼續處理其他檔案：\r\n", L"These files could not be parsed; the remaining files were processed:\r\n", false },
     { L"共找到 %d 个 item：\r\n", L"共找到 %d 個 item：\r\n", L"Found %d entries:\r\n", false },
-    { L"文件已输出至软件同目录下", L"檔案已輸出至軟體同目錄下", L"The script has been exported to output.js in the current working directory.", false },
     { L"请选择有效的操作方式。", L"請選擇有效的操作方式。", L"Select a valid operation.", false },
     { L"请填写有效的模组 ID（仅命名空间，例如 farmersdelight）。", L"請填寫有效的模組 ID（僅命名空間，例如 farmersdelight）。", L"Enter a valid mod ID (namespace only, such as farmersdelight).", false },
     { L"请填写有效的配方 ID，例如 minecraft:iron_ingot_from_smelting_raw_iron。", L"請填寫有效的配方 ID，例如 minecraft:iron_ingot_from_smelting_raw_iron。", L"Enter a valid recipe ID, such as minecraft:iron_ingot_from_smelting_raw_iron.", false },
@@ -272,22 +273,22 @@ const Translation translations[] = {
     { L"配方ID", L"配方ID", L"Recipe ID", false },
     { L"語言", L"語言", L"Language", false },
 };
-const Translation* Find(const wchar_t* source) {
-    for (const auto& entry : translations)
-        if (wcscmp(source, entry.source) == 0) return &entry;
-    for (const auto& entry : translations)
-        if (wcscmp(source, entry.traditional) == 0 || wcscmp(source, entry.english) == 0) return &entry;
+const Translation* Find(const wchar_t* pszSource) {
+    for (const auto& entry : arrTranslations)
+        if (wcscmp(pszSource, entry.pszSource) == 0) return &entry;
+    for (const auto& entry : arrTranslations)
+        if (wcscmp(pszSource, entry.pszTraditional) == 0 || wcscmp(pszSource, entry.pszEnglish) == 0) return &entry;
     return nullptr;
 }
 }
-Language Get() { return current; }
-void Set(Language language) {
-    current = language >= Language::English && language <= Language::TraditionalChinese
-        ? language : Language::English;
+Language Get() { return eCurrentLanguage; }
+void Set(Language eLanguage) {
+    eCurrentLanguage = eLanguage >= Language::English && eLanguage <= Language::TraditionalChinese
+        ? eLanguage : Language::English;
 }
-Language FromWindowsLanguage(unsigned short languageId) {
-    if (PRIMARYLANGID(languageId) != LANG_CHINESE) return Language::English;
-    switch (SUBLANGID(languageId)) {
+Language FromWindowsLanguage(unsigned short uLanguageId) {
+    if (PRIMARYLANGID(uLanguageId) != LANG_CHINESE) return Language::English;
+    switch (SUBLANGID(uLanguageId)) {
     case SUBLANG_CHINESE_TRADITIONAL:
     case SUBLANG_CHINESE_HONGKONG:
     case SUBLANG_CHINESE_MACAU:
@@ -297,27 +298,27 @@ Language FromWindowsLanguage(unsigned short languageId) {
     }
 }
 Language SystemDefault() { return FromWindowsLanguage(GetUserDefaultUILanguage()); }
-const wchar_t* Text(const wchar_t* source) {
-    if (!source) return L"";
-    const auto* entry = Find(source);
-    if (!entry) return source;
-    if (entry->officialName || current == Language::English) return entry->english;
-    return current == Language::TraditionalChinese ? entry->traditional : entry->source;
+const wchar_t* Text(const wchar_t* pszSource) {
+    if (!pszSource) return L"";
+    const auto* pEntry = Find(pszSource);
+    if (!pEntry) return pszSource;
+    if (pEntry->bOfficialName || eCurrentLanguage == Language::English) return pEntry->pszEnglish;
+    return eCurrentLanguage == Language::TraditionalChinese ? pEntry->pszTraditional : pEntry->pszSource;
 }
 
 #ifndef UI_LANGUAGE_STANDALONE
 void ApplyDialog(CWnd& dialog) {
-    CString caption;
-    dialog.GetWindowText(caption);
-    dialog.SetWindowText(Text(caption));
-    for (CWnd* child = dialog.GetWindow(GW_CHILD); child; child = child->GetNextWindow()) {
-        wchar_t className[32] = {};
-        GetClassNameW(child->GetSafeHwnd(), className, _countof(className));
-        const bool isStatic = wcscmp(className, L"Static") == 0;
-        if (!isStatic && wcscmp(className, L"Button") != 0) continue;
-        if (isStatic && (child->GetStyle() & SS_TYPEMASK) == SS_ICON) continue;
-        child->GetWindowText(caption);
-        child->SetWindowText(Text(caption));
+    CString strCaption;
+    dialog.GetWindowText(strCaption);
+    dialog.SetWindowText(Text(strCaption));
+    for (CWnd* pChild = dialog.GetWindow(GW_CHILD); pChild; pChild = pChild->GetNextWindow()) {
+        wchar_t szClassName[32] = {};
+        GetClassNameW(pChild->GetSafeHwnd(), szClassName, _countof(szClassName));
+        const bool bStatic = wcscmp(szClassName, L"Static") == 0;
+        if (!bStatic && wcscmp(szClassName, L"Button") != 0) continue;
+        if (bStatic && (pChild->GetStyle() & SS_TYPEMASK) == SS_ICON) continue;
+        pChild->GetWindowText(strCaption);
+        pChild->SetWindowText(Text(strCaption));
     }
 }
 #endif

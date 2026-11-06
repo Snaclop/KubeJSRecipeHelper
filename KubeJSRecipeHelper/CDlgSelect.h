@@ -28,13 +28,13 @@ public:
 	// 打开时预选的物品与数量，用于修改已经选过的格子
 	void SetInitialSelection(const CString& strItem, int nCount);
 	// 某些配方只允许单个原料，或限制产物堆叠数量。
-	void SetCountLimit(int nMaxCount, bool forFluids = false);
-	void SetCatalog(const RecipeTypeMap* catalog, unsigned allowedKinds) { m_catalog = catalog; m_allowedKinds = allowedKinds; }
-	void SetChanceMode(bool enabled, bool weights = false) { m_allowChance = enabled; m_weights = weights; }
-	void SetAllowTags(bool enabled) { m_allowTags = enabled; }
-	void SetInitialDetails(RecipeEntryKind kind, double chance) { m_kind = kind; m_chance = chance; }
-	RecipeEntryKind GetSelectedKind() const { return m_kind; }
-	double GetSelectedChance() const { return m_chance; }
+	void SetCountLimit(int nMaxCount, bool bForFluids = false);
+	void SetCatalog(const RecipeTypeMap* pCatalog, unsigned uAllowedKinds) { m_pCatalog = pCatalog; m_uAllowedKinds = uAllowedKinds; }
+	void SetChanceMode(bool bEnabled, bool bWeights = false) { m_bAllowChance = bEnabled; m_bWeights = bWeights; }
+	void SetAllowTags(bool bEnabled) { m_bAllowTags = bEnabled; }
+	void SetInitialDetails(RecipeEntryKind eKind, double dChance) { m_eKind = eKind; m_dChance = dChance; }
+	RecipeEntryKind GetSelectedKind() const { return m_eKind; }
+	double GetSelectedChance() const { return m_dChance; }
 
 	// 选择结果，DoModal 返回 IDOK 之后才有效
 	CString GetSelectedItem() const { return m_strSelectedItem; }
@@ -63,28 +63,28 @@ protected:
 	int     m_nMaxCount;
 	int     m_nMaxFluidCount = COUNT_MAX;				// 当前选择器允许的最大数量
 
-	CListBox m_List;					// 物品列表
-	CComboBox m_ItemTag;
-	CEdit    m_EditSearch;				// 搜索框
-	CEdit    m_EditNumber;				// 数量
-	CSpinButtonCtrl m_SpinNumber;		// 数量微调按钮
+	CListBox m_listItems;					// 物品列表
+	CComboBox m_comboItemTag;
+	CEdit    m_editSearch;				// 搜索框
+	CEdit    m_editNumber;				// 数量
+	CSpinButtonCtrl m_spinNumber;		// 数量微调按钮
 
 	afx_msg void OnEnChangeEditSearch();
 	afx_msg void OnLbnDblclkList();
 	afx_msg void OnSelectionChanged();
 	afx_msg void OnItemTagChanged();
-	afx_msg void OnChanceSpin(NMHDR* header, LRESULT* result);
-	const RecipeTypeMap* m_catalog = nullptr;
-	unsigned m_allowedKinds = RecipeItem;
-	RecipeEntryKind m_kind = RecipeItem;
-	double m_chance = 100;
-	bool m_allowChance = false, m_weights = false;
-	bool m_allowTags = false, m_tagMode = false;
-	CString m_preferred[2];
-	struct Choice { CString id; RecipeEntryKind kind; };
-	std::vector<Choice> m_choices;
+	afx_msg void OnChanceSpin(NMHDR* pHeader, LRESULT* pResult);
+	const RecipeTypeMap* m_pCatalog = nullptr;
+	unsigned m_uAllowedKinds = RecipeItem;
+	RecipeEntryKind m_eKind = RecipeItem;
+	double m_dChance = 100;
+	bool m_bAllowChance = false, m_bWeights = false;
+	bool m_bAllowTags = false, m_bTagMode = false;
+	CString m_arrPreferred[2];
+	struct Choice { CString strId; RecipeEntryKind eKind; };
+	std::vector<Choice> m_arrChoices;
 	int CurrentLimit() const;
 	DECLARE_MESSAGE_MAP()
-	CSpinButtonCtrl m_SpinPossibility;
-	CEdit m_EditPossibility;
+	CSpinButtonCtrl m_spinChance;
+	CEdit m_editChance;
 };

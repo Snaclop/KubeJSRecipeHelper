@@ -8,58 +8,58 @@
 class CDlgOther : public CDialogEx {
     DECLARE_DYNAMIC(CDlgOther)
 public:
-    CDlgOther(CWnd* parent = nullptr);
+    CDlgOther(CWnd* pParent = nullptr);
     ~CDlgOther();
-    void SetItemSource(const CStringArray* source) { m_source = source; }
-    void SetCatalog(const RecipeTypeMap* catalog) { m_catalog = catalog; }
-    void SetTextureStore(CItemTextureStore* textures) { m_textures = textures; }
-    CString GetRecipeScript() const { return m_script; }
+    void SetItemSource(const CStringArray* pItemSource) { m_pItemSource = pItemSource; }
+    void SetCatalog(const RecipeTypeMap* pCatalog) { m_pCatalog = pCatalog; }
+    void SetTextureStore(CItemTextureStore* pTextures) { m_pTextures = pTextures; }
+    CString GetRecipeScript() const { return m_strScript; }
 #ifdef AFX_DESIGN_TIME
     enum { IDD = IDD_DLGOTHER };
 #endif
 protected:
-    void DoDataExchange(CDataExchange* dx) override;
+    void DoDataExchange(CDataExchange* pDX) override;
     BOOL OnInitDialog() override;
     void OnOK() override;
-    BOOL OnCommand(WPARAM wp, LPARAM lp) override;
-    BOOL PreTranslateMessage(MSG* message) override;
+    BOOL OnCommand(WPARAM wParam, LPARAM lParam) override;
+    BOOL PreTranslateMessage(MSG* pMessage) override;
     afx_msg void OnPaint();
-    afx_msg void OnLButtonDown(UINT flags, CPoint point);
-    afx_msg void OnRButtonDown(UINT flags, CPoint point);
-    afx_msg void OnMouseMove(UINT flags, CPoint point);
+    afx_msg void OnLButtonDown(UINT uFlags, CPoint ptPoint);
+    afx_msg void OnRButtonDown(UINT uFlags, CPoint ptPoint);
+    afx_msg void OnMouseMove(UINT uFlags, CPoint ptPoint);
     afx_msg void OnMouseLeave();
     DECLARE_MESSAGE_MAP()
 private:
-    struct Slot { size_t group, index; CRect rect; CString label; };
-    const CStringArray* m_source = nullptr;
-    const RecipeTypeMap* m_catalog = nullptr;
-    CItemTextureStore* m_textures = nullptr;
+    struct Slot { size_t nGroupIndex, nIndex; CRect rcRect; CString strLabel; };
+    const CStringArray* m_pItemSource = nullptr;
+    const RecipeTypeMap* m_pCatalog = nullptr;
+    CItemTextureStore* m_pTextures = nullptr;
     ModRecipe::Catalog m_definitions;
-    std::vector<std::vector<ModRecipe::Draft>> m_drafts;
-    std::vector<int> m_recipes;
-    int m_mod = 0, m_fieldPage = 0, m_hover = -1;
-    std::string m_version, m_locale;
-    std::map<std::string, int> m_groupPages;
-    std::vector<size_t> m_visibleFields;
-    CComboBox m_mods, m_methods, m_versions;
+    std::vector<std::vector<ModRecipe::Draft>> m_arrDrafts;
+    std::vector<int> m_arrRecipeIndices;
+    int m_nModIndex = 0, m_nFieldPage = 0, m_nHoverIndex = -1;
+    std::string m_strVersion, m_strLocale;
+    std::map<std::string, int> m_mapGroupPages;
+    std::vector<size_t> m_arrVisibleFields;
+    CComboBox m_comboMods, m_comboMethods, m_comboVersions;
     CRecipeDialogUI m_ui;
-    std::vector<std::unique_ptr<CWnd>> m_controls;
-    std::vector<Slot> m_slots;
-    CString m_script;
-    bool m_rebuilding = false, m_tracking = false;
+    std::vector<std::unique_ptr<CWnd>> m_arrControls;
+    std::vector<Slot> m_arrSlots;
+    CString m_strScript;
+    bool m_bRebuilding = false, m_bTracking = false;
     const ModRecipe::Recipe& Recipe() const;
     ModRecipe::Draft& Draft();
     ModRecipe::Entry& EntryAt(const Slot& slot);
-    CString Label(const ModRecipe::Json& text) const;
-    CWnd* Control(LPCTSTR cls, const CString& text, UINT id, int x, int y, int w, int h, DWORD style = 0);
-    CWnd* Combo(UINT id, int x, int y, int w, const std::vector<CString>& choices, int selected);
+    CString Label(const ModRecipe::Json& jsonLabel) const;
+    CWnd* Control(LPCTSTR pszClass, const CString& strText, UINT uId, int nX, int nY, int nWidth, int nHeight, DWORD dwStyle = 0);
+    CWnd* Combo(UINT uId, int nX, int nY, int nWidth, const std::vector<CString>& arrChoices, int nSelectedIndex);
     void PopulateMethods();
     void PopulateVersions();
     void SaveControls();
     void Rebuild();
-    void BuildGroups(bool output);
+    void BuildGroups(bool bOutput);
     void BuildFields();
     void UpdateTips();
     void Select(const Slot& slot);
-    int Hit(CPoint point) const;
+    int Hit(CPoint ptPoint) const;
 };

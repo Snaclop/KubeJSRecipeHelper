@@ -1,42 +1,60 @@
-﻿#pragma once
+#pragma once
 #include <map>
 #include <string>
 
 enum RecipeEntryKind { RecipeItem = 1, RecipeFluid = 2 };
 using RecipeTypeMap = std::map<std::wstring, unsigned>;
-inline bool RecipeIsTag(const std::wstring& id) { return !id.empty() && id.front() == L'#'; }
-inline bool RecipeValidId(const std::wstring& value, bool allowTag = false)
-{
-    const std::wstring id = RecipeIsTag(value) && allowTag ? value.substr(1) : value;
-    const auto colon = id.find(L':');
-    if (colon == std::wstring::npos || colon == 0 || colon + 1 == id.size()) return false;
-    for (size_t i = 0; i < id.size(); ++i) {
-        const auto c = id[i]; if (i == colon) continue;
-        if ((c >= L'a' && c <= L'z') || (c >= L'0' && c <= L'9') || c == L'_' || c == L'-' || c == L'.' || (i > colon && c == L'/')) continue;
-        return false;
+namespace RecipeCatalogDetail {
+template<class Character> bool NamespaceCharacter(Character chCharacter) {
+    return (chCharacter >= 'a' && chCharacter <= 'z') || (chCharacter >= '0' && chCharacter <= '9') ||
+        chCharacter == '_' || chCharacter == '-' || chCharacter == '.';
+}
+template<class Character> bool IsTag(const std::basic_string<Character>& strId) {
+    return !strId.empty() && strId.front() == '#';
+}
+template<class Character> bool ValidNamespace(const std::basic_string<Character>& strNamespace) {
+    if (strNamespace.empty()) return false;
+    for (const auto chCharacter : strNamespace) if (!NamespaceCharacter(chCharacter)) return false;
+    return true;
+}
+template<class Character> bool ValidId(const std::basic_string<Character>& strValue, bool bAllowTag) {
+    const auto uStart = bAllowTag && IsTag(strValue) ? 1u : 0u;
+    const auto uColon = strValue.find(static_cast<Character>(':'), uStart);
+    if (uColon == std::basic_string<Character>::npos || uColon == uStart || uColon + 1 == strValue.size()) return false;
+    for (size_t uIndex = uStart; uIndex < strValue.size(); ++uIndex) {
+        if (uIndex == uColon) continue;
+        const auto chCharacter = strValue[uIndex];
+        if (!NamespaceCharacter(chCharacter) && !(uIndex > uColon && chCharacter == '/')) return false;
     }
     return true;
 }
+}
+inline bool RecipeIsTag(const std::string& strId) { return RecipeCatalogDetail::IsTag(strId); }
+inline bool RecipeIsTag(const std::wstring& strId) { return RecipeCatalogDetail::IsTag(strId); }
+inline bool RecipeValidNamespace(const std::string& strNamespace) { return RecipeCatalogDetail::ValidNamespace(strNamespace); }
+inline bool RecipeValidNamespace(const std::wstring& strNamespace) { return RecipeCatalogDetail::ValidNamespace(strNamespace); }
+inline bool RecipeValidId(const std::string& strValue, bool bAllowTag = false) { return RecipeCatalogDetail::ValidId(strValue, bAllowTag); }
+inline bool RecipeValidId(const std::wstring& strValue, bool bAllowTag = false) { return RecipeCatalogDetail::ValidId(strValue, bAllowTag); }
 // Tag references keep the registry kind; # distinguishes them from concrete IDs.
-inline bool RecipeTagFile(const std::string& path, std::string& id, unsigned& kind)
+inline bool RecipeTagFile(const std::string& strPath, std::string& strId, unsigned& uKind)
 {
-    if (path.compare(0, 5, "data/") != 0 || path.size() < 6 || path.compare(path.size() - 5, 5, ".json") != 0) return false;
-    const auto slash = path.find('/', 5); if (slash == std::string::npos) return false;
-    const auto tail = path.substr(slash + 1);
-    for (const auto& dir : {"tags/item/", "tags/items/", "tags/fluid/", "tags/fluids/"}) {
-        const std::string prefix(dir);
-        if (tail.compare(0, prefix.size(), prefix) != 0) continue;
-        id = "#" + path.substr(5, slash - 5) + ":" + tail.substr(prefix.size(), tail.size() - prefix.size() - 5);
-        kind = prefix.find("/item") != std::string::npos ? RecipeItem : RecipeFluid;
-        return RecipeValidId(std::wstring(id.begin(), id.end()), true);
+    if (strPath.compare(0, 5, "data/") != 0 || strPath.size() < 6 || strPath.compare(strPath.size() - 5, 5, ".json") != 0) return false;
+    const auto uSlash = strPath.find('/', 5); if (uSlash == std::string::npos) return false;
+    const auto strTail = strPath.substr(uSlash + 1);
+    for (const auto* pDirectory : {"tags/item/", "tags/items/", "tags/fluid/", "tags/fluids/"}) {
+        const std::string strPrefix(pDirectory);
+        if (strTail.compare(0, strPrefix.size(), strPrefix) != 0) continue;
+        strId = "#" + strPath.substr(5, uSlash - 5) + ":" + strTail.substr(strPrefix.size(), strTail.size() - strPrefix.size() - 5);
+        uKind = strPrefix.find("/item") != std::string::npos ? RecipeItem : RecipeFluid;
+        return RecipeValidId(strId, true);
     }
     return false;
 }
-inline unsigned RecipeKinds(const RecipeTypeMap* catalog, const std::wstring& id)
+inline unsigned RecipeKinds(const RecipeTypeMap* pCatalog, const std::wstring& strId)
 {
-    if (catalog) {
-        const auto it = catalog->find(id);
-        if (it != catalog->end()) return it->second;
+    if (pCatalog) {
+        const auto iterator = pCatalog->find(strId);
+        if (iterator != pCatalog->end()) return iterator->second;
     }
     return RecipeItem;
 }

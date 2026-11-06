@@ -14,7 +14,7 @@ public:
 	~CItemTextureStore();
 
 	void Register(const CString& strItem, const CString& strJarPath, const std::string& strZipPath);
-	BOOL Draw(CDC* pDC, const CRect& rect, const CString& strItem);
+	BOOL Draw(CDC* pDC, const CRect& rcRect, const CString& strItem);
 
 private:
 	struct TextureSource
@@ -25,8 +25,8 @@ private:
 
 	Gdiplus::Bitmap* GetBitmap(const std::wstring& strItem);
 
-	ULONG_PTR m_gdiplusToken;
-	std::map<std::wstring, TextureSource> m_sources;
-	std::map<std::wstring, std::unique_ptr<Gdiplus::Bitmap>> m_bitmaps;
-	std::set<std::wstring> m_failed;
+	ULONG_PTR m_uGdiplusToken;
+	std::map<std::wstring, TextureSource> m_mapSources;
+	std::map<std::wstring, std::unique_ptr<Gdiplus::Bitmap>> m_mapBitmaps;
+	std::set<std::wstring> m_setFailed;
 };

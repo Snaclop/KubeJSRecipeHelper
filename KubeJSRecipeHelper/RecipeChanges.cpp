@@ -1,49 +1,36 @@
-﻿#include "RecipeChanges.h"
+#include "RecipeChanges.h"
 
 namespace RecipeChanges {
-static bool Namespace(const std::wstring& text) {
-    if(text.empty()) return false;
-    for(auto c:text) if(!((c>=L'a' && c<=L'z') || (c>=L'0' && c<=L'9') || c==L'_' || c==L'-' || c==L'.')) return false;
-    return true;
-}
-static bool Id(const std::wstring& text) {
-    auto colon=text.find(L':');
-    if(colon==std::wstring::npos || !Namespace(text.substr(0,colon)) || colon+1==text.size()) return false;
-    for(size_t i=colon+1;i<text.size();++i) {
-        auto c=text[i]; if(!((c>=L'a' && c<=L'z') || (c>=L'0' && c<=L'9') || c==L'_' || c==L'-' || c==L'.' || c==L'/')) return false;
-    }
-    return true;
-}
-static std::wstring Q(const std::wstring& text) { return L"'"+text+L"'"; } // Only validated IDs are quoted.
-bool Build(Method method,const Draft& d,std::wstring& script,std::wstring& error) {
-    script.clear(); error.clear();
-    if(method<Method::RemoveInput || method>Method::ReplaceOutput) { error=L"请选择有效的操作方式。"; return false; }
-    const bool replace=method==Method::ReplaceInput || method==Method::ReplaceOutput;
-    const bool input=method==Method::RemoveInput || method==Method::ReplaceInput;
-    std::wstring filter,call;
-    if(method==Method::RemoveMod) {
-        if(!Namespace(d.mod)) { error=L"请填写有效的模组 ID（仅命名空间，例如 farmersdelight）。"; return false; }
-        filter=L"{ mod: "+Q(d.mod)+L" }";
-    } else if(method==Method::RemoveId) {
-        if(!Id(d.recipeId)) { error=L"请填写有效的配方 ID，例如 minecraft:iron_ingot_from_smelting_raw_iron。"; return false; }
-        filter=L"{ id: "+Q(d.recipeId)+L" }";
+static std::wstring Q(const std::wstring& strText) { return L"'"+strText+L"'"; } // Only validated IDs are quoted.
+bool Build(Method eMethod,const Draft& draft,std::wstring& strScript,std::wstring& strError) {
+    strScript.clear(); strError.clear();
+    if(eMethod<Method::RemoveInput || eMethod>Method::ReplaceOutput) { strError=L"请选择有效的操作方式。"; return false; }
+    const bool bReplace=eMethod==Method::ReplaceInput || eMethod==Method::ReplaceOutput;
+    const bool bInput=eMethod==Method::RemoveInput || eMethod==Method::ReplaceInput;
+    std::wstring strFilter,strCall;
+    if(eMethod==Method::RemoveMod) {
+        if(!RecipeValidNamespace(draft.strMod)) { strError=L"请填写有效的模组 ID（仅命名空间，例如 farmersdelight）。"; return false; }
+        strFilter=L"{ mod: "+Q(draft.strMod)+L" }";
+    } else if(eMethod==Method::RemoveId) {
+        if(!RecipeValidId(draft.strRecipeId)) { strError=L"请填写有效的配方 ID，例如 minecraft:iron_ingot_from_smelting_raw_iron。"; return false; }
+        strFilter=L"{ id: "+Q(draft.strRecipeId)+L" }";
     } else {
-        if(!RecipeValidId(d.item,true)) { error=L"请选择要匹配的物品。"; return false; }
-        filter=L"{ "+std::wstring(input ? L"input" : L"output")+L": "+Q(d.item);
-        if(replace && !d.recipeId.empty()) {
-            if(!Id(d.recipeId)) { error=L"限定配方 ID 须为有效的命名空间:名称，或留空。"; return false; }
-            filter+=L", id: "+Q(d.recipeId);
+        if(!RecipeValidId(draft.strItem,true)) { strError=L"请选择要匹配的物品。"; return false; }
+        strFilter=L"{ "+std::wstring(bInput ? L"input" : L"output")+L": "+Q(draft.strItem);
+        if(bReplace && !draft.strRecipeId.empty()) {
+            if(!RecipeValidId(draft.strRecipeId)) { strError=L"限定配方 ID 须为有效的命名空间:名称，或留空。"; return false; }
+            strFilter+=L", id: "+Q(draft.strRecipeId);
         }
-        filter+=L" }";
+        strFilter+=L" }";
     }
-    if(replace) {
-        if(!RecipeValidId(d.replacement,input)) { error=L"请选择替换后的物品。"; return false; }
-        if(d.item==d.replacement) { error=L"替换前后的物品相同，请选择不同的物品。"; return false; }
-        call=std::wstring(input ? L"replaceInput" : L"replaceOutput")+L"("+filter+L", "+Q(d.item)+L", ";
-        call+=input ? L"Ingredient.of("+Q(d.replacement)+L")" : Q(d.replacement);
-        call+=L")";
-    } else call=L"remove("+filter+L")";
-    script=L"ServerEvents.recipes(event => {\r\n  event."+call+L"\r\n})\r\n";
+    if(bReplace) {
+        if(!RecipeValidId(draft.strReplacement,bInput)) { strError=L"请选择替换后的物品。"; return false; }
+        if(draft.strItem==draft.strReplacement) { strError=L"替换前后的物品相同，请选择不同的物品。"; return false; }
+        strCall=std::wstring(bInput ? L"replaceInput" : L"replaceOutput")+L"("+strFilter+L", "+Q(draft.strItem)+L", ";
+        strCall+=bInput ? L"Ingredient.of("+Q(draft.strReplacement)+L")" : Q(draft.strReplacement);
+        strCall+=L")";
+    } else strCall=L"remove("+strFilter+L")";
+    strScript=L"ServerEvents.recipes(event => {\r\n  event."+strCall+L"\r\n})\r\n";
     return true;
 }
 }
